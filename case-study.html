@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Northline · Project case study</title>
+    <meta
+      name="description"
+      content="How a fictional bicycle workshop website connects service estimates, sample requests, approvals, and repair progress."
+    />
+    <link rel="icon" href="/assets/favicon.svg" />
+    <link rel="stylesheet" href="/styles.css" />
+    <meta
+      property="og:title"
+      content="Northline · From a service request to the next ride"
+    />
+    <meta
+      property="og:description"
+      content="A personal website and repair-workflow demonstration with documented verification."
+    />
+    <meta property="og:image" content="/assets/share.jpg" />
+    <meta property="og:type" content="website" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Northline home"
+        ><span class="brand-mark" aria-hidden="true">n.</span
+        ><span>northline<span class="brand-sub">CYCLE CO.</span></span></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="/#tracker">Try the tracker</a
+        ><a class="button button-small" href="/#request"
+          >Create a sample repair <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+    <main id="main" class="case-main">
+      <p class="eyebrow">PERSONAL PROJECT / FICTIONAL WORKSHOP</p>
+      <h1>From a service request<br />to the next ride.</h1>
+      <p class="case-lead">
+        A website that makes repair costs easier to understand and gives a rider
+        a clear view of what happens next.
+      </p>
+      <div class="case-facts">
+        <div>
+          <strong>Website &amp; workflow</strong
+          ><span>Design, development, and verification</span>
+        </div>
+        <div>
+          <strong>Seven repair stages</strong
+          ><span>Request, inspection, approval, and collection</span>
+        </div>
+        <div>
+          <strong>Original illustrations</strong
+          ><span>Responsive layouts and keyboard controls</span>
+        </div>
+      </div>
+      <div class="case-actions">
+        <a class="button" href="/#request"
+          >Try the complete journey <span aria-hidden="true">↗</span></a
+        ><a class="button" href="/project-brief.md" download
+          >Download the project brief <span aria-hidden="true">↓</span></a
+        >
+      </div>
+      <h2>The problem</h2>
+      <p>
+        A rider needs to choose suitable care, understand the labour estimate,
+        and know whether a repair is waiting for approval or ready for
+        collection. A workshop needs a consistent sequence of steps. This
+        fictional brief brings those two needs into one demonstration.
+      </p>
+      <h2>The solution</h2>
+      <p>
+        The service menu filters six options and calculates collection costs.
+        Submitting a sample request creates a repair in that visitor’s
+        workspace. The workshop view moves it through inspection, then pauses
+        for customer approval. After approval, the repair continues through
+        work, a ride check, and collection.
+      </p>
+      <img
+        src="/docs/tracker-desktop.jpg"
+        alt="Northline repair tracker showing a labour estimate, seven stages, and a repair journal"
+        loading="lazy"
+      />
+      <div class="case-steps">
+        <section>
+          <h2>Clear decisions</h2>
+          <p>
+            Labour prices come from the server’s catalogue. The workflow blocks
+            unavailable actions and records each completed stage. Switching
+            views makes the customer and workshop responsibilities easy to
+            explore.
+          </p>
+        </section>
+        <section>
+          <h2>Reliable feedback</h2>
+          <p>
+            Confirmation follows a saved update. Repeated requests use the same
+            request reference to avoid duplicate repairs. Conflicting updates
+            prompt a reload rather than overwriting newer progress.
+          </p>
+        </section>
+        <section>
+          <h2>Appropriate demo data</h2>
+          <p>
+            The form accepts fixed sample choices. It collects no names, email
+            addresses, or free-text notes. Each workspace holds up to ten
+            repairs and expires after seven days, with automatic cleanup of
+            expired samples.
+          </p>
+        </section>
+        <section>
+          <h2>Practical verification</h2>
+          <p>
+            The accompanying QA work documents reproducible defects and
+            corrections. Regression checks exercise validation, approval,
+            persistence, duplicate requests, visitor separation, conflicting
+            updates, and expiry. Keyboard and responsive browser checks cover
+            the main journey.
+          </p>
+        </section>
+      </div>
+      <h2>What this demonstrates</h2>
+      <ul>
+        <li>
+          Turning a business brief into a working website and service workflow.
+        </li>
+        <li>
+          Original visual design with responsive layouts, labelled controls, and
+          visible keyboard focus.
+        </li>
+        <li>
+          Connecting a request form to persistent state, with validation and
+          clear recovery when a request fails.
+        </li>
+        <li>Testing behavior and documenting the evidence and limitations.</li>
+      </ul>
+      <aside class="case-note">
+        <strong>Project scope</strong>
+        <p>
+          This is an independent portfolio demonstration. Northline is
+          fictional, and no client relationship, revenue, or customer results
+          are claimed. Customer and workshop views are available to every
+          visitor; they demonstrate workflow rather than authenticated accounts.
+          The project does not book appointments, send email, or take payment.
+        </p>
+      </aside>
+      <h2>Explore it yourself</h2>
+      <ol>
+        <li>Create a sample repair with a bike, concern, and service.</li>
+        <li>Open its tracker and start an inspection in Workshop view.</li>
+        <li>
+          Request approval, switch to Customer view, and approve the estimate.
+        </li>
+        <li>
+          Return to Workshop view and complete the repair. Reload to see its
+          saved journal.
+        </li>
+      </ol>
+      <a class="button" href="/#request"
+        >Start a sample repair <span aria-hidden="true">↗</span></a
+      >
+    </main>
+    <footer>
+      <a class="brand footer-brand" href="/"
+        >northline<span class="brand-sub">CYCLE CO.</span></a
+      >
+      <p>Repair. Reuse. Ride a little further.</p>
+      <span>Personal project · Fictional business</span>
+    </footer>
+  </body>
+</html>

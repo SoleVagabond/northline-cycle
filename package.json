@@ -1,0 +1,27 @@
+{
+  "name": "northline-cycle",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bicycle workshop portfolio demo with a persisted repair workflow and enquiry handling.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"*.{html,css,js,json,md}\" \"{lib,scripts,test}/**/*.{js,mjs}\" \"netlify/functions/*.mts\"",
+    "format:check": "prettier --check \"*.{html,css,js,json,md}\" \"{lib,scripts,test}/**/*.{js,mjs}\" \"netlify/functions/*.mts\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.3",
+    "@netlify/functions": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3"
+  }
+}

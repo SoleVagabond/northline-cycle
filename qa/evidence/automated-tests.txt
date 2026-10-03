@@ -1,0 +1,174 @@
+
+> northline-cycle@3.0.0 test
+> node --test test/*.test.js
+
+TAP version 13
+# Subtest: separate cloud adapters use conditional writes to prevent lost concurrent updates
+ok 1 - separate cloud adapters use conditional writes to prevent lost concurrent updates
+  ---
+  duration_ms: 26.5231
+  ...
+# Subtest: cloud adapter rejects an unsuccessful workspace write
+ok 2 - cloud adapter rejects an unsuccessful workspace write
+  ---
+  duration_ms: 0.6087
+  ...
+# Subtest: cloud adapter never updates a record without a storage version
+ok 3 - cloud adapter never updates a record without a storage version
+  ---
+  duration_ms: 0.1798
+  ...
+# Subtest: local emulator reads use matching before and after list versions
+ok 4 - local emulator reads use matching before and after list versions
+  ---
+  duration_ms: 0.3177
+  ...
+# Subtest: local emulator rejects a read if its surrounding versions change
+ok 5 - local emulator rejects a read if its surrounding versions change
+  ---
+  duration_ms: 0.2659
+  ...
+# Subtest: a submitted request completes the full repair journey in the same workspace
+ok 6 - a submitted request completes the full repair journey in the same workspace
+  ---
+  duration_ms: 29.826
+  ...
+# Subtest: retrying the same request returns its saved repair without creating a duplicate
+ok 7 - retrying the same request returns its saved repair without creating a duplicate
+  ---
+  duration_ms: 2.2074
+  ...
+# Subtest: workspaces expire after seven days; a return starts a fresh demo
+ok 8 - workspaces expire after seven days; a return starts a fresh demo
+  ---
+  duration_ms: 1.5663
+  ...
+# Subtest: workspace capacity limits repeated creations while leaving prior repairs intact
+ok 9 - workspace capacity limits repeated creations while leaving prior repairs intact
+  ---
+  duration_ms: 6.2195
+  ...
+# Subtest: personal fields are rejected and are never stored
+ok 10 - personal fields are rejected and are never stored
+  ---
+  duration_ms: 0.7655
+  ...
+# Subtest: cleanup removes expired samples and keeps current samples
+ok 11 - cleanup removes expired samples and keeps current samples
+  ---
+  duration_ms: 11.5291
+  ...
+# Subtest: bounded cleanup resumes beyond current records instead of starving older samples
+ok 12 - bounded cleanup resumes beyond current records instead of starving older samples
+  ---
+  duration_ms: 0.4918
+  ...
+# Subtest: catalogue exposes six services and the expected starting estimate
+ok 13 - catalogue exposes six services and the expected starting estimate
+  ---
+  duration_ms: 51.1585
+  ...
+# Subtest: valid request is stored; server computes price instead of trusting the client
+ok 14 - valid request is stored; server computes price instead of trusting the client
+  ---
+  duration_ms: 19.8997
+  ...
+# Subtest: missing or invalid fields are rejected without creating a record
+ok 15 - missing or invalid fields are rejected without creating a record
+  ---
+  duration_ms: 32.2743
+  ...
+# Subtest: malformed JSON and wrong content type receive clear errors
+ok 16 - malformed JSON and wrong content type receive clear errors
+  ---
+  duration_ms: 9.7481
+  ...
+# Subtest: oversized request is rejected
+ok 17 - oversized request is rejected
+  ---
+  duration_ms: 6.1786
+  ...
+# Subtest: simultaneous requests keep separate records and unique references
+ok 18 - simultaneous requests keep separate records and unique references
+  ---
+  duration_ms: 38.888
+  ...
+# Subtest: storage failure returns an error instead of a false success
+ok 19 - storage failure returns an error instead of a false success
+  ---
+  duration_ms: 8.4488
+  ...
+# Subtest: internal files and enquiry records cannot be downloaded over HTTP
+ok 20 - internal files and enquiry records cannot be downloaded over HTTP
+  ---
+  duration_ms: 8.6982
+  ...
+# Subtest: HTML is served with a same-origin content policy and proper content type
+ok 21 - HTML is served with a same-origin content policy and proper content type
+  ---
+  duration_ms: 7.5728
+  ...
+# Subtest: estimate handles collection and rejects unknown services
+ok 22 - estimate handles collection and rejects unknown services
+  ---
+  duration_ms: 0.4687
+  ...
+# Subtest: a Unicode sample choice survives a split UTF-8 network packet
+ok 23 - a Unicode sample choice survives a split UTF-8 network packet
+  ---
+  duration_ms: 66.4432
+  ...
+# Subtest: local cleanup physically removes an expired workspace before serving its session
+ok 24 - local cleanup physically removes an expired workspace before serving its session
+  ---
+  duration_ms: 10.0254
+  ...
+# Subtest: new tracker creates three fictional jobs and a protected demo cookie
+ok 25 - new tracker creates three fictional jobs and a protected demo cookie
+  ---
+  duration_ms: 55.9846
+  ...
+# Subtest: approval gates the repair and the full lifecycle ends at collection
+ok 26 - approval gates the repair and the full lifecycle ends at collection
+  ---
+  duration_ms: 55.8434
+  ...
+# Subtest: separate visitors cannot alter each other’s sample progress
+ok 27 - separate visitors cannot alter each other’s sample progress
+  ---
+  duration_ms: 25.041
+  ...
+# Subtest: saved repair progress survives a server restart
+ok 28 - saved repair progress survives a server restart
+  ---
+  duration_ms: 21.6578
+  ...
+# Subtest: stale and simultaneous updates are rejected without duplicating history locally
+ok 29 - stale and simultaneous updates are rejected without duplicating history locally
+  ---
+  duration_ms: 22.665
+  ...
+# Subtest: customer cannot advance the workbench; reset creates fresh sample jobs
+ok 30 - customer cannot advance the workbench; reset creates fresh sample jobs
+  ---
+  duration_ms: 13.6837
+  ...
+# Subtest: missing session, unknown job, and cross-origin writes are rejected
+ok 31 - missing session, unknown job, and cross-origin writes are rejected
+  ---
+  duration_ms: 11.6482
+  ...
+# Subtest: tracker storage failure does not create a successful session
+ok 32 - tracker storage failure does not create a successful session
+  ---
+  duration_ms: 0.4209
+  ...
+1..32
+# tests 32
+# suites 0
+# pass 32
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 384.6505

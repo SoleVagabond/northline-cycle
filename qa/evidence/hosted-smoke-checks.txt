@@ -1,0 +1,13 @@
+PASS Homepage loads
+PASS Catalogue has six services
+PASS Valid demo enquiry receives a persisted-success reference
+PASS Invalid request is rejected
+PASS Internal files are private
+PASS Tracker creates a separate three-repair workspace
+PASS Customer approval is saved and can be reloaded
+PASS A stale update cannot overwrite saved progress
+PASS The submitted request completes all seven repair stages
+PASS Repeating a saved request does not create a duplicate
+PASS Personal contact fields are rejected
+PASS Case study, favicon, and sharing image load
+12 checks passed.

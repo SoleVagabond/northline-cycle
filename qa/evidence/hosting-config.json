@@ -1,0 +1,48 @@
+{
+  "verified": "2026-10-03",
+  "siteUrl": "https://northline-cycle-devin.netlify.app",
+  "deployId": "6ac138157c75c3a56b79f7c0",
+  "state": "ready",
+  "context": "production",
+  "functions": [
+    {
+      "name": "api",
+      "runtime": "nodejs24.x",
+      "routes": [
+        "/api/*"
+      ],
+      "trafficRules": {
+        "action": {
+          "config": {
+            "aggregate": {
+              "keys": [
+                {
+                  "type": "ip"
+                },
+                {
+                  "type": "domain"
+                }
+              ]
+            },
+            "rate_limit_config": {
+              "algorithm": "sliding_window",
+              "window_limit": 60,
+              "window_size": 60
+            }
+          },
+          "type": "rate_limit"
+        }
+      }
+    },
+    {
+      "name": "cleanup",
+      "runtime": "nodejs24.x"
+    }
+  ],
+  "schedules": [
+    {
+      "cron": "@hourly",
+      "name": "cleanup"
+    }
+  ]
+}
