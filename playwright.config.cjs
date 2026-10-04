@@ -1,4 +1,5 @@
 const { defineConfig } = require("@playwright/test");
+const port = Number(process.env.NORTHLINE_TEST_PORT || 8796);
 
 module.exports = defineConfig({
   testDir: "./test/browser",
@@ -12,7 +13,7 @@ module.exports = defineConfig({
   ],
   outputDir: "work/browser-results",
   use: {
-    baseURL: "http://127.0.0.1:8796",
+    baseURL: `http://127.0.0.1:${port}`,
     reducedMotion: "reduce",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
@@ -43,7 +44,7 @@ module.exports = defineConfig({
   ],
   webServer: {
     command: "node test/browser/server.mjs",
-    url: "http://127.0.0.1:8796/api/services",
+    url: `http://127.0.0.1:${port}/api/services`,
     reuseExistingServer: false,
     timeout: 20000,
   },

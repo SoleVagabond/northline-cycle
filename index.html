@@ -160,15 +160,36 @@
                 Workshop view
               </button>
             </div>
-            <button id="reset-tracker" class="reset-tracker" type="button">
-              Reset sample repairs ↺
-            </button>
+            <details class="demo-options">
+              <summary>Demo options</summary>
+              <p>
+                Reset only your saved sample repairs. This cannot be undone.
+              </p>
+              <button id="reset-tracker" class="reset-tracker" type="button">
+                Reset sample repairs ↺
+              </button>
+            </details>
           </div>
           <p class="tracker-intro">
-            Explore the sample repairs or create your own request below. Use
-            Workshop view to inspect it, Customer view to approve, then complete
-            the repair. Sample progress is saved for up to seven days.
+            Follow a sample repair from inspection to collection. Customer view
+            reviews and approves estimates; Workshop view carries out the
+            repair. Both views are available in this demo. Progress is saved for
+            up to seven days.
+            <a href="#request">Create a sample repair →</a>
           </p>
+          <p id="tracker-view-context" class="view-context"></p>
+          <div class="tracker-list-controls">
+            <label for="repair-filter">Show repairs</label>
+            <select id="repair-filter">
+              <option value="all">All sample repairs</option>
+              <option value="approval">Awaiting approval</option>
+              <option value="ready">Ready to collect</option>
+              <option value="collected">Collected</option>
+            </select>
+            <button id="refresh-tracker" class="reset-tracker" type="button">
+              Refresh repair list
+            </button>
+          </div>
           <button id="retry-tracker" class="reset-tracker" type="button" hidden>
             Reload saved progress
           </button>
@@ -242,8 +263,7 @@
             </p>
           </aside>
           <div class="estimate">
-            <span>YOUR LABOUR ESTIMATE</span
-            ><strong id="estimate-value">$25</strong
+            <span>YOUR ESTIMATE</span><strong id="estimate-value">$25</strong
             ><small id="estimate-detail"
               >Safety check · parts quoted separately</small
             >
@@ -270,6 +290,14 @@
             ><select id="service" name="serviceId" required>
               <option value="">Loading services…</option>
             </select>
+            <button
+              id="retry-services"
+              class="reset-tracker"
+              type="button"
+              hidden
+            >
+              Reload service menu
+            </button>
           </div>
           <div class="field">
             <label for="slot">Preferred time</label
@@ -300,6 +328,11 @@
           >
             Track this sample repair <span aria-hidden="true">↗</span>
           </button>
+          <p id="request-next-step" class="request-next-step" hidden>
+            Next: open the saved repair in Workshop view to start its
+            inspection. Customer approval comes after the inspection; no
+            appointment is booked.
+          </p>
           <p class="privacy-note">
             Up to ten sample repairs per workspace. Progress expires after seven
             days and is removed by automatic cleanup.

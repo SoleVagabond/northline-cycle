@@ -4,7 +4,9 @@
 
 A responsive website and repair tracker for a fictional bicycle workshop. Personal portfolio demonstration of original visual design, front-end behavior, and a persisted business workflow.
 
-![Repair tracker](docs/tracker-desktop.jpg)
+![Repair tracker from the previous release](docs/tracker-desktop.jpg)
+
+The images below document the previous release. The live tracker includes the updated responsibility labels, price breakdown, and repair filters.
 
 **Live demo:** [Northline Cycle Co.](https://northline-cycle-devin.netlify.app) · [Project story](https://northline-cycle-devin.netlify.app/case-study.html)
 
@@ -13,8 +15,8 @@ A responsive website and repair tracker for a fictional bicycle workshop. Person
 1. Choose Everyday tune-up and collection to see the $80 estimate.
 2. Choose a sample bike and concern, then create a sample repair.
 3. Open its tracker, start inspection, and request customer approval in Workshop view.
-4. Switch to Customer view and approve; return to Workshop view for the ride check and collection.
-5. Reload to see the saved journal. Reset to explore a fresh demo.
+4. Use Continue in Customer view and approve; Continue in Workshop view returns you to the ride check and collection. Switching views does not advance a repair.
+5. Filter Awaiting approval, Ready to collect, or Collected. Refresh or reload to see the saved journal. Demo options contains the reset control.
 
 The customer and workshop views demonstrate different workflow actions. They are accessible to every visitor and are **not account roles or authentication boundaries**. All names, repair histories, prices, and service promises are fictional.
 
@@ -25,6 +27,8 @@ The customer and workshop views demonstrate different workflow actions. They are
 - Submitted requests plus three starting samples across seven stages, approval gating, a repair journal, and progress saved between visits.
 - A separate workspace for each browser session; stale updates are rejected rather than silently overwriting progress.
 - Confirmation only after an atomic workspace save; retry references prevent duplicate requests after a lost response.
+- Explicit next responsibilities, labour/collection price breakdowns, separate ready/collected counts, and recoverable empty filters.
+- Unconfirmed actions disable further repair updates until saved progress reloads; an unavailable service menu has its own retry control.
 - Local file storage and a Netlify Functions/Blobs adapter using conditional storage-version writes.
 
 ## Run locally
@@ -51,7 +55,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The browser suite runs eight scenarios at desktop, 375-pixel and 320-pixel widths. It exercises request-to-collection, approval gating, reload persistence, duplicate prevention after a lost response, competing tabs, conflict recovery, visitor isolation, startup recovery, keyboard focus, and automated accessibility rules. It starts its own loopback server on port 8796 with fresh sample storage under ignored `work/browser-data/`; it does not use the hosted site or existing demo workspaces.
+The browser suite runs fourteen scenarios at desktop, 375-pixel and 320-pixel widths. It exercises request-to-collection, approval gating, reload persistence, duplicate prevention after a lost response, competing tabs, conflict recovery, visitor isolation, startup recovery, keyboard focus, automated accessibility rules, view handoffs, separate collection filters, uncertain saves/resets, service-menu recovery, and pending-request controls. It starts its own loopback server on port 8796 with fresh sample storage under ignored `work/browser-data/`; it does not use the hosted site or existing demo workspaces. Set `NORTHLINE_TEST_PORT` to another loopback port if 8796 is occupied.
 
 GitHub Actions repeats these scenarios in a fresh Linux checkout. Screenshots, accessibility results, an HTML report, and failure traces are attached to the workflow for 14 days. On Linux, use `npx playwright install --with-deps chromium` when installing locally. Chromium viewport emulation and automated scans do not establish physical-device compatibility or complete accessibility conformance.
 

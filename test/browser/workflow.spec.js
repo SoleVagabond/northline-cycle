@@ -11,6 +11,231 @@ const customer = (page) =>
 const chooseHybrid = (page) =>
   page.getByRole("button", { name: /NL-2403.*Everyday hybrid/ });
 
+test("inline view handoffs preserve the repair and explain when approval is needed", async ({
+  page,
+}) => {
+  await ready(page);
+  await chooseHybrid(page).click();
+  await expect(repair(page)).toContainText("Approval follows inspection");
+  await page
+    .getByRole("button", { name: "Continue in Workshop view", exact: false })
+    .click();
+  await expect(page.locator("#repair-title")).toBeFocused();
+  await expect(stage(page)).toHaveText("Checked in");
+  await expect(notice(page)).toContainText("progress has not changed");
+  await page
+    .getByRole("button", { name: "Start inspection", exact: false })
+    .click();
+  await page
+    .getByRole("button", { name: "Request customer approval", exact: false })
+    .click();
+  await expect(stage(page)).toHaveText("Your approval");
+  await page
+    .getByRole("button", { name: "Continue in Customer view", exact: false })
+    .click();
+  await expect(page.locator("#repair-title")).toHaveText("Everyday hybrid");
+  await expect(stage(page)).toHaveText("Your approval");
+  await expect(repair(page)).toContainText("Customer approval needed");
+  await expect(repair(page).locator(".repair-history li")).toHaveCount(3);
+});
+
+test("ready and collected counts filter distinct saved repairs and empty results recover", async ({
+  page,
+}) => {
+  await ready(page);
+  await page
+    .getByRole("button", { name: "0 Ready to collect", exact: true })
+    .click();
+  await expect(page.locator(".repair-empty")).toContainText(
+    "No repairs ready to collect",
+  );
+  await page
+    .getByRole("button", { name: "Show all repairs", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: /NL-2402.*Weekend road bike/ })
+    .click();
+  await workshop(page).click();
+  await page
+    .getByRole("button", { name: "Move to ride check", exact: false })
+    .click();
+  await page
+    .getByRole("button", { name: "Mark ready to collect", exact: false })
+    .click();
+  await page
+    .getByRole("button", { name: "1 Ready to collect", exact: true })
+    .click();
+  await expect(page.locator(".repair-choice")).toHaveCount(1);
+  await page
+    .getByRole("button", { name: "Mark collected", exact: false })
+    .click();
+  await expect(page.locator(".repair-empty")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "0 Ready to collect", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Show repairs", { exact: true })
+    .selectOption("collected");
+  await expect(stage(page)).toHaveText("Back on the road");
+  await expect(
+    page.getByRole("button", { name: "1 Collected", exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(page.locator(".repair-choice")).toHaveCount(3);
+  await page
+    .getByLabel("Show repairs", { exact: true })
+    .selectOption("collected");
+  await expect(page.locator("#repair-title")).toHaveText("Weekend road bike");
+  await expect(stage(page)).toHaveText("Back on the road");
+});
+
+test("a saved action with a lost response blocks stale actions until progress reloads", async ({
+  page,
+}) => {
+  await ready(page);
+  await chooseHybrid(page).click();
+  await workshop(page).click();
+  await page.route("**/api/tracker/actions", async (route) => {
+    const response = await route.fetch();
+    expect(response.status()).toBe(200);
+    await route.abort("failed");
+  });
+  await page
+    .getByRole("button", { name: "Start inspection", exact: false })
+    .click();
+  await expect(notice(page)).toContainText("may already be saved");
+  await expect(page.locator(".saved-badge")).toHaveText(
+    "Saved progress needs review",
+  );
+  await expect(page.locator("[data-action=advance]")).toBeDisabled();
+  await page.unroute("**/api/tracker/actions");
+  await page
+    .getByRole("button", { name: "Reload saved progress", exact: true })
+    .click();
+  await expect(stage(page)).toHaveText("Inspection");
+  await expect(page.locator(".saved-badge")).toHaveText("Progress saved");
+  await expect(
+    page.getByRole("button", {
+      name: "Request customer approval",
+      exact: false,
+    }),
+  ).toBeEnabled();
+  await expect(repair(page).locator(".repair-history li")).toHaveCount(2);
+});
+
+test("the service menu can recover while retaining the rider's sample choices", async ({
+  page,
+}) => {
+  await page.route("**/api/services", (route) =>
+    route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({ error: "Unavailable" }),
+    }),
+  );
+  await page.goto("/");
+  await expect(
+    page.getByRole("button", { name: "Reload service menu", exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Sample bike", { exact: true }).selectOption("café");
+  await page
+    .getByLabel("What needs care?", { exact: true })
+    .selectOption("gears");
+  await page.unroute("**/api/services");
+  await page
+    .getByRole("button", { name: "Reload service menu", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Create sample repair", exact: false }),
+  ).toBeEnabled();
+  await expect(page.getByLabel("Sample bike", { exact: true })).toHaveValue(
+    "café",
+  );
+  await expect(
+    page.getByLabel("What needs care?", { exact: true }),
+  ).toHaveValue("gears");
+  await expect(
+    page.getByRole("button", { name: "Reload service menu", exact: true }),
+  ).toBeHidden();
+});
+
+test("pending requests lock their choices and confirmed saves show the next step", async ({
+  page,
+}) => {
+  await ready(page);
+  await choices(page);
+  let release;
+  const waitForRelease = new Promise((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/enquiries", async (route) => {
+    await waitForRelease;
+    await route.continue();
+  });
+  await page
+    .getByRole("button", { name: "Create sample repair", exact: false })
+    .click();
+  try {
+    await expect(
+      page.getByLabel("Sample bike", { exact: true }),
+    ).toBeDisabled();
+    await expect(page.getByLabel("Service", { exact: true })).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Choose Full refresh", exact: true }),
+    ).toBeDisabled();
+    await expect(
+      page.getByLabel("Add local collection", { exact: false }),
+    ).toBeDisabled();
+    await expect(page.locator("#request-next-step")).toBeHidden();
+  } finally {
+    release();
+  }
+  await expect(page.locator("#form-status")).toContainText(
+    "saved. Estimate: $80",
+  );
+  await expect(page.locator("#request-next-step")).toContainText(
+    "Workshop view",
+  );
+  await expect(
+    page.getByRole("button", {
+      name: "Create another sample repair",
+      exact: false,
+    }),
+  ).toBeEnabled();
+  await expect(page.getByLabel("Sample bike", { exact: true })).toBeEnabled();
+  await expect(page.locator(".repair-choice")).toHaveCount(4);
+});
+
+test("a reset with a lost response offers recovery instead of promising old progress remains", async ({
+  page,
+}) => {
+  await ready(page);
+  await chooseHybrid(page).click();
+  await workshop(page).click();
+  await page
+    .getByRole("button", { name: "Start inspection", exact: false })
+    .click();
+  await expect(stage(page)).toHaveText("Inspection");
+  await page.route("**/api/tracker/reset", async (route) => {
+    const response = await route.fetch();
+    expect(response.status()).toBe(201);
+    await route.abort("failed");
+  });
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.locator(".demo-options summary").click();
+  await page
+    .getByRole("button", { name: "Reset sample repairs", exact: false })
+    .click();
+  await expect(notice(page)).toContainText("reset could not be confirmed");
+  await expect(page.locator("[data-action=advance]")).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Reload saved progress", exact: true })
+    .click();
+  await chooseHybrid(page).click();
+  await expect(stage(page)).toHaveText("Checked in");
+  await expect(repair(page).locator(".repair-history li")).toHaveCount(1);
+});
+
 async function ready(page) {
   await page.goto("/");
   await expect(page.locator(".repair-choice")).toHaveCount(3);
@@ -172,6 +397,10 @@ test("conflict plus failed refresh offers recovery without claiming the latest s
     exact: true,
   });
   await expect(reload).toBeEnabled();
+  await expect(page.locator(".saved-badge")).toHaveText(
+    "Saved progress needs review",
+  );
+  await expect(page.locator("[data-action=advance]")).toBeDisabled();
   await expect(notice(page)).toBeFocused();
   await page
     .locator("#tracker")
@@ -182,6 +411,7 @@ test("conflict plus failed refresh offers recovery without claiming the latest s
   await expect(notice(page)).toHaveText("Latest saved progress loaded.");
   await expect(reload).toBeHidden();
   await expect(stage(page)).toHaveText("Checked in");
+  await expect(page.locator("[data-action=advance]")).toBeEnabled();
 });
 
 test("separate visitors have independent saved workspaces", async ({

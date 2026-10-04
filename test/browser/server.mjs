@@ -12,8 +12,9 @@ const app = createApp({
     "enquiries.ndjson",
   ),
 });
-app.listen(8796, "127.0.0.1", () =>
-  console.log("Browser checks: http://127.0.0.1:8796"),
+const port = Number(process.env.NORTHLINE_TEST_PORT || 8796);
+app.listen(port, "127.0.0.1", () =>
+  console.log(`Browser checks: http://127.0.0.1:${port}`),
 );
 for (const signal of ["SIGINT", "SIGTERM"])
   process.on(signal, () => app.close(() => process.exit(0)));

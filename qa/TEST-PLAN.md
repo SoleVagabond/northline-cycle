@@ -20,6 +20,11 @@ Windows, Node.js 22.14.0, Chromium desktop rendering, and isolated 390/768-pixel
 | UI-08 | Tab/Space on filters and repairs | Visible focus and correct activation |
 | UI-09 | Inspect 390/768-pixel layouts | No document overflow; readable controls |
 | UI-10 | Open project story and brief | Clear brief, outcomes, scope, and working links |
+| UI-11 | Switch with inline view controls | Same repair and stage; repair heading receives focus |
+| UI-12 | Filter ready/collected and empty results | Distinct counts; All repairs restores the list; reload preserves saved stages |
+| UI-13 | Save an action/reset then lose response | Uncertain badge; further actions blocked until reload shows the actual saved result |
+| UI-14 | Service menu 503 then retry | Menu recovers without page reload; bike and concern preserved |
+| UI-15 | Hold a request response | Form and service-card choices disabled; confirmed save provides next step |
 | API-01 | Submit choices with forged estimate | Server calculates $80 |
 | API-02 | Invalid choices or personal fields | 422; no repair created |
 | API-03 | Malformed JSON, wrong media, >8192 bytes | 400, 415, or 413 |

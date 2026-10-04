@@ -80,7 +80,7 @@
       </p>
       <img
         src="/docs/tracker-desktop.jpg"
-        alt="Northline repair tracker showing a labour estimate, seven stages, and a repair journal"
+        alt="Previous Northline release showing the seven-stage tracker and repair journal"
         loading="lazy"
       />
       <div class="case-steps">
@@ -88,9 +88,10 @@
           <h2>Clear decisions</h2>
           <p>
             Labour prices come from the server’s catalogue. The workflow blocks
-            unavailable actions and records each completed stage. Switching
-            views makes the customer and workshop responsibilities easy to
-            explore.
+            unavailable actions and records each completed stage. The next responsible person is labelled beside the action. Inline
+            controls switch views while keeping the same repair open. Ready
+            and collected repairs have separate counts and filters; estimates
+            show labour and collection costs separately.
           </p>
         </section>
         <section>
@@ -98,7 +99,10 @@
           <p>
             Confirmation follows a saved update. Repeated requests use the same
             request reference to avoid duplicate repairs. Conflicting updates
-            prompt a reload rather than overwriting newer progress.
+            prompt a reload rather than overwriting newer progress. An
+            unconfirmed save blocks further actions until progress reloads.
+            Service-menu failures have a retry control, and request choices
+            remain locked during submission.
           </p>
         </section>
         <section>
@@ -153,7 +157,7 @@
         <li>Create a sample repair with a bike, concern, and service.</li>
         <li>Open its tracker and start an inspection in Workshop view.</li>
         <li>
-          Request approval, switch to Customer view, and approve the estimate.
+          Request approval, use Continue in Customer view, and approve the estimate.
         </li>
         <li>
           Return to Workshop view and complete the repair. Reload to see its

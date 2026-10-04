@@ -13,6 +13,9 @@ let menu = [];
 let pendingRequest;
 let savedRepair;
 const trackButton = document.querySelector("#track-created-repair");
+const retryServices = document.querySelector("#retry-services");
+let savingRequest = false;
+let loadingServices = false;
 for (const [id, values] of [
   ["bike", demoBikes],
   ["issue", demoIssues],
@@ -49,6 +52,16 @@ function updateEstimate() {
     ? `${service.name}${collection.checked ? " + collection" : ""} · parts quoted separately`
     : "Choose a service to see an estimate";
 }
+function setRequestBusy(value) {
+  savingRequest = value;
+  form.setAttribute("aria-busy", String(value));
+  for (const control of form.querySelectorAll("select, input"))
+    control.disabled = value;
+  for (const button of grid.querySelectorAll("button")) button.disabled = value;
+  trackButton.disabled = value;
+  retryServices.disabled = value || loadingServices;
+  submit.disabled = value || loadingServices || menu.length === 0;
+}
 function renderServices() {
   grid.replaceChildren();
   const visible = menu.filter(
@@ -82,8 +95,10 @@ function renderServices() {
     choose.type = "button";
     choose.className = "choose-service";
     choose.textContent = "Choose service ↗";
+    choose.disabled = savingRequest;
     choose.setAttribute("aria-label", `Choose ${item.name}`);
     choose.addEventListener("click", () => {
+      if (savingRequest) return;
       select.value = item.id;
       updateEstimate();
       document.querySelector("#request").scrollIntoView({
@@ -114,7 +129,7 @@ collection.addEventListener("change", updateEstimate);
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (submit.disabled || !form.reportValidity()) return;
-  submit.disabled = true;
+  setRequestBusy(true);
   setStatus("Creating your sample repair…", "pending");
   const choices = {
     serviceId: select.value,
@@ -147,6 +162,8 @@ form.addEventListener("submit", async (event) => {
       "success",
     );
     trackButton.hidden = false;
+    document.querySelector("#request-next-step").hidden = false;
+    submit.textContent = "Create another sample repair ↗";
     pendingRequest = undefined;
     status.focus();
   } catch (error) {
@@ -156,28 +173,52 @@ form.addEventListener("submit", async (event) => {
     );
     status.focus();
   } finally {
-    submit.disabled = false;
+    setRequestBusy(false);
   }
 });
 
-try {
-  const response = await fetch("/api/services", {
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!response.ok) throw new Error("Service menu unavailable");
-  menu = (await response.json()).services;
-  select.replaceChildren();
-  for (const item of menu) {
-    const option = document.createElement("option");
-    option.value = item.id;
-    option.textContent = `${item.name} — $${item.price}`;
-    select.append(option);
+async function loadServices() {
+  if (loadingServices || savingRequest) return;
+  loadingServices = true;
+  submit.disabled = true;
+  retryServices.disabled = true;
+  const previousService = select.value;
+  try {
+    const response = await fetch("/api/services", {
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!response.ok) throw new Error("Service menu unavailable");
+    menu = (await response.json()).services;
+    select.replaceChildren();
+    for (const item of menu) {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = `${item.name} — $${item.price}`;
+      select.append(option);
+    }
+    if (menu.some((item) => item.id === previousService))
+      select.value = previousService;
+    renderServices();
+    updateEstimate();
+    retryServices.hidden = true;
+    if (status.dataset.state === "error")
+      setStatus(
+        "Service menu loaded. Your sample choices are ready.",
+        "success",
+      );
+  } catch {
+    grid.textContent =
+      "The service menu could not load. Use Reload service menu in the repair form below to try again.";
+    retryServices.hidden = false;
+    setStatus(
+      "The service menu is unavailable. Reload it to see prices and create a sample repair; your choices are kept.",
+      "error",
+    );
+  } finally {
+    loadingServices = false;
+    retryServices.disabled = false;
+    submit.disabled = savingRequest || menu.length === 0;
   }
-  renderServices();
-  updateEstimate();
-  submit.disabled = false;
-} catch {
-  grid.textContent =
-    "The service menu could not load. Please refresh to try again.";
-  setStatus("Enquiries are unavailable until the service menu loads.", "error");
 }
+retryServices.addEventListener("click", loadServices);
+await loadServices();
