@@ -78,7 +78,7 @@ Published to the new `northline-cycle-devin` project. For future CLI deployments
 
 ## Verification
 
-32 automated checks passed. Twelve smoke checks passed against the plain local server, the Netlify function with its Blobs emulator, and the HTTPS public site. Browser checks covered the request-to-collection journey, reload persistence, keyboard repair selection, failure recovery, and responsive rendering in one Chromium-based browser. See the [QA report](qa/QA-REPORT.md) and [test plan](qa/TEST-PLAN.md) for evidence and limits.
+The October 4 workflow update passed 32 isolated checks, 42 browser scenarios, and 12 integration checks against both the local and production servers. The browser suite covers the request-to-collection journey, reload persistence, keyboard focus, view handoffs, filters, failure recovery, and responsive/accessibility checks in Chromium. See the [QA report](qa/QA-REPORT.md) and [test plan](qa/TEST-PLAN.md) for release evidence and limits.
 
 ![Narrow tracker details](docs/tracker-mobile-detail.jpg)
 

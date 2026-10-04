@@ -1,10 +1,24 @@
 # Northline Cycle Co. — QA case study
 
-**Verified:** October 3, 2026  
+**Verified:** October 4, 2026  
 **Project type:** Personal demonstration; fictional business  
 **Result:** 32 isolated tests and 12 smoke checks passed against both the plain server and Netlify Dev. The submitted-request journey, persistence, recovery, and responsive layouts were checked in Chromium. The production HTTPS site passed the same 12 checks.
 
-## Repeatable browser verification
+## October 4 workflow review
+
+The updated interface passed **32 isolated tests, 42 browser scenarios, and 12 local integration checks**. Fourteen browser scenarios run at 1280×900, 375×812, and 320×740. The desktop in-app browser also completed inspection, customer approval, repair, ride check, readiness, and collection; navigation retained the collected repair.
+
+The review found approval wording before inspection, combined ready/collected counts, and view switching far from the next action. The interface now labels who acts next, provides inline view handoffs that preserve the repair and stage, breaks the estimate into labour/collection, and offers separate approval/ready/collected filters with recoverable empty results. Reset is inside Demo options.
+
+Unconfirmed actions and resets now show uncertain progress and block further repair actions until a reload. The reset message previously promised old progress remained even when its response was lost after a successful reset. The regression performs the actual reset, discards its response, and verifies that recovery shows the fresh saved workspace. Other added cases cover service-menu recovery with retained choices, pending-request controls, and view/filter behavior. Automated accessibility scans still pass without suppressed rules.
+
+The local Windows test run required ending its isolated test-server process during cleanup before reporting all 42 passes. GitHub repeats the suite in a fresh Linux checkout. Screenshots elsewhere in this report document earlier releases. These checks are an engineering review, not an independent usability study or a complete accessibility audit.
+
+The [GitHub browser job](https://github.com/SoleVagabond/northline-cycle/actions/runs/37243846155/job/111557717050) independently passed all 42 scenarios. The accompanying formatting job found one case-study line-wrap issue; it was corrected before the final source update.
+
+The October 4 production update passed all 12 hosted integration checks. A browser navigation retained the previously collected City commuter and its saved journal, alongside the original samples. The deployment includes both API and cleanup functions, the existing rate rule, and the hourly schedule; this review did not establish actual scheduled execution.
+
+## Repeatable browser verification from the previous release
 
 The expanded [GitHub check](https://github.com/SoleVagabond/northline-cycle/actions/runs/37176343156), commit `5704260`, passed all **32 isolated checks and 24 browser scenarios**. Browser checks run the actual loopback application at 1280×900, 375×812, and 320×740 without a framing proxy. Each run has fresh sample storage.
 
