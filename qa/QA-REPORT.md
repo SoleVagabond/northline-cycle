@@ -16,6 +16,8 @@ The local Windows test run required ending its isolated test-server process duri
 
 The [GitHub browser job](https://github.com/SoleVagabond/northline-cycle/actions/runs/37243846155/job/111557717050) independently passed all 42 scenarios. The accompanying formatting job found one case-study line-wrap issue; it was corrected before the final source update.
 
+The [corrected full workflow](https://github.com/SoleVagabond/northline-cycle/actions/runs/37244059608) passed formatting, all 32 isolated tests, type checking, the public build, and all 42 browser scenarios. A final visual review changed the four mobile repair filters to a two-by-two layout and enlarged their labels; the desktop and both narrow layout/accessibility scenarios passed again. The project-level promotional badge was disabled in Netlify configuration and its absence verified on a fresh live navigation.
+
 The October 4 production update passed all 12 hosted integration checks. A browser navigation retained the previously collected City commuter and its saved journal, alongside the original samples. The deployment includes both API and cleanup functions, the existing rate rule, and the hourly schedule; this review did not establish actual scheduled execution.
 
 ## Repeatable browser verification from the previous release
