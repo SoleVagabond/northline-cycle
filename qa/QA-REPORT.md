@@ -4,7 +4,17 @@
 **Project type:** Personal demonstration; fictional business  
 **Result:** 32 isolated tests and 12 smoke checks passed against both the plain server and Netlify Dev. The submitted-request journey, persistence, recovery, and responsive layouts were checked in Chromium. The production HTTPS site passed the same 12 checks.
 
-## Current release
+## Repeatable browser verification
+
+The expanded [GitHub check](https://github.com/SoleVagabond/northline-cycle/actions/runs/37176343156), commit `5704260`, passed all **32 isolated checks and 24 browser scenarios**. Browser checks run the actual loopback application at 1280×900, 375×812, and 320×740 without a framing proxy. Each run has fresh sample storage.
+
+Eight scenarios cover the complete seven-stage journey and reload, a response lost after the real save, competing tabs, conflict plus failed refresh, separate visitors, failed startup recovery, keyboard focus, and layout/accessibility in approval and repairing states. A lost-response retry reused the same request reference and left exactly four repairs; a conflicting tab reloaded the saved inspection without skipping to approval.
+
+The first scan found low contrast in orange text, the stamp, and repair-stage labels. The accent and muted labels were darkened; the full suite then passed without disabling scan rules. The skip link now focuses main content, and the labelled workshop-principles container has an explicit group role.
+
+The [browser evidence artifact](https://github.com/SoleVagabond/northline-cycle/actions/runs/37176343156/artifacts/11293316735) contains screenshots, accessibility JSON, and an HTML report. It expires October 18, 2026; the checked-in suite regenerates the evidence. Automated scans and emulated Chromium viewports do not establish full accessibility or device/browser compatibility.
+
+## Previous local and hosted verification
 
 Everyday tune-up costs $65 in this fictional catalogue; collection raises the estimate to $80. The public form accepts controlled choices and a fixed fictional rider, rejecting personal fields and free-text notes. A saved request creates a repair in the same visitor workspace and returns its tracking reference.
 
