@@ -2,7 +2,7 @@
   --paper: #f7f5ed;
   --ink: #163b2d;
   --muted: #556458;
-  --accent: #dc713e;
+  --accent: #b34e25;
   --line: #d9dfd3;
   --card: #ecefe4;
 }
@@ -971,7 +971,7 @@ footer > span {
   position: relative;
   text-align: center;
   font-size: 9px;
-  color: #737d70;
+  color: var(--muted);
   line-height: 1.25;
   display: flex;
   align-items: center;
