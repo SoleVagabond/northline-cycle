@@ -1,5 +1,7 @@
 # Northline Cycle Co.
 
+[![Project checks](https://github.com/SoleVagabond/northline-cycle/actions/workflows/checks.yml/badge.svg)](https://github.com/SoleVagabond/northline-cycle/actions/workflows/checks.yml)
+
 A responsive website and repair tracker for a fictional bicycle workshop. Personal portfolio demonstration of original visual design, front-end behavior, and a persisted business workflow.
 
 ![Repair tracker](docs/tracker-desktop.jpg)
@@ -40,6 +42,18 @@ npm test
 ```
 
 The 32 isolated tests cover sample-choice validation and persistence, approval gating, the full repair lifecycle, separate visitors, restart persistence, stale/concurrent updates, failed storage, private files, split-packet UTF-8, duplicate prevention, expiry, cleanup cursor behavior, capacity, and the cloud adapter's conditional-write contract.
+
+## Repeat the browser journey
+
+```sh
+npm ci
+npx playwright install chromium
+npm run test:browser
+```
+
+The browser suite runs eight scenarios at desktop, 375-pixel and 320-pixel widths. It exercises request-to-collection, approval gating, reload persistence, duplicate prevention after a lost response, competing tabs, conflict recovery, visitor isolation, startup recovery, keyboard focus, and automated accessibility rules. It starts its own loopback server on port 8796 with fresh sample storage under ignored `work/browser-data/`; it does not use the hosted site or existing demo workspaces.
+
+GitHub Actions repeats these scenarios in a fresh Linux checkout. Screenshots, accessibility results, an HTML report, and failure traces are attached to the workflow for 14 days. On Linux, use `npx playwright install --with-deps chromium` when installing locally. Chromium viewport emulation and automated scans do not establish physical-device compatibility or complete accessibility conformance.
 
 ## Hosting preparation
 

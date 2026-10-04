@@ -7,10 +7,11 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test test/*.test.js",
+    "test:browser": "playwright test",
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"*.{html,css,js,json,md}\" \"{lib,scripts,test}/**/*.{js,mjs}\" \"netlify/functions/*.mts\"",
-    "format:check": "prettier --check \"*.{html,css,js,json,md}\" \"{lib,scripts,test}/**/*.{js,mjs}\" \"netlify/functions/*.mts\""
+    "format:check": "prettier --check \"*.{html,css,js,json,md,cjs}\" \"{lib,scripts,test}/**/*.{js,mjs}\" \"netlify/functions/*.mts\""
   },
   "engines": {
     "node": ">=22"
@@ -20,6 +21,8 @@
     "@netlify/functions": "^6.0.2"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
     "@types/node": "^26.6.4",
     "prettier": "^3.9.9",
     "typescript": "^5.9.3"
