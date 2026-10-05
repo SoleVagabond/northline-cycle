@@ -10,6 +10,10 @@ The initial desktop check found that the populated work-description textarea did
 
 [Business review](BIKE-SHOP-REVIEW.md) · [Local integration output](evidence/product-local-smoke.txt) · [Operations guide](../docs/OPERATIONS.md)
 
+**Published verification:** [GitHub run 37254906856](https://github.com/SoleVagabond/northline-cycle/actions/runs/37254906856) passed formatting, all **77 isolated checks**, type checking, the 25-file build and all **145 browser scenarios** from the published application commit `af4d7e3271d038055514c1cc7abe7a9836ea1de7`. Netlify deploy `6ac309472726cf15f3a32225` reached ready state, and all **24 hosted integration checks** passed. [Hosted output](evidence/product-hosted-smoke.txt).
+
+The in-app browser separately saved an inspected $80 quote ($55 service charge plus specified $25 pads), received its approval, and retained the independently entered October 5 work date, 105-minute internal budget and October 8 collection expectation. Customer view omitted the internal budget. A fresh production navigation retained all five earlier repairs, their stages and $125/$80/$80/$45/$35 estimates. The live catalog displayed all twelve scoped starting prices without preset durations. Only fictional data was used; no real charge or customer message occurred.
+
 ## October 4 workshop application release
 
 **Project:** Independent application for a fictional bicycle business.
