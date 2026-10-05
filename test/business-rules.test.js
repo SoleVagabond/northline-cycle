@@ -165,13 +165,24 @@ test("inspected quotes require compatible part specifications and retain them wi
   assert.equal(quoteFor(job(workspace)).total, 135);
 });
 
-test("inspection charges must be bounded whole values with a meaningful work description", () => {
-  for (const serviceCharge of [-1, 1.5, 5001, "85", null])
+test("inspection charges are bounded currency amounts with a meaningful work description", () => {
+  for (const serviceCharge of [-1, 5001, "85", null])
     assert.throws(
       () => revise(seed(), { serviceCharge }),
       /inspected service charge/,
     );
-  for (const workDescription of ["", " ", "x".repeat(241), "bad\nwork", null])
+  assert.throws(() => revise(seed(), { serviceCharge: 1.555 }), /two decimal/);
+  assert.equal(
+    quoteFor(job(revise(seed(), { serviceCharge: 1.5 }))).labour,
+    1.5,
+  );
+  for (const workDescription of [
+    "",
+    " ",
+    "x".repeat(241),
+    "bad\u0000work",
+    null,
+  ])
     assert.throws(
       () => revise(seed(), { workDescription }),
       /describe the quoted work/,

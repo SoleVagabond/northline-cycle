@@ -1,5 +1,15 @@
 import { ensureWorkspace } from "./lib/demo-session.js";
 import {
+  peoplePage,
+  settingsPage,
+  serviceForm,
+  partForm,
+  recordPanel,
+  bindRecords,
+} from "./records-ui.js";
+import { staffCatalogue, partsCatalogue } from "./lib/shop-data.js";
+import { money, sumMoney, multiplyMoney } from "./lib/money.js";
+import {
   repairTypes,
   mechanics,
   qualityChecks,
@@ -51,12 +61,6 @@ const esc = (value) =>
         char
       ],
   );
-const money = (value) =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
 const today = () => workshopDate();
 const dateLabel = (value) =>
   value
@@ -73,7 +77,9 @@ const stamp = (value) =>
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
-const typeFor = (job) => repairTypes.find((item) => item.id === job.serviceId);
+const typeFor = (job) =>
+  job.serviceSnapshot ||
+  catalogue(workspace).find((item) => item.id === job.serviceId);
 const stateFor = (job) =>
   [...stages, ...exceptionStages].find((item) => item.id === job.status);
 const pill = (job) =>
@@ -135,7 +141,10 @@ function overview() {
         "queue/waiting_parts",
       ],
     ]) +
-    `<div class="dashboard-grid"><section class="panel"><div class="panel-heading"><div><h2>Next on the bench</h2><p>High priority first, then the earliest planned work date.</p></div><a href="#queue">All repairs →</a></div>${active.length ? active.slice(0, 5).map(compactJob).join("") : empty("The bench is clear", "Create a repair to start the next job.")}</section><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>Today's workload</h2><p>Job-specific budgets against the planning limit. Unestimated jobs still need assessment.</p></div><a href="#schedule">Schedule →</a></div>${mechanics
+    `<div class="dashboard-grid"><section class="panel"><div class="panel-heading"><div><h2>Next on the bench</h2><p>High priority first, then the earliest planned work date.</p></div><a href="#queue">All repairs →</a></div>${active.length ? active.slice(0, 5).map(compactJob).join("") : empty("The bench is clear", "Create a repair to start the next job.")}</section><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>Today's workload</h2><p>Job-specific budgets against the planning limit. Unestimated jobs still need assessment.</p></div><a href="#schedule">Schedule →</a></div>${staffCatalogue(
+      workspace,
+    )
+      .filter((item) => item.enabled)
       .map((mechanic) => {
         const jobs = active.filter(
           (job) => job.mechanicId === mechanic.id && job.dueDate === today(),
@@ -183,7 +192,7 @@ function queue() {
   );
 }
 function quoteLines(quote) {
-  return `<table class="quote-lines"><tbody><tr><td>Service charge${quote.workDescription ? `<small>${esc(quote.workDescription)}</small>` : ""}</td><td>${money(quote.labour)}</td></tr>${quote.parts.map((part) => `<tr><td>${esc(part.name)}${part.specification ? `<small>${esc(part.specification)}</small>` : ""}${part.quantity ? `<small>${part.quantity} × ${money(part.unitPrice)}</small>` : ""}</td><td>${money(part.price)}</td></tr>`).join("")}${quote.collection ? `<tr><td>Local collection</td><td>${money(quote.collection)}</td></tr>` : ""}<tr><td><strong>Total estimate</strong></td><td>${money(quote.total)}</td></tr></tbody></table>`;
+  return `<table class="quote-lines"><tbody>${quote.serviceLines ? quote.serviceLines.map((line) => `<tr><td>${esc(line.name)}<small>${esc(line.description)} · ${line.quantity} × ${money(line.unitPrice)} · ${esc(line.unit)}</small></td><td>${money(line.price)}</td></tr>`).join("") : `<tr><td>Service charge${quote.workDescription ? `<small>${esc(quote.workDescription)}</small>` : ""}</td><td>${money(quote.labour)}</td></tr>`}${quote.parts.map((part) => `<tr><td>${esc(part.name)}${part.specification ? `<small>${esc(part.specification)}</small>` : ""}${part.quantity ? `<small>${part.quantity} × ${money(part.unitPrice)}</small>` : ""}</td><td>${money(part.price)}</td></tr>`).join("")}${quote.collection ? `<tr><td>Local collection</td><td>${money(quote.collection)}</td></tr>` : ""}<tr><td><strong>Total estimate</strong></td><td>${money(quote.total)}</td></tr></tbody></table>`;
 }
 function actionPanel(job) {
   const quote = quoteFor(job);
@@ -196,7 +205,17 @@ function actionPanel(job) {
     else
       content = `<p>${job.status === "ready" ? "Your bike is ready. The workshop records collection after the handover." : job.status === "declined" ? "The workshop can offer an alternative estimate. You can also request cancellation." : "The workshop handles the next step. You can follow the saved progress here."}</p>`;
   } else if (job.status === "waiting_parts")
-    content = `<p>The current estimate remains approved. Receive missing stock, then resume at the workbench.</p><button class="primary-button" data-action="parts-arrived" data-write>Parts arrived — resume repair</button>`;
+    content = `<p>The current estimate remains approved. Receive missing stock, then resume at the workbench.</p><ul class="included-list">${quote.parts
+      .map((line) => {
+        const part = stockSummary(workspace).find(
+          (item) => item.id === line.id,
+        );
+        const required = line.quantity || 1;
+        return `<li>${esc(line.name)}: ${required} needed · ${part?.available ?? 0} available${(part?.available ?? 0) < required ? ` · short by ${required - (part?.available ?? 0)}` : ""}</li>`;
+      })
+      .join(
+        "",
+      )}</ul><a class="quiet-button" href="#parts">Receive parts stock →</a><button class="primary-button" data-action="parts-arrived" data-write>Parts arrived — resume repair</button>`;
   else if (["approval", "declined"].includes(job.status))
     content = `<p>${job.status === "approval" ? "Repair work stays paused until the customer approves the current estimate." : "The customer declined. Prepare an alternative estimate or cancel this repair."}</p><button class="quiet-button" data-switch-role>Open customer view →</button>`;
   else {
@@ -212,6 +231,20 @@ function actionPanel(job) {
   }
   return `<section class="next-action"><div class="operator-label">${closed(job) ? "REPAIR CLOSED" : customerView ? "CUSTOMER DECISION" : "NEXT WORKSHOP ACTION"}</div><h3>${esc(stateFor(job).label)}</h3>${content}</section>`;
 }
+function itemizedEditor(job, quote) {
+  const lines = quote.serviceLines || [];
+  return `<label class="check-label"><input type="checkbox" name="itemized" ${quote.serviceLines ? "checked" : ""}> Itemize services on this work order</label><div class="itemized-services" ${quote.serviceLines ? "" : "hidden"}><p class="muted">Select the work found during inspection. Adjust each charge and scope before requesting one approval.</p>${catalogue(
+    workspace,
+  )
+    .filter((service) => service.enabled)
+    .map((service) => {
+      const line = lines.find((item) => item.id === service.id);
+      const selected =
+        !!line || (!lines.length && service.id === job.serviceId);
+      return `<div class="service-line-picker" data-service-picker><label class="check-label"><input type="checkbox" name="service-${service.id}" ${selected ? "checked" : ""}> ${esc(service.name)} <small>${esc(service.unit)}</small></label><div class="service-line-fields" ${selected ? "" : "hidden"}><div class="form-grid"><label>Quantity<input type="number" name="service-qty-${service.id}" aria-label="Service quantity for ${esc(service.name)}" min="1" max="10" value="${line?.quantity || 1}"></label><label>Charge per unit ($)<input type="number" name="service-price-${service.id}" aria-label="Charge for ${esc(service.name)}" min="0" max="5000" step="0.01" value="${line?.unitPrice ?? service.price}"></label></div><label>Inspected work<textarea name="service-work-${service.id}" aria-label="Work for ${esc(service.name)}" maxlength="240">${esc(line?.description || service.includes.join("; "))}</textarea></label></div></div>`;
+    })
+    .join("")}</div>`;
+}
 function estimateEditor(job) {
   const quote = quoteFor(job);
   if (
@@ -219,11 +252,13 @@ function estimateEditor(job) {
     !["inspection", "approval", "repairing", "declined"].includes(job.status)
   )
     return "";
-  return `<details class="editor-section subsection"><summary>Revise the estimate</summary><form class="stacked-form" id="estimate-form"><p class="muted">Describe the inspected work, enter its service charge, and record compatible specifications for any parts. A revised estimate pauses work and needs a new customer decision.</p><label>Service charge ($)<input type="number" name="serviceCharge" value="${quote.labour}" min="0" max="5000" step="1" required></label><label>Quoted work<textarea name="workDescription" aria-label="Quoted work" maxlength="240" required>${esc(quote.workDescription || `${typeFor(job).name}: ${typeFor(job).includes.join("; ")}`)}</textarea></label><div>${partOptions
-    .filter((part) => part.price)
+  return `<details class="editor-section subsection"><summary>Revise the estimate</summary><form class="stacked-form" id="estimate-form"><p class="muted">Describe the inspected work, enter its service charge, and record compatible specifications for any parts. A revised estimate pauses work and needs a new customer decision.</p>${itemizedEditor(job, quote)}<label ${quote.serviceLines ? "hidden" : ""}>Service charge ($)<input type="number" name="serviceCharge" value="${quote.labour}" min="0" max="5000" step="0.01" ${quote.serviceLines ? "disabled" : "required"}></label><label ${quote.serviceLines ? "hidden" : ""}>Quoted work<textarea name="workDescription" aria-label="Quoted work" maxlength="240" ${quote.serviceLines ? "disabled" : "required"}>${esc(quote.workDescription || `${typeFor(job).name}: ${typeFor(job).includes.join("; ")}`)}</textarea></label><div>${partsCatalogue(
+    workspace,
+  )
+    .filter((part) => part.enabled)
     .map((part) => {
       const line = quote.parts.find((item) => item.id === part.id);
-      return `<div class="part-picker"><label><input type="checkbox" name="part-${part.id}" ${line ? "checked" : ""}><span>${esc(part.name)}<br><small>${money(part.price)} / unit</small></span></label><input type="number" name="qty-${part.id}" aria-label="Quantity for ${esc(part.name)}" value="${line?.quantity || 1}" min="1" max="10"><label class="part-specification">Part specification<input name="spec-${part.id}" aria-label="Specification for ${esc(part.name)}" value="${esc(line?.specification || "")}" maxlength="100" placeholder="Model, size or manufacturer part number"></label></div>`;
+      return `<div class="part-picker ${line ? "selected" : ""}"><label><input type="checkbox" name="part-${part.id}" ${line ? "checked" : ""}><span>${esc(part.name)}<br><small>${money(part.price)} / unit</small></span></label><input type="number" name="qty-${part.id}" aria-label="Quantity for ${esc(part.name)}" value="${line?.quantity || 1}" min="1" max="10" class="part-quantity" ${line ? "" : "hidden"}><label class="part-specification" ${line ? "" : "hidden"}>Part specification<input name="spec-${part.id}" aria-label="Specification for ${esc(part.name)}" value="${esc(line?.specification || part.specification || "")}" maxlength="100" placeholder="Model, size or manufacturer part number"></label></div>`;
     })
     .join(
       "",
@@ -249,7 +284,10 @@ function detail(job) {
       `<a class="quiet-button" href="#queue">← Repair queue</a><button class="quiet-button" data-switch-role>${customerView ? "Workshop view" : "Customer view"}</button><button class="quiet-button" data-print>Print repair summary</button>`,
     ) +
     `<div class="detail-grid"><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>${esc(service.name)}</h2><p>${esc(service.unit)}${customerView ? "" : ` · ${esc(job.mechanic || "Unassigned")}`}</p></div>${pill(job)}</div><div class="detail-summary"><div><small>Starting service price</small><strong>${money(job.basePrice ?? service.price)}</strong></div><div><small>Expected collection</small><strong>${job.expectedReadyDate ? esc(dateLabel(job.expectedReadyDate)) : "Not confirmed"}</strong></div><div><small>Priority</small><strong>${job.priority === "high" ? "High priority" : "Routine"}</strong></div></div><ol class="repair-progress" aria-label="Repair progress">${stages.map((stage, i) => `<li class="${i < stageIndex ? "done" : i === stageIndex ? "current" : ""}" ${i === stageIndex && !closed(job) ? 'aria-current="step"' : ""}><b aria-hidden="true">${i < stageIndex ? "✓" : i + 1}</b><span>${esc(stage.label)}</span></li>`).join("")}</ol>${actionPanel(job)}${estimateEditor(job)}${!closed(job) && !customerView ? `<div class="subsection"><h3>Workshop note</h3><form id="note-form" class="stacked-form"><label>Record findings or a handoff<textarea name="note" maxlength="400" required placeholder="${privateMode ? "Record findings, parts decisions or a handoff." : "Use fictional workshop details in this portfolio workspace."}"></textarea></label><div class="form-actions"><button class="quiet-button" type="submit">Save note</button></div></form></div>` : ""}${!closed(job) && ((customerView && ["received", "inspection", "approval", "declined"].includes(job.status)) || (!customerView && job.status !== "ready")) ? '<details class="editor-section subsection"><summary>Cancel this repair</summary><p class="muted">Close the job permanently and retain its history.</p><button class="danger-button" data-cancel data-write>Cancel repair</button></details>' : ""}</section><section class="panel"><div class="panel-heading"><div><h2>Repair journal</h2><p>${job.history.length} saved updates · oldest decisions remain available</p></div></div><ol class="journal">${job.history
-      .filter((entry) => !customerView || entry.action !== "schedule")
+      .filter(
+        (entry) =>
+          !customerView || !["schedule", "add-note"].includes(entry.action),
+      )
       .slice()
       .reverse()
       .map(
@@ -269,7 +307,11 @@ function detail(job) {
       )
       .join("")}</details></section>${
       !closed(job) && !customerView
-        ? `<section class="panel"><div class="panel-heading"><div><h2>Schedule & assignment</h2><p>Plan the work separately from collection. Budgets are internal estimates, not promised repair times.</p></div></div><form id="schedule-form" class="stacked-form"><label>Planned work date<input type="date" name="dueDate" min="${today()}" value="${esc(job.dueDate || today())}" required></label><label>Mechanic<select name="mechanicId" aria-label="Mechanic">${options(mechanics, job.mechanicId || "alex", (item) => `${item.name} · ${item.specialty}`)}</select></label><label>Priority<select name="priority" aria-label="Priority">${options(
+        ? `<section class="panel"><div class="panel-heading"><div><h2>Schedule & assignment</h2><p>Plan the work separately from collection. Budgets are internal estimates, not promised repair times.</p></div></div><form id="schedule-form" class="stacked-form"><label>Planned work date<input type="date" name="dueDate" min="${today()}" value="${esc(job.dueDate || today())}" required></label><label>Mechanic<select name="mechanicId" aria-label="Mechanic">${options(
+            staffCatalogue(workspace).filter((item) => item.enabled),
+            job.mechanicId || "alex",
+            (item) => `${item.name} · ${item.specialty}`,
+          )}</select></label><label>Priority<select name="priority" aria-label="Priority">${options(
             [
               { id: "routine", name: "Routine" },
               { id: "high", name: "High priority" },
@@ -294,7 +336,7 @@ function detail(job) {
                   )}</select></label><button class="primary-button" type="submit">Record ${money(job.estimate)} payment</button></form>`
           }</section>`
         : ""
-    }<section class="panel"><h2>What this service includes</h2><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><p class="quote-footnote">The service charge covers the listed work; compatible replacement parts are quoted after inspection. Extra work requires an approved revised estimate.</p></section></div></div>`
+    }<section class="panel"><h2>What this service includes</h2><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><p class="quote-footnote">The service charge covers the listed work; compatible replacement parts are quoted after inspection. Extra work requires an approved revised estimate.</p></section>${recordPanel(workspace, job, customerView)}</div></div>`
   );
 }
 function schedule() {
@@ -329,7 +371,7 @@ function parts() {
       "Know what's on the shelf.",
       "These sample categories are not universal compatible parts. Record a bike-specific specification in the quote. Approval reserves stock; the ride-check stage records its use. Cancellation or revision releases reservations.",
     ) +
-    `<div class="parts-grid">${stock.map((part) => `<section class="panel stock-card"><div class="panel-heading"><div><h2>${esc(part.name)}</h2><p class="stock-price">${money(part.price)} / unit · Sample stock category ${esc(part.id.toUpperCase())}</p></div>${part.available <= part.reorderAt ? '<span class="status-pill waiting_parts">Low stock</span>' : '<span class="status-pill">In stock</span>'}</div><div class="stock-counts"><div><strong>${part.onHand}</strong><small>ON HAND</small></div><div><strong>${part.reserved}</strong><small>RESERVED</small></div><div><strong>${part.available}</strong><small>AVAILABLE</small></div></div><form data-stock="${part.id}"><label>Units received<input name="quantity" type="number" min="1" max="50" value="1" required aria-label="Units received for ${esc(part.name)}"></label><button class="quiet-button" type="submit">Receive stock</button></form></section>`).join("")}</div><section class="panel"><div class="panel-heading"><div><h2>Stock movements</h2><p>Saved receipts and parts used on completed work.</p></div></div>${
+    `<div class="parts-grid">${stock.map((part) => `<section class="panel stock-card"><div class="panel-heading"><div><h2>${esc(part.name)}</h2><p class="stock-price">${money(part.price)} / unit · ${part.sku ? `SKU ${esc(part.sku)} · ${esc(part.specification)}` : `Sample category ${esc(part.id.toUpperCase())}`}</p></div>${part.available <= part.reorderAt ? '<span class="status-pill waiting_parts">Low stock</span>' : '<span class="status-pill">In stock</span>'}</div><div class="stock-counts"><div><strong>${part.onHand}</strong><small>ON HAND</small></div><div><strong>${part.reserved}</strong><small>RESERVED</small></div><div><strong>${part.available}</strong><small>AVAILABLE</small></div></div><form data-stock="${part.id}"><label>Units received<input name="quantity" type="number" min="1" max="50" value="1" required aria-label="Units received for ${esc(part.name)}"></label><button class="quiet-button" type="submit">Receive stock</button></form><details class="editor-section"><summary>Edit part details</summary>${partForm(part)}</details></section>`).join("")}</div><section class="panel"><h2>Add a part model</h2><p class="muted">Add a real SKU, compatible model/size and price; receive its stock separately.</p>${partForm()}</section><section class="panel"><div class="panel-heading"><div><h2>Stock movements</h2><p>Saved receipts and parts used on completed work.</p></div></div>${
       workspace.stockMovements.length
         ? `<table class="repair-table"><thead><tr><th scope="col">Part</th><th scope="col">Change</th><th scope="col">Reason</th><th scope="col">Recorded</th></tr></thead><tbody>${workspace.stockMovements
             .slice()
@@ -337,7 +379,7 @@ function parts() {
             .slice(0, 30)
             .map(
               (entry) =>
-                `<tr><td><strong>${esc(partOptions.find((item) => item.id === entry.partId).name)}</strong>${entry.jobId ? `<a href="#repair/${esc(entry.jobId)}"><small>${esc(entry.jobId)}</small></a>` : ""}</td><td data-label="Change">${entry.quantity > 0 ? "+" : ""}${entry.quantity}</td><td data-label="Reason">${esc(entry.reason)}</td><td data-label="Recorded">${esc(stamp(entry.at))}</td></tr>`,
+                `<tr><td><strong>${esc(partsCatalogue(workspace).find((item) => item.id === entry.partId)?.name || entry.partId)}</strong>${entry.jobId ? `<a href="#repair/${esc(entry.jobId)}"><small>${esc(entry.jobId)}</small></a>` : ""}</td><td data-label="Change">${entry.quantity > 0 ? "+" : ""}${entry.quantity}</td><td data-label="Reason">${esc(entry.reason)}</td><td data-label="Recorded">${esc(stamp(entry.at))}</td></tr>`,
             )
             .join("")}</tbody></table>`
         : '<p class="muted">Starting stock is loaded. Receipts and repair consumption will appear here.</p>'
@@ -354,9 +396,11 @@ function catalog() {
     `<div class="catalog-grid">${catalogue(workspace)
       .map(
         (service) =>
-          `<article class="service-card-app"><div class="service-top"><span>${esc(service.category.toUpperCase().replace("-", " "))}</span><span>${service.enabled ? "Active" : "Inactive"}</span></div><h2>${esc(service.name)}</h2><p>${esc(service.description)}</p><div class="service-price">From ${money(service.price)} <small>${esc(service.unit)}</small></div><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><button class="primary-button" data-new-service="${service.id}" ${service.enabled ? "" : "disabled"}>Create ${esc(service.name)}</button><details class="editor-section catalog-edit"><summary>Edit service price</summary><form class="stacked-form" data-catalog="${service.id}"><label>Starting service price ($)<input type="number" name="price" aria-label="Starting price for ${esc(service.name)}" value="${service.price}" min="5" max="1000" step="1" required></label><label class="check-label"><input type="checkbox" name="enabled" ${service.enabled ? "checked" : ""}> Active for new repairs</label><button class="quiet-button" type="submit">Save service</button></form></details></article>`,
+          `<article class="service-card-app"><div class="service-top"><span>${esc(service.category.toUpperCase().replace("-", " "))}</span><span>${service.enabled ? "Active" : "Inactive"}</span></div><h2>${esc(service.name)}</h2><p>${esc(service.description)}</p><div class="service-price">From ${money(service.price)} <small>${esc(service.unit)}</small></div><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><button class="primary-button" data-new-service="${service.id}" ${service.enabled ? "" : "disabled"}>Create ${esc(service.name)}</button><details class="editor-section catalog-edit"><summary>Edit service price</summary><form class="stacked-form" data-catalog="${service.id}"><label>Starting service price ($)<input type="number" name="price" aria-label="Starting price for ${esc(service.name)}" value="${service.price}" min="5" max="1000" step="0.01" required></label><label class="check-label"><input type="checkbox" name="enabled" ${service.enabled ? "checked" : ""}> Active for new repairs</label><button class="quiet-button" type="submit">Save service</button></form></details><details class="editor-section"><summary>Edit service scope</summary>${serviceForm(service)}</details></article>`,
       )
-      .join("")}</div>`
+      .join(
+        "",
+      )}</div><section class="panel"><h2>Add a service</h2><p class="muted">Define its unit, included work and exclusions. Prices do not imply repair durations.</p>${serviceForm()}</section>`
   );
 }
 function reports() {
@@ -441,6 +485,11 @@ function updateControls() {
 }
 function render() {
   if (!workspace) return;
+  const openTools = new Set(
+    [...main.querySelectorAll("details[data-repair-tool][open]")].map(
+      (item) => item.dataset.repairTool,
+    ),
+  );
   const [section, id] = route();
   for (const link of document.querySelectorAll("[data-route]")) {
     if (link.dataset.route === (section === "repair" ? "queue" : section))
@@ -458,10 +507,21 @@ function render() {
             '<a class="quiet-button" href="#queue">Open repair queue</a>',
           )
       : (
-          { overview, queue, schedule, parts, catalog, reports }[section] ||
-          overview
+          {
+            overview,
+            queue,
+            schedule,
+            parts,
+            catalog,
+            reports,
+            people: () => peoplePage(workspace),
+            settings: () => settingsPage(workspace),
+          }[section] || overview
         )();
   bind();
+  main
+    .querySelectorAll("details[data-repair-tool]")
+    .forEach((item) => (item.open = openTools.has(item.dataset.repairTool)));
   updateControls();
 }
 async function api(path, options = {}) {
@@ -540,8 +600,14 @@ async function mutate(path, input, message) {
       customerView = false;
     }
     render();
+    if (data.customerId && input.action === "save-customer") {
+      const selector = main.querySelector(
+        '[data-record-action="save-bike"]:not([data-record-bike-id]) select',
+      );
+      if (selector) selector.value = data.customerId;
+    }
     announce(message);
-    return true;
+    return data;
   } catch (error) {
     uncertain = ![422, 403].includes(error.status);
     const text =
@@ -581,11 +647,24 @@ function formInput(form) {
 function estimateInput(form) {
   const data = formInput(form);
   return {
-    serviceCharge: Number(data.serviceCharge),
-    workDescription: data.workDescription,
+    ...(data.itemized
+      ? {
+          serviceLines: catalogue(workspace)
+            .filter((service) => data[`service-${service.id}`])
+            .map((service) => ({
+              id: service.id,
+              quantity: Number(data[`service-qty-${service.id}`]),
+              unitPrice: Number(data[`service-price-${service.id}`]),
+              description: data[`service-work-${service.id}`],
+            })),
+        }
+      : {
+          serviceCharge: Number(data.serviceCharge),
+          workDescription: data.workDescription,
+        }),
     reasonId: data.reasonId,
-    partLines: partOptions
-      .filter((part) => part.price && data[`part-${part.id}`])
+    partLines: partsCatalogue(workspace)
+      .filter((part) => data[`part-${part.id}`])
       .map((part) => ({
         id: part.id,
         quantity: Number(data[`qty-${part.id}`]),
@@ -594,6 +673,14 @@ function estimateInput(form) {
   };
 }
 function bind() {
+  bindRecords(main, {
+    workspace,
+    operation,
+    openIntake,
+    announce,
+    mutate,
+    currentJob,
+  });
   main
     .querySelectorAll("[data-action]")
     .forEach((button) =>
@@ -727,18 +814,68 @@ function bind() {
     }),
   );
   const estimateForm = main.querySelector("#estimate-form");
-  estimateForm?.addEventListener("change", () => {
+  if (estimateForm) {
+    estimateForm
+      .querySelectorAll('.part-picker input[type="checkbox"]')
+      .forEach((checkbox) =>
+        checkbox.addEventListener("change", () => {
+          const row = checkbox.closest(".part-picker");
+          row.classList.toggle("selected", checkbox.checked);
+          row.querySelector(".part-specification").hidden = !checkbox.checked;
+          row.querySelector(".part-quantity").hidden = !checkbox.checked;
+        }),
+      );
+    estimateForm
+      .querySelector('[name="itemized"]')
+      ?.addEventListener("change", () => {
+        const itemized = estimateForm.elements.itemized.checked;
+        estimateForm.querySelector(".itemized-services").hidden = !itemized;
+        for (const name of ["serviceCharge", "workDescription"]) {
+          const field = estimateForm.elements[name];
+          field.closest("label").hidden = itemized;
+          field.disabled = itemized;
+          field.required = !itemized;
+        }
+      });
+    estimateForm
+      .querySelectorAll("[data-service-picker]")
+      .forEach((row) =>
+        row
+          .querySelector('input[type="checkbox"]')
+          .addEventListener(
+            "change",
+            (event) =>
+              (row.querySelector(".service-line-fields").hidden =
+                !event.target.checked),
+          ),
+      );
+  }
+  estimateForm?.addEventListener("input", () => {
     const input = estimateInput(estimateForm);
     const job = currentJob();
-    const total =
-      input.serviceCharge +
-      (job.collection ? 15 : 0) +
-      input.partLines.reduce(
-        (n, line) =>
-          n +
-          partOptions.find((item) => item.id === line.id).price * line.quantity,
-        0,
-      );
+    let total;
+    try {
+      total = sumMoney([
+        input.serviceLines
+          ? sumMoney(
+              input.serviceLines.map((line) =>
+                multiplyMoney(line.unitPrice, line.quantity),
+              ),
+            )
+          : input.serviceCharge,
+        job.collection ? 15 : 0,
+        ...input.partLines.map((line) =>
+          multiplyMoney(
+            partsCatalogue(workspace).find((item) => item.id === line.id).price,
+            line.quantity,
+          ),
+        ),
+      ]);
+    } catch {
+      main.querySelector("#estimate-preview").textContent =
+        "Complete the charges and quantities to preview the total.";
+      return;
+    }
     main.querySelector("#estimate-preview").textContent =
       `Revised total: ${money(total)}. Customer approval will be required.`;
   });
@@ -774,14 +911,34 @@ function bindClearFilters() {
     render();
   });
 }
-function openIntake(serviceId) {
+function openIntake(serviceId, recordBikeId) {
   if (busy || uncertain) return;
   newForm.reset();
   intakeReference = crypto.randomUUID();
   document.querySelector("#new-error").textContent = "";
   newForm.elements.bikeId.innerHTML = options(demoBikes, "city");
   newForm.elements.issueId.innerHTML = options(demoIssues, "brakes");
+  if (!newForm.querySelector("#returning-intake")) {
+    const field = document.createElement("label");
+    field.id = "returning-intake";
+    field.innerHTML =
+      '<span>Saved bike (optional)</span><select name="recordBikeId" aria-label="Saved bike"><option value="">New bike / sample intake</option></select>';
+    newForm.querySelector(".form-grid").before(field);
+    const condition = document.createElement("label");
+    condition.innerHTML =
+      '<span>Intake condition (optional)</span><textarea name="condition" maxlength="600" placeholder="Visible damage, accessories left with the bike, or other intake observations"></textarea>';
+    newForm.querySelector("#intake-includes").after(condition);
+  }
+  newForm.elements.recordBikeId.innerHTML =
+    '<option value="">New bike / sample intake</option>' +
+    options(
+      workspace.bikes,
+      recordBikeId,
+      (item) =>
+        `${workspace.customers.find((customer) => customer.id === item.customerId)?.name} · ${item.name}`,
+    );
   newForm.querySelector(".form-grid").hidden = privateMode;
+  newForm.elements.bikeId.closest("label").hidden = !!recordBikeId;
   newForm.querySelector("p.muted").textContent = privateMode
     ? "Enter the customer, bike and concern. The catalog supplies a starting service price. Inspect the bike before confirming work, compatible parts and collection."
     : "Choose a fictional bike and concern. The repair type supplies a starting price; actual work and parts are quoted after inspection.";
@@ -793,6 +950,16 @@ function openIntake(serviceId) {
       '<label>Customer name<input name="rider" maxlength="80" required autocomplete="off"></label><label>Bike / model<input name="bike" maxlength="80" required autocomplete="off"></label><label>Reported concern<textarea name="issue" maxlength="400" required></textarea></label>';
     newForm.querySelector(".form-grid").before(fields);
   }
+  if (privateMode && recordBikeId) {
+    const saved = workspace.bikes.find((item) => item.id === recordBikeId);
+    newForm.elements.rider.value = workspace.customers.find(
+      (item) => item.id === saved.customerId,
+    ).name;
+    newForm.elements.bike.value = saved.name;
+  }
+  if (privateMode)
+    for (const key of ["rider", "bike"])
+      newForm.elements[key].readOnly = !!recordBikeId;
   newForm.elements.serviceId.innerHTML = options(
     catalogue(workspace).filter((item) => item.enabled),
     serviceId || "safety",
@@ -811,7 +978,28 @@ function intakeEstimate() {
   document.querySelector("#intake-includes").innerHTML =
     `<ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul>`;
 }
-newForm.addEventListener("change", intakeEstimate);
+newForm.addEventListener("change", (event) => {
+  if (event.target.name === "recordBikeId") {
+    newForm.elements.bikeId.closest("label").hidden = !!event.target.value;
+    if (privateMode)
+      for (const key of ["rider", "bike"])
+        newForm.elements[key].readOnly = !!event.target.value;
+  }
+  if (
+    privateMode &&
+    event.target.name === "recordBikeId" &&
+    event.target.value
+  ) {
+    const saved = workspace.bikes.find(
+      (item) => item.id === event.target.value,
+    );
+    newForm.elements.rider.value = workspace.customers.find(
+      (item) => item.id === saved.customerId,
+    ).name;
+    newForm.elements.bike.value = saved.name;
+  }
+  intakeEstimate();
+});
 newForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const data = new FormData(newForm);
@@ -823,6 +1011,10 @@ newForm.addEventListener("submit", (event) => {
       issueId: data.get("issueId"),
       serviceId: data.get("serviceId"),
       collection: data.has("collection"),
+      ...(data.get("recordBikeId")
+        ? { recordBikeId: data.get("recordBikeId") }
+        : {}),
+      condition: data.get("condition"),
       ...(privateMode
         ? {
             rider: data.get("rider"),
@@ -946,7 +1138,7 @@ function printSummary() {
   const page = document.createElement("section");
   page.className = "print-document";
   page.innerHTML = `<p>NORTHLINE CYCLE CO. / REPAIR SUMMARY</p><h1>${esc(job.bike)}</h1><p>${esc(job.id)} · ${esc(job.rider)} · ${esc(typeFor(job).name)}</p><p>${esc(job.issue)}</p><p>Status: ${esc(stateFor(job).label)} · Expected collection: ${job.expectedReadyDate ? esc(dateLabel(job.expectedReadyDate)) : "Not confirmed"} · Mechanic: ${esc(job.mechanic)}</p><h2>Estimate v${quote.version}</h2>${quoteLines(quote)}<p>Decision: ${esc(quote.decision)}${quote.decidedAt ? ` · ${esc(stamp(quote.decidedAt))}` : ""}</p><p>${job.payment ? `Payment recorded: ${money(job.payment.amount)} by ${esc(job.payment.method)}.` : "Payment has not been recorded."}</p><h2>Repair history</h2>${job.history
-    .filter((entry) => entry.action !== "schedule")
+    .filter((entry) => !["schedule", "add-note"].includes(entry.action))
     .map((entry) => `<p>${esc(stamp(entry.at))} — ${esc(entry.note)}</p>`)
     .join(
       "",

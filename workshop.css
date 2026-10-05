@@ -1398,3 +1398,184 @@ dialog label {
 .part-specification input {
   width: 100%;
 }
+
+[hidden] {
+  display: none !important;
+}
+.records-layout,
+.portal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+  align-items: start;
+}
+.records-layout .panel {
+  min-width: 0;
+}
+.stock-card form[data-record-action] {
+  display: grid;
+  align-items: stretch;
+  gap: 14px;
+}
+.repair-tool > summary {
+  cursor: pointer;
+  list-style: revert;
+}
+.repair-tool > summary h2 {
+  display: inline;
+  font-size: 19px;
+}
+.repair-tool[open] > summary {
+  margin-bottom: 18px;
+}
+.portal-header .app-brand {
+  font-size: 23px;
+  letter-spacing: -0.8px;
+}
+.portal-header .app-brand > div {
+  overflow-wrap: anywhere;
+}
+.portal-header .app-brand > span {
+  flex: none;
+}
+.record-card {
+  border-bottom: 1px solid var(--app-line, #deded5);
+  padding: 18px 0;
+}
+.record-card > summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 17px;
+}
+.record-card > summary small {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+.bike-record {
+  padding: 16px;
+  border: 1px solid var(--app-line, #deded5);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+.bike-record h3 {
+  margin-top: 0;
+}
+.day-picker {
+  border: 1px solid var(--app-line, #deded5);
+  border-radius: 8px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.day-picker label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.day-picker input {
+  width: 18px;
+}
+.customer-update {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--app-line, #deded5);
+}
+.customer-update p,
+.journal p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.customer-update small {
+  color: var(--app-muted);
+}
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.photo-grid figure {
+  margin: 0;
+  min-width: 0;
+}
+.photo-grid img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: contain;
+  background: #f2f1e9;
+  border-radius: 6px;
+}
+.photo-grid figcaption {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+  margin: 8px 0 16px;
+}
+.photo-grid small {
+  display: block;
+  color: var(--app-muted);
+}
+.service-line-picker {
+  padding: 14px;
+  border: 1px solid var(--app-line, #deded5);
+  border-radius: 8px;
+  margin: 12px 0;
+}
+.service-line-fields {
+  padding-top: 12px;
+  display: grid;
+  gap: 12px;
+}
+.part-picker:not(.selected) {
+  grid-template-columns: 1fr;
+}
+.customer-portal {
+  background: var(--app-bg, #f5f4ee);
+}
+.portal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  max-width: 1120px;
+  margin: auto;
+  padding: 24px;
+}
+.customer-portal main {
+  max-width: 1120px;
+  padding: 24px;
+  margin: auto;
+}
+.portal-footer {
+  background: transparent;
+  max-width: 1120px;
+  margin: 32px auto;
+  padding: 0 24px;
+  color: var(--app-muted);
+  font-size: 13px;
+}
+.customer-portal .app-message {
+  max-width: 1072px;
+  margin: 0 auto;
+  padding: 12px 24px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+@media (max-width: 800px) {
+  .records-layout,
+  .portal-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .customer-portal main,
+  .portal-header {
+    padding: 18px 16px;
+  }
+}

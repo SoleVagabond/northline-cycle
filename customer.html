@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Your repair · Northline</title>
+    <link rel="icon" href="/assets/favicon.svg" />
+    <link rel="stylesheet" href="/workshop.css" />
+    <script type="module" src="/customer.js"></script>
+  </head>
+  <body class="customer-portal">
+    <a class="skip-link" href="#customer-workspace">Skip to your repair</a>
+    <header class="portal-header">
+      <span class="app-brand"
+        ><span aria-hidden="true">n.</span>
+        <div id="shop-name">northline</div></span
+      ><button class="quiet-button" id="customer-refresh">
+        Refresh repair
+      </button>
+    </header>
+    <main id="customer-workspace" tabindex="-1">
+      <div class="loading-state">
+        <h1>Opening your repair</h1>
+        <p>Loading your estimate and workshop updates.</p>
+      </div>
+    </main>
+    <p
+      class="app-message"
+      id="customer-message"
+      role="status"
+      aria-live="polite"
+    ></p>
+    <footer class="portal-footer">
+      A repair link gives access to this repair only. Keep it private.
+    </footer>
+  </body>
+</html>

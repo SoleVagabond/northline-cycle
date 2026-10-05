@@ -1,3 +1,4 @@
+import { money, sumMoney } from "./lib/money.js";
 import { demoBikes, demoIssues } from "./lib/repairs.js";
 import { ensureWorkspace } from "./lib/demo-session.js";
 
@@ -45,7 +46,7 @@ function setStatus(message, state) {
 function updateEstimate() {
   const service = menu.find((item) => item.id === select.value);
   document.querySelector("#estimate-value").textContent = service
-    ? `$${service.price + (collection.checked ? 15 : 0)}`
+    ? money(sumMoney([service.price, collection.checked ? 15 : 0]))
     : "—";
   document.querySelector("#estimate-detail").textContent = service
     ? `${service.name}${collection.checked ? " + collection" : ""} · parts quoted separately`
@@ -89,7 +90,7 @@ function renderServices() {
     const bottom = document.createElement("div");
     bottom.className = "card-bottom";
     const price = document.createElement("strong");
-    price.textContent = `From $${item.price}`;
+    price.textContent = `From ${money(item.price)}`;
     const choose = document.createElement("button");
     choose.type = "button";
     choose.className = "choose-service";
@@ -157,7 +158,7 @@ form.addEventListener("submit", async (event) => {
       new CustomEvent("northline:repair-created", { detail: result }),
     );
     setStatus(
-      `Sample repair ${result.repairId} saved. Estimate: $${result.estimate}. Open its tracker to inspect, approve, and complete the repair. No appointment has been booked.`,
+      `Sample repair ${result.repairId} saved. Estimate: ${money(result.estimate)}. Open its tracker to inspect, approve, and complete the repair. No appointment has been booked.`,
       "success",
     );
     trackButton.hidden = false;
@@ -192,7 +193,7 @@ async function loadServices() {
     for (const item of menu) {
       const option = document.createElement("option");
       option.value = item.id;
-      option.textContent = `${item.name} — $${item.price}`;
+      option.textContent = `${item.name} — ${money(item.price)}`;
       select.append(option);
     }
     if (menu.some((item) => item.id === previousService))

@@ -1,32 +1,14 @@
-# Website QA Case Study
+# Northline verification pack
 
-A verification pack supporting **Northline Cycle Co.**, a fictional bicycle-workshop website and saved repair workflow. Personal sample focused on reproducible checks, recovery, and regression coverage.
+The [QA report](QA-REPORT.md) records current and historical release evidence. The [acceptance plan](TEST-PLAN.md), [business review](BIKE-SHOP-REVIEW.md) and [competitor comparison](COMPETITOR-REVIEW.md) explain tested behavior and product limits.
 
-- [Test plan](TEST-PLAN.md): current scope, cases, and limits.
-- [QA report](QA-REPORT.md): results, four observed defects, and evidence.
-- [Smoke checker](verify.mjs): repeatable end-to-end checks.
-- Screenshots and check output in `evidence/`.
-
-## Run the checks
-
-Start Northline from the repository root, then run:
+Run the unprotected app locally, then:
 
 ```sh
 node qa/verify.mjs http://127.0.0.1:8788
+node qa/verify-work-orders.mjs http://127.0.0.1:8788
 ```
 
-Use `http://localhost:8888` for Netlify Dev. The previous 12-check suite passed against both targets; the expanded 17-check suite passed against the plain local server. The checker creates fictional workspaces, completes a submitted repair, verifies revised estimates and exception paths, saved progress and retry behavior, rejects personal fields, and checks public/private assets. The app contains 48 isolated regression tests and 57 Chromium browser scenarios.
+The first checker contains 24 integration checks. The second adds eight for customer/bike records, configurable SKUs, exact itemized prices, private/shared photos, recipient approval, stock consumption, collection and revoked links. Both create separate fictional workspaces. Add `--hosted` with the owned production URL to verify deployment.
 
-For a hosted demo you own:
-
-```sh
-node qa/verify.mjs https://YOUR-SITE.netlify.app --hosted
-```
-
-The explicit flag permits HTTPS Netlify demo URLs. Run only against your own demo: it creates sample records. Other targets are refused. The [published demo](https://northline-cycle-devin.netlify.app) passed all 17 checks; output is in `evidence/hosted-smoke-checks.txt`.
-
-This is supporting evidence for the Northline website in this repository.
-
-## Portfolio description
-
-Website QA case study covering a connected request-to-collection workflow, versioned estimates, customer decisions, saved progress, retry behavior, and recovery. Includes four observed defects with corrections, browser evidence, 48 passing isolated tests, 57 browser scenarios, and a reusable 17-check smoke checker. Personal demonstration for a fictional business.
+The checked-in suite contains 94 isolated checks and 33 browser journeys across desktop Chromium, 375/320-pixel Chromium, Firefox and WebKit. It includes genuine saved responses that are subsequently lost, concurrent revisions, restart persistence, private installation, scoped recipient decisions, keyboard controls, responsive layouts and unsuppressed accessibility scans. Viewport emulation and automated scans do not replace physical-device or independent usability/security testing.

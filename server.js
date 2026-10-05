@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createApi } from "./lib/api.js";
 import { createFileStore } from "./lib/file-store.js";
 import { createOperatorAccess } from "./lib/operator-auth.js";
+import { photoRequestLimit } from "./lib/photos.js";
 const root = dirname(fileURLToPath(import.meta.url));
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
@@ -21,6 +22,11 @@ const files = new Map([
   ["/workshop.html", ["workshop.html", "text/html; charset=utf-8"]],
   ["/workshop.css", ["workshop.css", "text/css; charset=utf-8"]],
   ["/workshop.js", ["workshop.js", "text/javascript; charset=utf-8"]],
+  ["/records-ui.js", ["records-ui.js", "text/javascript; charset=utf-8"]],
+  ["/customer.html", ["customer.html", "text/html; charset=utf-8"]],
+  ["/customer.js", ["customer.js", "text/javascript; charset=utf-8"]],
+  ["/lib/money.js", ["lib/money.js", "text/javascript; charset=utf-8"]],
+  ["/lib/shop-data.js", ["lib/shop-data.js", "text/javascript; charset=utf-8"]],
   [
     "/lib/workshop-query.js",
     ["lib/workshop-query.js", "text/javascript; charset=utf-8"],
@@ -85,7 +91,7 @@ export function createApp({
     res.setHeader("Referrer-Policy", "same-origin");
     res.setHeader(
       "Content-Security-Policy",
-      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
     );
     try {
       const url = new URL(
@@ -95,11 +101,13 @@ export function createApp({
       if (url.pathname.startsWith("/api/")) {
         const chunks = [];
         let bytes = 0;
+        const bodyLimit =
+          url.pathname === "/api/photos" ? photoRequestLimit : 8192;
         for await (const chunk of req) {
           bytes += chunk.length;
-          if (bytes <= 8193) chunks.push(chunk);
+          if (bytes <= bodyLimit + 1) chunks.push(chunk);
         }
-        if (bytes > 8192) {
+        if (bytes > bodyLimit) {
           res.writeHead(413, { "Content-Type": "application/json" });
           res.end(
             JSON.stringify({
@@ -113,16 +121,18 @@ export function createApp({
           : Buffer.concat(chunks);
         const headers = new Headers(req.headers);
         const request = new Request(url, { method: req.method, headers, body });
-        const accessResponse = access
-          ? await access(request.clone(), req.socket.remoteAddress)
-          : null;
-        if (access && !accessResponse)
+        const customerRequest = url.pathname.startsWith("/api/customer/");
+        const accessResponse =
+          access && !customerRequest
+            ? await access(request.clone(), req.socket.remoteAddress)
+            : null;
+        if (access && !accessResponse && !customerRequest)
           headers.set("cookie", `northline_demo=${privateWorkspaceId}`);
         const response =
           accessResponse ||
           (await api(new Request(url, { method: req.method, headers, body })));
         res.writeHead(response.status, Object.fromEntries(response.headers));
-        res.end(await response.text());
+        res.end(Buffer.from(await response.arrayBuffer()));
         return;
       }
       const file = files.get(url.pathname);

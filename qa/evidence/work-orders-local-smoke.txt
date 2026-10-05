@@ -1,0 +1,9 @@
+PASS Migrated records are readable in a fresh isolated workspace
+PASS Customer and bike records link a returning repair without replacing earlier records
+PASS A configurable compatible SKU starts empty and retains a fractional price
+PASS An itemized two-service estimate has an exact server total
+PASS Internal findings and private photos stay outside a scoped customer link
+PASS The recipient approves the current estimate and stock shortage pauses work
+PASS Stock receipt, consumption, checks, payment and collection complete the itemized repair
+PASS Revocation denies the previously working customer link
+8 work-order integration checks passed against http://127.0.0.1:8833. Separate fictional workspace; no customer messages or charges.

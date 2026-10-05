@@ -1,6 +1,6 @@
 {
   "name": "northline-cycle",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "type": "module",
   "description": "Bicycle repair-management application with scheduling, inventory, estimates and a protected installation mode.",

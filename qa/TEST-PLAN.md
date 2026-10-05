@@ -2,7 +2,7 @@
 
 ## Scope and environment
 
-A fictional workshop website and six-screen repair-management application: priced intake, estimates, queue, scheduling, stock, quality checks, offline payment records, reports, protected local mode, persistence and recovery.
+A fictional workshop website and eight-screen repair-management application: priced intake, estimates, queue, scheduling, stock, quality checks, offline payment records, reports, protected local mode, persistence and recovery.
 
 Windows, Node.js 22.14.0, desktop Chromium/Firefox/WebKit and Chromium at 375/320 pixels; GitHub repeats the suite on Linux. Viewports are not physical-device tests. Use fictional records. Failure fixtures run locally and return actual error responses.
 
@@ -75,3 +75,16 @@ Windows, Node.js 22.14.0, desktop Chromium/Firefox/WebKit and Chromium at 375/32
 ## Limits
 
 Public execution is verified separately. Emulator results do not prove distributed concurrency. Physical devices, complete accessibility/security/load audits, independent staff/customer identities, external notifications/charges and appointment-slot bookings are outside this review. Private operator sessions and due-date scheduling are tested.
+
+## Work-order release acceptance
+
+- Migrate earlier repairs without rewriting quotes/decisions or merging matching customer names.
+- Save customers and bikes, create repeat visits, edit descriptive records and preserve earlier repair snapshots.
+- Configure service scope/units/decimal prices, unique compatible part models/SKUs and staff/shop availability.
+- Flag existing schedule conflicts after configuration changes without silently rescheduling jobs.
+- Itemize several services and parts under one current approval; exact cent totals and scope changes preserve historical decisions.
+- Store private/shared photos and internal findings separately from recipient updates. Verify image bounds and denied private/unrelated image access.
+- Open customer links in a browser context without workshop cookies. Reject forged fields, stale versions/revisions, expired/revoked links and external-origin decisions.
+- Recover from a response lost after actual recipient approval without recording a second decision.
+- Preserve photos and customer access across protected-server restart; remove media after failed concurrent writes or portfolio expiry.
+- Exercise new forms and disclosures at both narrow widths with no suppressed accessibility rules.

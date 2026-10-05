@@ -1,5 +1,19 @@
 # Northline Workshop — release evidence
 
+## October 5 customer records and work orders release
+
+The release plan connects configurable services, SKUs, shop hours and staff availability to saved customer/bike history, itemized work orders, scoped customer approval links and persistent repair photos. Inspection and internal notes remain separate from explicitly shared updates and images. Existing repairs keep their estimates and history.
+
+**Local verification:** All **94 isolated checks** passed. The full browser run passed 164 of 165 scenarios before Firefox exposed an invalid PNG test fixture. The fixture was corrected and PNG integrity validation was strengthened; all **20 affected scenarios** then passed across desktop Chromium, 375/320-pixel Chromium, Firefox and WebKit. Following the final returning-bike intake refinement, all **10 affected intake scenarios** passed again. Accessibility scans suppress no rules. Formatting, type checking and the 30-file public build passed.
+
+All **24 existing local integration checks** and **8 new work-order integration checks** passed. The latter cover repeat-bike history, a $142.45 itemized estimate, private/shared photo access, a separate customer approval, stock shortage and receipt, quality checks, payment recording, collection and link revocation. The in-app browser separately saved and approved a $115.60 estimate comprising one $35.10 wheel service and two $40.25 brake services; refreshing the workshop showed the repair on the workbench.
+
+Reassessment simplified the repair detail into disclosures, hid unselected part specifications, preselected newly created customer records, clarified shortage quantities and corrected stale decision recovery. Changes to shop or staff availability flag existing scheduling conflicts rather than moving jobs silently. Further manual review standardized cents in future journal entries. See the release plan for the complete acceptance criteria and refinements.
+
+Links confer access to one repair; they do not verify a customer's identity. Contacts are not messaged automatically. Photos are separately stored and included in full file backups, while exports contain photo metadata only. Payment entries do not charge cards. Tax, purchasing, staff accounts and commercial integrations remain outside this release.
+
+[Release plan](../docs/WORK-ORDER-RELEASE.md) · [Work-order integration output](evidence/work-orders-local-smoke.txt) · [Operations guide](../docs/OPERATIONS.md)
+
 ## October 4 bicycle-shop business correction
 
 The [business review](BIKE-SHOP-REVIEW.md) uses bike-shop service menus, workshop software documentation and manufacturer-compatible part guidance. It replaces catalog durations and repeated labour labels with scoped starting prices, separates internal work scheduling from expected collection, requires descriptions of inspected work and compatible part specifications, and permits a documented no-shifting exception while retaining the other safety checks. Quote values and past approvals remain unchanged. Generic sample stock is no longer represented as universal compatible SKUs.
