@@ -61,11 +61,14 @@ const image =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGP4/x8AAwAB//wl3FEAAAAASUVORK5CYII=";
 test("migration preserves decisions, creates stable separate people and bike IDs, and is idempotent", () => {
   const old = createWorkspace(randomUUID(), now);
+  old.jobs.forEach((job) => delete job.mechanicId);
   old.jobs[1].rider = old.jobs[0].rider;
   const original = structuredClone(old);
   const workspace = operationsWorkspace(old);
   assert.deepEqual(old, original);
   assert.equal(workspace.customers.length, 3);
+  assert.equal(workspace.jobs[0].mechanicId, "alex");
+  assert.equal(workspace.jobs[1].mechanicId, "sam");
   assert.notEqual(workspace.jobs[0].customerId, workspace.jobs[1].customerId);
   assert.deepEqual(workspace.jobs[0].history, old.jobs[0].history);
   assert.deepEqual(operationsWorkspace(workspace), workspace);
