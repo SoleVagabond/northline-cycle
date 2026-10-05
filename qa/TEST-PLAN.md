@@ -25,6 +25,11 @@ Windows, Node.js 22.14.0, Chromium desktop rendering, and isolated 390/768-pixel
 | UI-13 | Save an action/reset then lose response | Uncertain badge; further actions blocked until reload shows the actual saved result |
 | UI-14 | Service menu 503 then retry | Menu recovers without page reload; bike and concern preserved |
 | UI-15 | Hold a request response | Form and service-card choices disabled; confirmed save provides next step |
+| UI-16 | Revise with parts/labour, approve, wait, resume and collect | Version-specific approval; waiting never skips the ride check; history survives reload |
+| UI-17 | Decline and request an alternative | Earlier decline retained; the new version requires a new approval |
+| UI-18 | Dismiss then confirm cancellation | Dismissal changes nothing; confirmation closes the repair permanently |
+| UI-19 | Lose response after a revised estimate saves | Draft choices and preview retained; further changes blocked until reload |
+| UI-20 | Inspect expanded editor and exception states | No overflow or automated accessibility violations at all three test widths |
 | API-01 | Submit choices with forged estimate | Server calculates $80 |
 | API-02 | Invalid choices or personal fields | 422; no repair created |
 | API-03 | Malformed JSON, wrong media, >8192 bytes | 400, 415, or 413 |
@@ -38,16 +43,20 @@ Windows, Node.js 22.14.0, Chromium desktop rendering, and isolated 390/768-pixel
 | REPAIR-03 | Two actions at same revision | One succeeds; stale update 409 |
 | REPAIR-04 | Restart local server | Saved progress remains |
 | REPAIR-05 | Reset | New isolated starting workspace |
+| REPAIR-06 | Reprice already-approved work | Approval cleared; work paused; previous approved quote remains historical |
+| REPAIR-07 | Submit wrong quote version, forged price or invalid role | Rejected without changing saved state |
+| REPAIR-08 | Reach quote or journal limit | Growth bounded; existing records preserved |
+| REPAIR-09 | Act on a repair saved by the previous release | First quote derived without losing stages or history |
 | DEMO-01 | Exceed ten repairs | Capacity preserved; request rejected |
 | DEMO-02 | Access/update after expiry | Old workspace inaccessible; new session possible |
 | DEMO-03 | Cleanup active/expired records | Expired records deleted only |
 | DEMO-04 | Expired record beyond first batch | Cursor resumes; later records not starved |
-| HOST-01 | Build functions and public files | Both functions; 18 allowlisted static files |
-| HOST-02 | Netlify Dev smoke check | 12 checks pass through function/emulator |
+| HOST-01 | Build functions and public files | Both functions; 20 allowlisted static files |
+| HOST-02 | Netlify Dev smoke check | Integration checks pass through function/emulator; current 17-check suite verified separately |
 | HOST-03 | Compete conditional writes | One save, one 409; no duplicate history |
 | HOST-04 | Change emulator version mid-read | Reject unreliable read |
 | HOST-05 | Inspect hosting configuration | API rate rule and hourly cleanup present |
-| HOST-06 | Check owned public demo | 12 hosted checks and HTTPS browser journey |
+| HOST-06 | Check owned public demo | 17 hosted checks and HTTPS browser journey |
 
 ## Limits
 

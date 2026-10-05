@@ -4,6 +4,16 @@
 **Project type:** Personal demonstration; fictional business  
 **Result:** 32 isolated tests and 12 smoke checks passed against both the plain server and Netlify Dev. The submitted-request journey, persistence, recovery, and responsive layouts were checked in Chromium. The production HTTPS site passed the same 12 checks.
 
+## October 4 repair-decision update
+
+The new release passed **48 isolated checks and 57 browser scenarios**. Five added journeys cover revised estimates with approval and parts-wait/collection, customer declines and alternatives, confirmed/dismissed cancellation, a lost revision response after the real save, and expanded-editor/exception-state layout and accessibility. They run at the same desktop and two narrow widths. No accessibility rules were suppressed.
+
+All **17 local and 17 production integration checks** passed, including repricing already-approved work, refusal of an old estimate version, a declined $125 offer replaced by an approved $92 offer, saved parts-wait/resume, and terminal cancellation. The local in-app browser also completed the decline/alternative, parts-wait/resume, ride-check and collection journey; navigation retained all three estimate versions and twelve journal entries. A fresh production navigation loaded the new controls and retained both previously collected browser samples. [Current hosted check output](evidence/hosted-smoke-checks.txt).
+
+The server calculates parts/labour from a controlled sample catalogue, preserves quote versions, and requires approval of the exact current version. Revising an already approved job clears its current approval and pauses work. Earlier approvals remain historical decisions. Declines can lead to a new alternative; cancellation is terminal. Waiting for parts retains the approved version and resumes at the workbench. API checks reject forged totals and personal notes, stale workspace writes, incorrect role actions, and approval of an old quote. Tests also verify compatibility with saved repairs from the previous release and bounded quote/journal growth.
+
+The [competitor review](COMPETITOR-REVIEW.md) cites current vendor documentation, identifies comparable workflow concepts, and records the remaining commercial-product gaps. It is a documentation comparison, not hands-on testing of those products or a hiring-outcome claim.
+
 ## October 4 workflow review
 
 The updated interface passed **32 isolated tests, 42 browser scenarios, and 12 local integration checks**. Fourteen browser scenarios run at 1280×900, 375×812, and 320×740. The desktop in-app browser also completed inspection, customer approval, repair, ride check, readiness, and collection; navigation retained the collected repair.

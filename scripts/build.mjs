@@ -18,6 +18,8 @@ const publicFiles = [
   "docs/tracker-desktop.jpg",
   "lib/services.js",
   "lib/repairs.js",
+  "lib/quotes.js",
+  "lib/decision-view.js",
   "lib/demo-session.js",
   ...["safety", "puncture", "tune", "overhaul", "drivetrain", "wheel"].map(
     (id) => `assets/${id}.svg`,

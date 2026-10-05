@@ -171,6 +171,8 @@ await check("Case study, favicon, and sharing image load", async () => {
     "/project-brief.md",
     "/assets/favicon.svg",
     "/assets/share.jpg",
+    "/lib/quotes.js",
+    "/lib/decision-view.js",
   ])
     assert.equal((await fetch(origin + path)).status, 200);
   const image = await fetch(origin + "/assets/share.jpg");
@@ -180,4 +182,130 @@ await check("Case study, favicon, and sharing image load", async () => {
     [255, 216, 255],
   );
 });
+let decisionWorkspace;
+const decisionJob = () =>
+  decisionWorkspace.jobs.find((job) => job.id === "NL-2401");
+async function decisionAction(action, role, choices = {}) {
+  const response = await fetch(origin + "/api/tracker/actions", {
+    method: "POST",
+    headers: { cookie: demoCookie, "content-type": "application/json" },
+    body: JSON.stringify({
+      jobId: "NL-2401",
+      revision: decisionWorkspace.revision,
+      action,
+      role,
+      ...choices,
+    }),
+  });
+  if (response.status === 200)
+    decisionWorkspace = (await response.json()).workspace;
+  return response;
+}
+await check(
+  "Revised parts and labour pause previously approved work",
+  async () => {
+    const response = await fetch(origin + "/api/tracker", {
+      headers: { cookie: demoCookie },
+    });
+    assert.equal(response.status, 200);
+    decisionWorkspace = (await response.json()).workspace;
+    assert.equal(
+      (
+        await decisionAction("revise", "workshop", {
+          partsId: "pads",
+          labourId: "adjustment",
+          reasonId: "inspection",
+        })
+      ).status,
+      200,
+    );
+    assert.equal(decisionJob().status, "approval");
+    assert.equal(decisionJob().estimate, 125);
+    assert.equal(decisionJob().quotes[0].decision, "approved");
+    assert.equal(decisionJob().quotes[1].version, 2);
+  },
+);
+await check(
+  "Old estimate approval and unapproved work are rejected",
+  async () => {
+    const revision = decisionWorkspace.revision;
+    assert.equal(
+      (await decisionAction("approve", "customer", { quoteVersion: 1 })).status,
+      422,
+    );
+    assert.equal((await decisionAction("advance", "workshop")).status, 422);
+    assert.equal(decisionWorkspace.revision, revision);
+    assert.equal(decisionJob().status, "approval");
+  },
+);
+await check(
+  "Declined estimate can be replaced and the new version approved",
+  async () => {
+    assert.equal(
+      (await decisionAction("decline", "customer", { quoteVersion: 2 })).status,
+      200,
+    );
+    assert.equal(decisionJob().status, "declined");
+    assert.equal(
+      (
+        await decisionAction("revise", "workshop", {
+          partsId: "tube",
+          labourId: "standard",
+          reasonId: "alternative",
+        })
+      ).status,
+      200,
+    );
+    assert.equal(decisionJob().estimate, 92);
+    assert.equal(
+      (await decisionAction("approve", "customer", { quoteVersion: 3 })).status,
+      200,
+    );
+    assert.deepEqual(
+      decisionJob().quotes.map((quote) => quote.decision),
+      ["approved", "declined", "approved"],
+    );
+  },
+);
+await check(
+  "Parts wait resumes at the workbench and remains saved",
+  async () => {
+    assert.equal((await decisionAction("wait-parts", "workshop")).status, 200);
+    assert.equal(decisionJob().status, "waiting_parts");
+    assert.equal((await decisionAction("advance", "workshop")).status, 422);
+    assert.equal(
+      (await decisionAction("parts-arrived", "workshop")).status,
+      200,
+    );
+    const response = await fetch(origin + "/api/tracker", {
+      headers: { cookie: demoCookie },
+    });
+    assert.equal(response.status, 200);
+    decisionWorkspace = (await response.json()).workspace;
+    assert.equal(decisionJob().status, "repairing");
+    assert.equal(decisionJob().quotes.length, 3);
+  },
+);
+await check(
+  "Cancellation closes the repair and prevents further changes",
+  async () => {
+    assert.equal(
+      (
+        await decisionAction("cancel", "workshop", {
+          reasonId: "customer-request",
+        })
+      ).status,
+      200,
+    );
+    const historyLength = decisionJob().history.length;
+    assert.equal((await decisionAction("advance", "workshop")).status, 422);
+    const response = await fetch(origin + "/api/tracker", {
+      headers: { cookie: demoCookie },
+    });
+    assert.equal(response.status, 200);
+    decisionWorkspace = (await response.json()).workspace;
+    assert.equal(decisionJob().status, "cancelled");
+    assert.equal(decisionJob().history.length, historyLength);
+  },
+);
 console.log(`${passed} checks passed.`);

@@ -10,4 +10,9 @@ PASS The submitted request completes all seven repair stages
 PASS Repeating a saved request does not create a duplicate
 PASS Personal contact fields are rejected
 PASS Case study, favicon, and sharing image load
-12 checks passed.
+PASS Revised parts and labour pause previously approved work
+PASS Old estimate approval and unapproved work are rejected
+PASS Declined estimate can be replaced and the new version approved
+PASS Parts wait resumes at the workbench and remains saved
+PASS Cancellation closes the repair and prevents further changes
+17 checks passed.

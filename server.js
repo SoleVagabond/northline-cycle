@@ -18,6 +18,11 @@ const files = new Map([
   ["/tracker.js", ["tracker.js", "text/javascript; charset=utf-8"]],
   ["/lib/services.js", ["lib/services.js", "text/javascript; charset=utf-8"]],
   ["/lib/repairs.js", ["lib/repairs.js", "text/javascript; charset=utf-8"]],
+  ["/lib/quotes.js", ["lib/quotes.js", "text/javascript; charset=utf-8"]],
+  [
+    "/lib/decision-view.js",
+    ["lib/decision-view.js", "text/javascript; charset=utf-8"],
+  ],
   [
     "/lib/demo-session.js",
     ["lib/demo-session.js", "text/javascript; charset=utf-8"],

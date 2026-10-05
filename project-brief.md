@@ -8,7 +8,7 @@ Help a rider choose a service, understand the labour estimate, and follow a repa
 
 ## Implementation
 
-An original responsive website with six illustrated services, server-calculated estimates, a sample request form, and a seven-stage repair tracker. Each request creates a repair in the visitor’s saved workspace. Inspection pauses for customer approval before work continues. A journal records the stages. Inline view handoffs keep the same repair open, responsibility labels explain the next action, and separate ready/collected filters distinguish collection from completion. Estimates break out labour and local collection.
+An original responsive website with six illustrated services, server-calculated estimates, a sample request form, and a seven-stage repair tracker. Each request creates a repair in the visitor’s saved workspace. Inspection pauses for customer approval before work continues. Versioned estimates retain previous totals and decisions. Revised labour/parts prices require approval of the exact current version. Declines, alternative offers, waiting for parts, and terminal cancellation have enforced transitions. A journal records the stages and decisions. Inline view handoffs keep the same repair open, responsibility labels explain the next action, and separate ready/collected filters distinguish collection from completion. Estimates break out labour and local collection.
 
 ## Reliability and demo scope
 

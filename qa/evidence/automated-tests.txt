@@ -1,174 +1,250 @@
-
-> northline-cycle@3.0.0 test
-> node --test test/*.test.js
-
 TAP version 13
 # Subtest: separate cloud adapters use conditional writes to prevent lost concurrent updates
 ok 1 - separate cloud adapters use conditional writes to prevent lost concurrent updates
   ---
-  duration_ms: 26.5231
+  duration_ms: 25.0087
   ...
 # Subtest: cloud adapter rejects an unsuccessful workspace write
 ok 2 - cloud adapter rejects an unsuccessful workspace write
   ---
-  duration_ms: 0.6087
+  duration_ms: 0.4839
   ...
 # Subtest: cloud adapter never updates a record without a storage version
 ok 3 - cloud adapter never updates a record without a storage version
   ---
-  duration_ms: 0.1798
+  duration_ms: 0.1856
   ...
 # Subtest: local emulator reads use matching before and after list versions
 ok 4 - local emulator reads use matching before and after list versions
   ---
-  duration_ms: 0.3177
+  duration_ms: 0.3297
   ...
 # Subtest: local emulator rejects a read if its surrounding versions change
 ok 5 - local emulator rejects a read if its surrounding versions change
   ---
-  duration_ms: 0.2659
+  duration_ms: 0.2452
+  ...
+# Subtest: revised estimates calculate controlled prices and retain the original without mutation
+ok 6 - revised estimates calculate controlled prices and retain the original without mutation
+  ---
+  duration_ms: 3.7178
+  ...
+# Subtest: changing an approved estimate pauses work and requires the exact new version
+ok 7 - changing an approved estimate pauses work and requires the exact new version
+  ---
+  duration_ms: 0.7206
+  ...
+# Subtest: declining and offering an alternative preserve each customer decision
+ok 8 - declining and offering an alternative preserve each customer decision
+  ---
+  duration_ms: 0.4267
+  ...
+# Subtest: waiting for parts resumes only approved work and cannot skip to ride check
+ok 9 - waiting for parts resumes only approved work and cannot skip to ride check
+  ---
+  duration_ms: 0.4161
+  ...
+# Subtest: cancellation is terminal, records the reason, and retains all previous history
+ok 10 - cancellation is terminal, records the reason, and retains all previous history
+  ---
+  duration_ms: 0.3912
+  ...
+# Subtest: rejects customer quote revision without changing the saved object
+ok 11 - rejects customer quote revision without changing the saved object
+  ---
+  duration_ms: 0.1802
+  ...
+# Subtest: rejects workshop approval without changing the saved object
+ok 12 - rejects workshop approval without changing the saved object
+  ---
+  duration_ms: 0.191
+  ...
+# Subtest: rejects waiting without replacement parts without changing the saved object
+ok 13 - rejects waiting without replacement parts without changing the saved object
+  ---
+  duration_ms: 0.1513
+  ...
+# Subtest: rejects customer cancellation after work starts without changing the saved object
+ok 14 - rejects customer cancellation after work starts without changing the saved object
+  ---
+  duration_ms: 0.35
+  ...
+# Subtest: rejects unknown part without changing the saved object
+ok 15 - rejects unknown part without changing the saved object
+  ---
+  duration_ms: 0.3986
+  ...
+# Subtest: rejects unknown labour without changing the saved object
+ok 16 - rejects unknown labour without changing the saved object
+  ---
+  duration_ms: 0.1833
+  ...
+# Subtest: rejects unchanged quote without changing the saved object
+ok 17 - rejects unchanged quote without changing the saved object
+  ---
+  duration_ms: 0.1274
+  ...
+# Subtest: quote and journal growth have explicit sample limits
+ok 18 - quote and journal growth have explicit sample limits
+  ---
+  duration_ms: 3.9656
+  ...
+# Subtest: old saved repairs remain readable and become versioned on their next decision
+ok 19 - old saved repairs remain readable and become versioned on their next decision
+  ---
+  duration_ms: 0.188
+  ...
+# Subtest: API rejects forged prices and personal notes before any history change
+ok 20 - API rejects forged prices and personal notes before any history change
+  ---
+  duration_ms: 23.3502
+  ...
+# Subtest: API persists versions and rejects an approval from a stale tab
+ok 21 - API persists versions and rejects an approval from a stale tab
+  ---
+  duration_ms: 3.9771
   ...
 # Subtest: a submitted request completes the full repair journey in the same workspace
-ok 6 - a submitted request completes the full repair journey in the same workspace
+ok 22 - a submitted request completes the full repair journey in the same workspace
   ---
-  duration_ms: 29.826
+  duration_ms: 30.5817
   ...
 # Subtest: retrying the same request returns its saved repair without creating a duplicate
-ok 7 - retrying the same request returns its saved repair without creating a duplicate
+ok 23 - retrying the same request returns its saved repair without creating a duplicate
   ---
-  duration_ms: 2.2074
+  duration_ms: 2.1353
   ...
 # Subtest: workspaces expire after seven days; a return starts a fresh demo
-ok 8 - workspaces expire after seven days; a return starts a fresh demo
+ok 24 - workspaces expire after seven days; a return starts a fresh demo
   ---
-  duration_ms: 1.5663
+  duration_ms: 1.6876
   ...
 # Subtest: workspace capacity limits repeated creations while leaving prior repairs intact
-ok 9 - workspace capacity limits repeated creations while leaving prior repairs intact
+ok 25 - workspace capacity limits repeated creations while leaving prior repairs intact
   ---
-  duration_ms: 6.2195
+  duration_ms: 5.8823
   ...
 # Subtest: personal fields are rejected and are never stored
-ok 10 - personal fields are rejected and are never stored
+ok 26 - personal fields are rejected and are never stored
   ---
-  duration_ms: 0.7655
+  duration_ms: 1.3101
   ...
 # Subtest: cleanup removes expired samples and keeps current samples
-ok 11 - cleanup removes expired samples and keeps current samples
+ok 27 - cleanup removes expired samples and keeps current samples
   ---
-  duration_ms: 11.5291
+  duration_ms: 11.6672
   ...
 # Subtest: bounded cleanup resumes beyond current records instead of starving older samples
-ok 12 - bounded cleanup resumes beyond current records instead of starving older samples
+ok 28 - bounded cleanup resumes beyond current records instead of starving older samples
   ---
-  duration_ms: 0.4918
+  duration_ms: 0.3947
   ...
 # Subtest: catalogue exposes six services and the expected starting estimate
-ok 13 - catalogue exposes six services and the expected starting estimate
+ok 29 - catalogue exposes six services and the expected starting estimate
   ---
-  duration_ms: 51.1585
+  duration_ms: 47.7319
   ...
 # Subtest: valid request is stored; server computes price instead of trusting the client
-ok 14 - valid request is stored; server computes price instead of trusting the client
+ok 30 - valid request is stored; server computes price instead of trusting the client
   ---
-  duration_ms: 19.8997
+  duration_ms: 20.0433
   ...
 # Subtest: missing or invalid fields are rejected without creating a record
-ok 15 - missing or invalid fields are rejected without creating a record
+ok 31 - missing or invalid fields are rejected without creating a record
   ---
-  duration_ms: 32.2743
+  duration_ms: 30.5764
   ...
 # Subtest: malformed JSON and wrong content type receive clear errors
-ok 16 - malformed JSON and wrong content type receive clear errors
+ok 32 - malformed JSON and wrong content type receive clear errors
   ---
-  duration_ms: 9.7481
+  duration_ms: 11.6767
   ...
 # Subtest: oversized request is rejected
-ok 17 - oversized request is rejected
+ok 33 - oversized request is rejected
   ---
-  duration_ms: 6.1786
+  duration_ms: 4.8391
   ...
 # Subtest: simultaneous requests keep separate records and unique references
-ok 18 - simultaneous requests keep separate records and unique references
+ok 34 - simultaneous requests keep separate records and unique references
   ---
-  duration_ms: 38.888
+  duration_ms: 40.3003
   ...
 # Subtest: storage failure returns an error instead of a false success
-ok 19 - storage failure returns an error instead of a false success
+ok 35 - storage failure returns an error instead of a false success
   ---
-  duration_ms: 8.4488
+  duration_ms: 7.2868
   ...
 # Subtest: internal files and enquiry records cannot be downloaded over HTTP
-ok 20 - internal files and enquiry records cannot be downloaded over HTTP
+ok 36 - internal files and enquiry records cannot be downloaded over HTTP
   ---
-  duration_ms: 8.6982
+  duration_ms: 8.9496
   ...
 # Subtest: HTML is served with a same-origin content policy and proper content type
-ok 21 - HTML is served with a same-origin content policy and proper content type
+ok 37 - HTML is served with a same-origin content policy and proper content type
   ---
-  duration_ms: 7.5728
+  duration_ms: 5.9588
   ...
 # Subtest: estimate handles collection and rejects unknown services
-ok 22 - estimate handles collection and rejects unknown services
+ok 38 - estimate handles collection and rejects unknown services
   ---
-  duration_ms: 0.4687
+  duration_ms: 0.3436
   ...
 # Subtest: a Unicode sample choice survives a split UTF-8 network packet
-ok 23 - a Unicode sample choice survives a split UTF-8 network packet
+ok 39 - a Unicode sample choice survives a split UTF-8 network packet
   ---
-  duration_ms: 66.4432
+  duration_ms: 67.3807
   ...
 # Subtest: local cleanup physically removes an expired workspace before serving its session
-ok 24 - local cleanup physically removes an expired workspace before serving its session
+ok 40 - local cleanup physically removes an expired workspace before serving its session
   ---
-  duration_ms: 10.0254
+  duration_ms: 10.3176
   ...
 # Subtest: new tracker creates three fictional jobs and a protected demo cookie
-ok 25 - new tracker creates three fictional jobs and a protected demo cookie
+ok 41 - new tracker creates three fictional jobs and a protected demo cookie
   ---
-  duration_ms: 55.9846
+  duration_ms: 49.7637
   ...
 # Subtest: approval gates the repair and the full lifecycle ends at collection
-ok 26 - approval gates the repair and the full lifecycle ends at collection
+ok 42 - approval gates the repair and the full lifecycle ends at collection
   ---
-  duration_ms: 55.8434
+  duration_ms: 55.3711
   ...
 # Subtest: separate visitors cannot alter each other’s sample progress
-ok 27 - separate visitors cannot alter each other’s sample progress
+ok 43 - separate visitors cannot alter each other’s sample progress
   ---
-  duration_ms: 25.041
+  duration_ms: 25.8962
   ...
 # Subtest: saved repair progress survives a server restart
-ok 28 - saved repair progress survives a server restart
+ok 44 - saved repair progress survives a server restart
   ---
-  duration_ms: 21.6578
+  duration_ms: 21.5106
   ...
 # Subtest: stale and simultaneous updates are rejected without duplicating history locally
-ok 29 - stale and simultaneous updates are rejected without duplicating history locally
+ok 45 - stale and simultaneous updates are rejected without duplicating history locally
   ---
-  duration_ms: 22.665
+  duration_ms: 23.5613
   ...
 # Subtest: customer cannot advance the workbench; reset creates fresh sample jobs
-ok 30 - customer cannot advance the workbench; reset creates fresh sample jobs
+ok 46 - customer cannot advance the workbench; reset creates fresh sample jobs
   ---
-  duration_ms: 13.6837
+  duration_ms: 13.6439
   ...
 # Subtest: missing session, unknown job, and cross-origin writes are rejected
-ok 31 - missing session, unknown job, and cross-origin writes are rejected
+ok 47 - missing session, unknown job, and cross-origin writes are rejected
   ---
-  duration_ms: 11.6482
+  duration_ms: 15.0033
   ...
 # Subtest: tracker storage failure does not create a successful session
-ok 32 - tracker storage failure does not create a successful session
+ok 48 - tracker storage failure does not create a successful session
   ---
-  duration_ms: 0.4209
+  duration_ms: 0.4453
   ...
-1..32
-# tests 32
+1..48
+# tests 48
 # suites 0
-# pass 32
+# pass 48
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 384.6505
+# duration_ms 419.0635

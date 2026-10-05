@@ -29,6 +29,8 @@ The customer and workshop views demonstrate different workflow actions. They are
 - Confirmation only after an atomic workspace save; retry references prevent duplicate requests after a lost response.
 - Explicit next responsibilities, labour/collection price breakdowns, separate ready/collected counts, and recoverable empty filters.
 - Unconfirmed actions disable further repair updates until saved progress reloads; an unavailable service menu has its own retry control.
+- Versioned estimates with controlled labour/parts prices, required approval of the exact current version, declines and alternatives, terminal cancellation, and approved work paused while waiting for parts.
+- Earlier saves remain compatible; quote and journal growth have explicit sample limits. Customer/workshop views still demonstrate workflow and do not authenticate users.
 - Local file storage and a Netlify Functions/Blobs adapter using conditional storage-version writes.
 
 ## Run locally
@@ -45,7 +47,7 @@ Open **http://127.0.0.1:8788**. The plain local demo and its tests need no packa
 npm test
 ```
 
-The 32 isolated tests cover sample-choice validation and persistence, approval gating, the full repair lifecycle, separate visitors, restart persistence, stale/concurrent updates, failed storage, private files, split-packet UTF-8, duplicate prevention, expiry, cleanup cursor behavior, capacity, and the cloud adapter's conditional-write contract.
+The 48 isolated tests cover sample-choice validation and persistence, approval gating, the full repair lifecycle, separate visitors, restart persistence, stale/concurrent updates, failed storage, private files, split-packet UTF-8, duplicate prevention, expiry, cleanup cursor behavior, capacity, and the cloud adapter's conditional-write contract. Additional decision checks cover estimate versioning, exact-version approval, parts pricing, declines, alternatives, cancellation, waiting for parts, legacy saved repairs, immutable decisions, and sample-history limits.
 
 ## Repeat the browser journey
 
@@ -55,7 +57,7 @@ npx playwright install chromium
 npm run test:browser
 ```
 
-The browser suite runs fourteen scenarios at desktop, 375-pixel and 320-pixel widths. It exercises request-to-collection, approval gating, reload persistence, duplicate prevention after a lost response, competing tabs, conflict recovery, visitor isolation, startup recovery, keyboard focus, automated accessibility rules, view handoffs, separate collection filters, uncertain saves/resets, service-menu recovery, and pending-request controls. It starts its own loopback server on port 8796 with fresh sample storage under ignored `work/browser-data/`; it does not use the hosted site or existing demo workspaces. Set `NORTHLINE_TEST_PORT` to another loopback port if 8796 is occupied.
+The browser suite runs nineteen scenarios at desktop, 375-pixel and 320-pixel widths. It exercises request-to-collection, approval gating, reload persistence, duplicate prevention after a lost response, competing tabs, conflict recovery, visitor isolation, startup recovery, keyboard focus, automated accessibility rules, view handoffs, separate collection filters, uncertain saves/resets, service-menu recovery, pending-request controls, revised estimates, customer declines, alternative offers, waiting for parts, cancellation confirmation, estimate-history persistence, and lost-revision responses. It starts its own loopback server on port 8796 with fresh sample storage under ignored `work/browser-data/`; it does not use the hosted site or existing demo workspaces. Set `NORTHLINE_TEST_PORT` to another loopback port if 8796 is occupied.
 
 GitHub Actions repeats these scenarios in a fresh Linux checkout. Screenshots, accessibility results, an HTML report, and failure traces are attached to the workflow for 14 days. On Linux, use `npx playwright install --with-deps chromium` when installing locally. Chromium viewport emulation and automated scans do not establish physical-device compatibility or complete accessibility conformance.
 
@@ -68,7 +70,7 @@ npm run build
 npx netlify-cli@27.10.2 dev
 ```
 
-Stop the plain local server first, because Netlify Dev starts it on port 8788. Open **http://localhost:8888** to exercise the hosting function and local Blobs emulator. `public/` contains only 18 allowlisted public files; backend source and saved records are excluded.
+Stop the plain local server first, because Netlify Dev starts it on port 8788. Open **http://localhost:8888** to exercise the hosting function and local Blobs emulator. `public/` contains only 20 allowlisted public files; backend source and saved records are excluded.
 
 `netlify/functions/api.mts` handles `/api/*`. The function uses its deployment context to select storage. Production uses a site-wide Blobs store; preview deployments use deploy-scoped storage. Reads request strong consistency. Updates use the ETag from the read with `onlyIfMatch`; an unsuccessful conditional write returns 409. New workspaces use `onlyIfNew`. Each request adds a repair inside the same conditional workspace write, avoiding partial saves across multiple records.
 
@@ -78,7 +80,7 @@ Published to the new `northline-cycle-devin` project. For future CLI deployments
 
 ## Verification
 
-The October 4 workflow update passed 32 isolated checks, 42 browser scenarios, and 12 integration checks against both the local and production servers. The browser suite covers the request-to-collection journey, reload persistence, keyboard focus, view handoffs, filters, failure recovery, and responsive/accessibility checks in Chromium. See the [QA report](qa/QA-REPORT.md) and [test plan](qa/TEST-PLAN.md) for release evidence and limits.
+The October 4 repair-decision update passed 48 isolated checks, 57 browser scenarios, and 17 integration checks against both local and production servers. The browser suite covers the request-to-collection journey, reload persistence, keyboard focus, view handoffs, filters, failure recovery, revised estimates and exception paths, and responsive/accessibility checks in Chromium. See the [QA report](qa/QA-REPORT.md) and [test plan](qa/TEST-PLAN.md) for release evidence and limits.
 
 ![Narrow tracker details](docs/tracker-mobile-detail.jpg)
 
@@ -95,6 +97,10 @@ The app's full dependency audit reported zero findings at release verification. 
 `case-study.html` explains the fictional brief, implementation, demonstrable outcomes, and limits. `project-brief.md` is a downloadable summary. The sharing image and favicon are original project assets. Build-time `SITE_URL` (or Netlify's deployment URL variables) turns the sharing-image URL into an absolute URL.
 
 `npm run format:check` checks source formatting. The GitHub workflow runs formatting, regression tests, type checking, and the public build on pushes and pull requests.
+
+## Product comparison
+
+The [competitor review](qa/COMPETITOR-REVIEW.md) compares the implemented workflow with documented RepairDesk, Lightspeed Retail, and Citrus-Lime features. It distinguishes tested behavior from documented vendor capabilities and explains the remaining commercial-product gaps.
 
 ## Scope
 
@@ -120,7 +126,7 @@ docs/                     Browser evidence
 
 ## Portfolio description
 
-Responsive bicycle-workshop website with service estimates, saved sample requests, and an interactive repair tracker. Includes customer approval, seven repair stages, separate visitor workspaces, persistent history, and stale-update handling. Original illustrations and 32 automated regression checks. Personal demonstration for a fictional business.
+Responsive bicycle-workshop website with service estimates, saved sample requests, and an interactive repair tracker. Includes customer approval, seven repair stages, separate visitor workspaces, persistent history, and stale-update handling. Versioned revised estimates, parts pricing, customer declines, cancellation, waiting for parts, original illustrations, and 48 automated regression checks. Personal demonstration for a fictional business.
 
 ## Source and QA evidence
 

@@ -1654,3 +1654,83 @@ footer > span {
     grid-template-columns: 1fr;
   }
 }
+.decision-secondary {
+  display: block;
+  border: 1px solid var(--ink);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  padding: 12px;
+  margin-top: 14px;
+  max-width: 100%;
+  text-align: left;
+}
+.decision-editor,
+.quote-history {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+}
+.decision-editor summary,
+.quote-history summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.decision-editor form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.decision-editor p,
+.quote-history p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.decision-editor label {
+  font-size: 14px;
+  font-weight: 600;
+}
+.decision-editor select {
+  font: inherit;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  background: #fffefa;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.decision-editor .button {
+  font-size: 14px;
+  white-space: normal;
+}
+.quote-preview {
+  padding: 12px;
+  background: #e3e8d7;
+  border-radius: 5px;
+}
+.quote-version {
+  font-size: 13px !important;
+  margin-top: 15px !important;
+}
+.quote-history ol {
+  padding-left: 20px;
+  margin-top: 16px;
+}
+.quote-history li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.quote-history li:last-child {
+  border-bottom: 0;
+}
+.cancellation-editor {
+  border-color: #ab4c22;
+}
