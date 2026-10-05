@@ -208,6 +208,9 @@ test("returning bike, itemized work, private/shared photos and a separate recipi
     await page
       .getByRole("button", { name: "Revoke link", exact: true })
       .click();
+    await expect(page.locator("#app-message")).toHaveText(
+      "Customer repair link revoked.",
+    );
     await recipient
       .getByRole("button", { name: "Refresh repair", exact: true })
       .click();
