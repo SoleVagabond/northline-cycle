@@ -20,6 +20,10 @@ The in-app production review retained five earlier repairs with their original s
 
 The final interface deployed as `6ac3305e139a0f4de176792d` and reached ready state. Direct hosted reads of all five changed interface modules exactly matched the tested source. The final production overview retained two active repairs and three collected repairs. A subsequent live review found that an older repair stored only the mechanic name, so its scheduling form defaulted to the first mechanic. Migration now resolves known original mechanic names to their stable IDs while retaining existing IDs. The migration check covers this older record shape; all 94 isolated checks pass.
 
+**Final release verification:** [GitHub run 37267028212](https://github.com/SoleVagabond/northline-cycle/actions/runs/37267028212) passed formatting, all **94 isolated checks**, type checking, the 30-file build and all **170 browser scenarios** from final application commit `037af134ce04b06be25b37c0e61e904318231a2d`. Netlify deploy `6ac332cf7152ff3fbf67a280` reached ready state. All **24 existing hosted checks** and **8 work-order hosted checks** passed again on that deployment. Six published interface modules, including the migration helper, exactly matched the tested source. The in-app browser confirmed Sam stays selected on the older $45 repair. No existing repair status or estimate was changed during this review.
+
+The following evidence commit updates this report only; the verified application source is unchanged.
+
 ## October 4 bicycle-shop business correction
 
 The [business review](BIKE-SHOP-REVIEW.md) uses bike-shop service menus, workshop software documentation and manufacturer-compatible part guidance. It replaces catalog durations and repeated labour labels with scoped starting prices, separates internal work scheduling from expected collection, requires descriptions of inspected work and compatible part specifications, and permits a documented no-shifting exception while retaining the other safety checks. Quote values and past approvals remain unchanged. Generic sample stock is no longer represented as universal compatible SKUs.
