@@ -1,0 +1,211 @@
+@import url("/styles.css");
+.customer-menu {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.customer-service {
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.customer-service h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+.customer-service p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.customer-service .price {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.customer-service .price small {
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+.customer-service ul {
+  padding-left: 18px;
+  font-size: 0.9rem;
+}
+.customer-service button {
+  margin-top: auto;
+}
+.journey-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+.journey-grid article {
+  padding-top: 20px;
+  border-top: 2px solid var(--ink);
+}
+.journey-grid article > span {
+  color: var(--accent);
+  font-size: 1.4rem;
+}
+.journey-grid h3 {
+  font-size: 1.3rem;
+}
+.customer-form {
+  max-width: 850px;
+}
+.customer-form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+}
+.customer-form input,
+.customer-form select,
+.customer-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #899b87;
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+  min-height: 46px;
+}
+.customer-form textarea {
+  resize: vertical;
+}
+.customer-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+.customer-form label.customer-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 400;
+  margin: 18px 0;
+}
+.customer-check input {
+  width: 20px;
+  min-height: 20px;
+  flex: none;
+}
+.customer-submit {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.customer-submit span {
+  font-size: 0.95rem;
+}
+.customer-honeypot {
+  position: absolute;
+  left: -10000px;
+}
+.customer-form label[hidden],
+.customer-form [hidden] {
+  display: none;
+}
+.portfolio-note {
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  background: var(--card);
+}
+.customer-status {
+  min-height: 24px;
+}
+.customer-status[data-error="true"],
+#repair-link-status {
+  color: #943b24;
+}
+#customer-receipt {
+  border: 1px solid var(--ink);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--card);
+}
+.customer-track {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  border-top: 1px solid var(--line);
+}
+.customer-track h2 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+}
+.customer-track form {
+  align-self: center;
+  display: grid;
+  gap: 14px;
+}
+.customer-footer {
+  padding: 45px max(24px, calc((100vw - 1200px) / 2));
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  border-top: 1px solid var(--line);
+}
+.customer-footer nav {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.customer-footer small {
+  color: #d9e6dc;
+  font-size: 0.85rem;
+}
+.demo-banner {
+  padding: 12px 24px;
+  background: #163b2d;
+  color: #fff;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.demo-banner a {
+  margin-left: 12px;
+  text-decoration: underline;
+}
+@media (max-width: 900px) {
+  .customer-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .customer-track {
+    gap: 22px;
+  }
+  .customer-footer {
+    flex-direction: column;
+  }
+}
+@media (max-width: 600px) {
+  .customer-menu,
+  .journey-grid,
+  .customer-form-grid,
+  .customer-track {
+    grid-template-columns: 1fr;
+  }
+  .customer-service {
+    padding: 20px;
+  }
+  .customer-form {
+    width: 100%;
+  }
+  .customer-footer nav {
+    gap: 16px;
+  }
+  .site-header nav {
+    justify-content: flex-end;
+  }
+  .customer-submit .button {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

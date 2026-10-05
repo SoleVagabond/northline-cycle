@@ -10,7 +10,7 @@ Multi-service and multi-part estimates retain quantities, inspected scope, exact
 
 Intake condition, internal findings, customer updates and private/shared photos remain persistent. Revocable, expiring repair links let a separate recipient inspect and approve only their current estimate without operator access.
 
-The original illustrated website shares persistent records. A protected Node installation adds operator sessions and custom customer/bike intake. Private records survive logout and restart; the hosted portfolio uses isolated fictional visitor workspaces.
+The original illustrated customer website publishes service scope and starting prices, accepts new repair requests and opens repair-specific links. The staff dashboard requires a server-checked session on both Node and Netlify; records survive logout and restart. The clearly labelled portfolio demo uses isolated fictional visitor workspaces and sample controls.
 
 ## Engineering and evidence
 

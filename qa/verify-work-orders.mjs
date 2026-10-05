@@ -18,15 +18,21 @@ let workspace,
   cookie,
   passed = 0;
 async function call(path, input, token) {
-  const response = await fetch(target.origin + path, {
-    method: input ? "POST" : "GET",
-    headers: {
-      ...(cookie && !token ? { cookie } : {}),
-      ...(input ? { "content-type": "application/json" } : {}),
-      ...(token ? { authorization: "Bearer " + token } : {}),
+  const response = await fetch(
+    target.origin +
+      (path.startsWith("/api/customer/")
+        ? path
+        : path.replace("/api/", "/api/demo/")),
+    {
+      method: input ? "POST" : "GET",
+      headers: {
+        ...(cookie && !token ? { cookie } : {}),
+        ...(input ? { "content-type": "application/json" } : {}),
+        ...(token ? { authorization: "Bearer " + token } : {}),
+      },
+      body: input ? JSON.stringify(input) : undefined,
     },
-    body: input ? JSON.stringify(input) : undefined,
-  });
+  );
   assert.ok(
     response.ok,
     `${path}: HTTP ${response.status} ${await response.clone().text()}`,

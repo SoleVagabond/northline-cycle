@@ -1,4 +1,4 @@
-import { ensureWorkspace, apiData } from "./lib/demo-session.js";
+import { ensureWorkspace, apiData, apiPath } from "./lib/demo-session.js";
 import {
   peoplePage,
   settingsPage,
@@ -484,6 +484,7 @@ function updateControls() {
       button.disabled = true;
 }
 function render() {
+  document.querySelector(".app-sidebar nav").hidden = false;
   if (!workspace) return;
   const openTools = new Set(
     [...main.querySelectorAll("details[data-repair-tool][open]")].map(
@@ -525,7 +526,7 @@ function render() {
   updateControls();
 }
 async function api(path, options = {}) {
-  const response = await fetch(path, {
+  const response = await fetch(apiPath(path), {
     ...options,
     signal: AbortSignal.timeout(12000),
   });
@@ -1143,16 +1144,24 @@ function printSummary() {
   document.body.append(page);
   window.print();
 }
-function signIn() {
+function signIn(configured = true) {
+  document.querySelector(".app-sidebar nav").hidden = true;
   main.innerHTML =
     heading(
       "PRIVATE WORKSHOP",
       "Your bench. Your workspace.",
-      "Sign in with the operator key configured on this server.",
+      configured
+        ? "Sign in with the workshop key. Customer records and operations stay private."
+        : "Staff sign-in is not configured. This dashboard stays locked; you can explore fictional records in the portfolio demo.",
     ) +
     '<section class="panel login-panel"><form class="stacked-form" id="login-form"><label>Workshop key<input name="key" type="password" required minlength="16" maxlength="256" autocomplete="current-password"></label><p class="form-error" id="login-error" role="alert"></p><button class="primary-button" type="submit">Sign in</button></form></section>';
   document.querySelector("#new-repair").disabled = true;
   document.querySelector("#save-state").textContent = "Sign-in required";
+  if (!configured) {
+    document.querySelector("#login-form").innerHTML =
+      '<p>Staff access is unavailable.</p><a class="primary-button" href="/demo/workshop.html">Explore portfolio demo →</a>';
+    return;
+  }
   document
     .querySelector("#login-form")
     .addEventListener("submit", async (event) => {
@@ -1180,11 +1189,11 @@ async function boot() {
     const access = await api("/api/access");
     privateMode = access.mode === "private";
     if (privateMode) {
-      document.querySelector("#mode-label").textContent = "Private workshop";
+      document.querySelector("#mode-label").textContent = "Staff only";
       document.querySelector("#workspace-scope").textContent =
-        "Private local workspace · Records remain until you clear them";
+        "Private staff workspace · Customer access is limited to individual repair links";
       if (!access.authenticated) {
-        signIn();
+        signIn(access.configured !== false);
         return;
       }
       await api("/api/tracker", { method: "POST" });
@@ -1202,7 +1211,15 @@ async function boot() {
           await boot();
         });
       }
-    } else await ensureWorkspace();
+    } else {
+      document.querySelector("#mode-label").textContent = "Portfolio demo";
+      document.querySelector("#workspace-scope").textContent =
+        "Portfolio demo · Fictional workshop data · Isolated from the private staff workspace";
+      document.querySelector("#customer-site-link").href = "/demo/#tracker";
+      document.querySelector("#customer-site-link").textContent =
+        "Sample repair tracker →";
+      await ensureWorkspace();
+    }
     await reload();
   } catch (error) {
     main.innerHTML = empty(

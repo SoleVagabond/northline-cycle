@@ -95,7 +95,7 @@ test("a saved action with a lost response blocks stale actions until progress re
   await ready(page);
   await chooseHybrid(page).click();
   await workshop(page).click();
-  await page.route("**/api/tracker/actions", async (route) => {
+  await page.route("**/api/demo/tracker/actions", async (route) => {
     const response = await route.fetch();
     expect(response.status()).toBe(200);
     await route.abort("failed");
@@ -108,7 +108,7 @@ test("a saved action with a lost response blocks stale actions until progress re
     "Saved progress needs review",
   );
   await expect(page.locator("[data-action=advance]")).toBeDisabled();
-  await page.unroute("**/api/tracker/actions");
+  await page.unroute("**/api/demo/tracker/actions");
   await page
     .getByRole("button", { name: "Reload saved progress", exact: true })
     .click();
@@ -126,14 +126,14 @@ test("a saved action with a lost response blocks stale actions until progress re
 test("the service menu can recover while retaining the rider's sample choices", async ({
   page,
 }) => {
-  await page.route("**/api/services", (route) =>
+  await page.route("**/api/demo/services", (route) =>
     route.fulfill({
       status: 503,
       contentType: "application/json",
       body: JSON.stringify({ error: "Unavailable" }),
     }),
   );
-  await page.goto("/");
+  await page.goto("/demo/");
   await expect(
     page.getByRole("button", { name: "Reload service menu", exact: true }),
   ).toBeVisible();
@@ -141,7 +141,7 @@ test("the service menu can recover while retaining the rider's sample choices", 
   await page
     .getByLabel("What needs care?", { exact: true })
     .selectOption("gears");
-  await page.unroute("**/api/services");
+  await page.unroute("**/api/demo/services");
   await page
     .getByRole("button", { name: "Reload service menu", exact: true })
     .click();
@@ -168,7 +168,7 @@ test("pending requests lock their choices and confirmed saves show the next step
   const waitForRelease = new Promise((resolve) => {
     release = resolve;
   });
-  await page.route("**/api/enquiries", async (route) => {
+  await page.route("**/api/demo/enquiries", async (route) => {
     await waitForRelease;
     await route.continue();
   });
@@ -216,7 +216,7 @@ test("a reset with a lost response offers recovery instead of promising old prog
     .getByRole("button", { name: "Start inspection", exact: false })
     .click();
   await expect(stage(page)).toHaveText("Inspection");
-  await page.route("**/api/tracker/reset", async (route) => {
+  await page.route("**/api/demo/tracker/reset", async (route) => {
     const response = await route.fetch();
     expect(response.status()).toBe(201);
     await route.abort("failed");
@@ -237,7 +237,7 @@ test("a reset with a lost response offers recovery instead of promising old prog
 });
 
 async function ready(page) {
-  await page.goto("/");
+  await page.goto("/demo/");
   await expect(page.locator(".repair-choice")).toHaveCount(3);
   await expect(
     page.getByRole("button", { name: "Create sample repair", exact: false }),
@@ -310,7 +310,7 @@ test("a lost response retries the saved request without creating a second repair
   let saved;
   let submissions = 0;
   const references = [];
-  await page.route("**/api/enquiries", async (route) => {
+  await page.route("**/api/demo/enquiries", async (route) => {
     references.push(route.request().postDataJSON().requestId);
     const response = await route.fetch();
     if (submissions++ === 0) {
@@ -344,7 +344,7 @@ test("two tabs reload a competing saved update instead of skipping a workflow st
 }) => {
   await ready(page);
   const other = await context.newPage();
-  await other.goto("/");
+  await other.goto("/demo/");
   await expect(other.locator(".repair-choice")).toHaveCount(3);
   for (const view of [page, other]) {
     await chooseHybrid(view).click();
@@ -374,14 +374,14 @@ test("conflict plus failed refresh offers recovery without claiming the latest s
   await ready(page);
   await chooseHybrid(page).click();
   await workshop(page).click();
-  await page.route("**/api/tracker/actions", (route) =>
+  await page.route("**/api/demo/tracker/actions", (route) =>
     route.fulfill({
       status: 409,
       contentType: "application/json",
       body: JSON.stringify({ error: "Changed elsewhere" }),
     }),
   );
-  await page.route("**/api/tracker", (route) =>
+  await page.route("**/api/demo/tracker", (route) =>
     route.fulfill({
       status: 503,
       contentType: "application/json",
@@ -405,8 +405,8 @@ test("conflict plus failed refresh offers recovery without claiming the latest s
   await page
     .locator("#tracker")
     .screenshot({ path: testInfo.outputPath("conflict-recovery.png") });
-  await page.unroute("**/api/tracker");
-  await page.unroute("**/api/tracker/actions");
+  await page.unroute("**/api/demo/tracker");
+  await page.unroute("**/api/demo/tracker/actions");
   await reload.click();
   await expect(notice(page)).toHaveText("Latest saved progress loaded.");
   await expect(reload).toBeHidden();
@@ -422,7 +422,7 @@ test("separate visitors have independent saved workspaces", async ({
   const visitor = await browser.newContext();
   try {
     const other = await visitor.newPage();
-    await other.goto(new URL("/", page.url()).href);
+    await other.goto(new URL("/demo/", page.url()).href);
     await expect(other.locator(".repair-choice")).toHaveCount(3);
     await chooseHybrid(other).click();
     await chooseHybrid(page).click();
@@ -443,16 +443,16 @@ test("separate visitors have independent saved workspaces", async ({
 test("an unavailable initial workspace can recover without a page reload", async ({
   page,
 }) => {
-  await page.route("**/api/tracker", (route) =>
+  await page.route("**/api/demo/tracker", (route) =>
     route.fulfill({
       status: 503,
       contentType: "application/json",
       body: JSON.stringify({ error: "Unavailable" }),
     }),
   );
-  await page.goto("/");
+  await page.goto("/demo/");
   await expect(page.locator("#tracker-app")).toContainText("could not load");
-  await page.unroute("**/api/tracker");
+  await page.unroute("**/api/demo/tracker");
   await page
     .getByRole("button", { name: "Reload saved progress", exact: true })
     .click();

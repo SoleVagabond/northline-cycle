@@ -10,7 +10,7 @@ import { catalogue } from "./lib/workshop-query.js";
 
 import { money } from "./lib/money.js";
 
-import { ensureWorkspace, apiData } from "./lib/demo-session.js";
+import { ensureWorkspace, apiData, apiPath } from "./lib/demo-session.js";
 
 const root = document.querySelector("#tracker-app");
 
@@ -344,7 +344,7 @@ filterControl.addEventListener("change", () => {
 });
 
 async function request(path, options = {}) {
-  const response = await fetch(path, {
+  const response = await fetch(apiPath(path), {
     ...options,
 
     signal: AbortSignal.timeout(10000),

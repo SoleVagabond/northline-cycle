@@ -8,6 +8,8 @@ if (path.dirname(publishRoot) !== path.resolve(root))
 await rm(publishRoot, { recursive: true, force: true });
 const publicFiles = [
   "index.html",
+  "customer-site.js",
+  "customer-site.css",
   "case-study.html",
   "project-brief.md",
   "styles.css",
@@ -40,8 +42,16 @@ for (const file of publicFiles) {
   await mkdir(path.dirname(destination), { recursive: true });
   await copyFile(path.join(root, file), destination);
 }
+for (const [source, target] of [
+  ["demo.html", "demo/index.html"],
+  ["workshop.html", "demo/workshop.html"],
+]) {
+  const destination = path.join(publishRoot, target);
+  await mkdir(path.dirname(destination), { recursive: true });
+  await copyFile(path.join(root, source), destination);
+}
 console.log(
-  `Prepared ${publicFiles.length} public files. Backend code and data are excluded.`,
+  `Prepared ${publicFiles.length + 2} public files. Backend code and data are excluded.`,
 );
 const siteUrl =
   process.env.SITE_URL ||

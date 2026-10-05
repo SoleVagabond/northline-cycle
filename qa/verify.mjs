@@ -37,14 +37,14 @@ await check("Homepage loads", async () => {
   assert.match(await response.text(), /Northline Cycle Co/);
 });
 await check("Catalogue has six services", async () => {
-  const response = await fetch(origin + "/api/services");
+  const response = await fetch(origin + "/api/demo/services");
   assert.equal(response.status, 200);
   assert.equal((await response.json()).services.length, 6);
 });
 await check(
   "Valid demo enquiry receives a persisted-success reference",
   async () => {
-    const response = await fetch(origin + "/api/enquiries", {
+    const response = await fetch(origin + "/api/demo/enquiries", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(createdInput),
@@ -58,7 +58,7 @@ await check(
   },
 );
 await check("Invalid request is rejected", async () => {
-  const response = await fetch(origin + "/api/enquiries", {
+  const response = await fetch(origin + "/api/demo/enquiries", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: "{}",
@@ -67,19 +67,24 @@ await check("Invalid request is rejected", async () => {
 });
 await check("Internal files are private", async () => {
   for (const path of ["/server.js", "/data/enquiries.ndjson", "/package.json"])
-    assert.equal((await fetch(origin + path)).status, 404);
+    assert.equal(
+      (await fetch(origin + path.replace("/api/", "/api/demo/"))).status,
+      404,
+    );
 });
 let demoCookie;
 let seed;
 await check("Tracker creates a separate three-repair workspace", async () => {
-  const response = await fetch(origin + "/api/tracker", { method: "POST" });
+  const response = await fetch(origin + "/api/demo/tracker", {
+    method: "POST",
+  });
   assert.equal(response.status, 201);
   demoCookie = response.headers.get("set-cookie").split(";")[0];
   seed = (await response.json()).workspace;
   assert.equal(seed.jobs.length, 3);
 });
 await check("Customer approval is saved and can be reloaded", async () => {
-  const response = await fetch(origin + "/api/tracker/actions", {
+  const response = await fetch(origin + "/api/demo/tracker/actions", {
     method: "POST",
     headers: { cookie: demoCookie, "content-type": "application/json" },
     body: JSON.stringify({
@@ -90,14 +95,14 @@ await check("Customer approval is saved and can be reloaded", async () => {
     }),
   });
   assert.equal(response.status, 200);
-  const reloaded = await fetch(origin + "/api/tracker", {
+  const reloaded = await fetch(origin + "/api/demo/tracker", {
     headers: { cookie: demoCookie },
   });
   assert.equal(reloaded.status, 200);
   assert.equal((await reloaded.json()).workspace.jobs[0].status, "repairing");
 });
 await check("A stale update cannot overwrite saved progress", async () => {
-  const response = await fetch(origin + "/api/tracker/actions", {
+  const response = await fetch(origin + "/api/demo/tracker/actions", {
     method: "POST",
     headers: { cookie: demoCookie, "content-type": "application/json" },
     body: JSON.stringify({
@@ -121,7 +126,7 @@ await check(
       ["advance", "workshop"],
       ["advance", "workshop"],
     ]) {
-      const response = await fetch(origin + "/api/tracker/actions", {
+      const response = await fetch(origin + "/api/demo/tracker/actions", {
         method: "POST",
         headers: { cookie: createdCookie, "content-type": "application/json" },
         body: JSON.stringify({
@@ -134,7 +139,7 @@ await check(
       assert.equal(response.status, 200);
       workspace = (await response.json()).workspace;
     }
-    const response = await fetch(origin + "/api/tracker", {
+    const response = await fetch(origin + "/api/demo/tracker", {
       headers: { cookie: createdCookie },
     });
     assert.equal(response.status, 200);
@@ -148,7 +153,7 @@ await check(
 await check(
   "Repeating a saved request does not create a duplicate",
   async () => {
-    const response = await fetch(origin + "/api/enquiries", {
+    const response = await fetch(origin + "/api/demo/enquiries", {
       method: "POST",
       headers: { cookie: createdCookie, "content-type": "application/json" },
       body: JSON.stringify(createdInput),
@@ -160,7 +165,7 @@ await check(
   },
 );
 await check("Personal contact fields are rejected", async () => {
-  const response = await fetch(origin + "/api/enquiries", {
+  const response = await fetch(origin + "/api/demo/enquiries", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ ...createdInput, email: "qa@example.test" }),
@@ -176,7 +181,10 @@ await check("Case study, favicon, and sharing image load", async () => {
     "/lib/quotes.js",
     "/lib/decision-view.js",
   ])
-    assert.equal((await fetch(origin + path)).status, 200);
+    assert.equal(
+      (await fetch(origin + path.replace("/api/", "/api/demo/"))).status,
+      200,
+    );
   const image = await fetch(origin + "/assets/share.jpg");
   assert.match(image.headers.get("content-type"), /^image\/jpeg/);
   assert.deepEqual(
@@ -188,7 +196,7 @@ let decisionWorkspace;
 const decisionJob = () =>
   decisionWorkspace.jobs.find((job) => job.id === "NL-2401");
 async function decisionAction(action, role, choices = {}) {
-  const response = await fetch(origin + "/api/tracker/actions", {
+  const response = await fetch(origin + "/api/demo/tracker/actions", {
     method: "POST",
     headers: { cookie: demoCookie, "content-type": "application/json" },
     body: JSON.stringify({
@@ -206,7 +214,7 @@ async function decisionAction(action, role, choices = {}) {
 await check(
   "Revised parts and labour pause previously approved work",
   async () => {
-    const response = await fetch(origin + "/api/tracker", {
+    const response = await fetch(origin + "/api/demo/tracker", {
       headers: { cookie: demoCookie },
     });
     assert.equal(response.status, 200);
@@ -279,7 +287,7 @@ await check(
       (await decisionAction("parts-arrived", "workshop")).status,
       200,
     );
-    const response = await fetch(origin + "/api/tracker", {
+    const response = await fetch(origin + "/api/demo/tracker", {
       headers: { cookie: demoCookie },
     });
     assert.equal(response.status, 200);
@@ -301,7 +309,7 @@ await check(
     );
     const historyLength = decisionJob().history.length;
     assert.equal((await decisionAction("advance", "workshop")).status, 422);
-    const response = await fetch(origin + "/api/tracker", {
+    const response = await fetch(origin + "/api/demo/tracker", {
       headers: { cookie: demoCookie },
     });
     assert.equal(response.status, 200);
@@ -321,12 +329,15 @@ await check(
       "/lib/workshop-domain.js",
       "/data/tracker/example.json",
     ])
-      assert.equal((await fetch(origin + path)).status, 404);
+      assert.equal(
+        (await fetch(origin + path.replace("/api/", "/api/demo/"))).status,
+        404,
+      );
   },
 );
 let operations, operationsCookie, operationsId;
 async function operation(path, body) {
-  const response = await fetch(origin + path, {
+  const response = await fetch(origin + path.replace("/api/", "/api/demo/"), {
     method: body ? "POST" : "GET",
     headers: { cookie: operationsCookie, "content-type": "application/json" },
     body: body
@@ -342,7 +353,7 @@ const operationJob = () =>
 await check(
   "Full catalog and inventory are connected to a saved workspace",
   async () => {
-    const start = await fetch(origin + "/api/tracker", { method: "POST" });
+    const start = await fetch(origin + "/api/demo/tracker", { method: "POST" });
     operationsCookie = start.headers.get("set-cookie").split(";")[0];
     operations = (await start.json()).workspace;
     const result = await operation("/api/workshop");
@@ -564,7 +575,7 @@ await check(
     );
     const menu = await operation("/api/services");
     assert.equal(menu.services.find((item) => item.id === "tune").price, 90);
-    const stale = await fetch(origin + "/api/workshop/actions", {
+    const stale = await fetch(origin + "/api/demo/workshop/actions", {
       method: "POST",
       headers: { cookie: operationsCookie, "content-type": "application/json" },
       body: JSON.stringify({

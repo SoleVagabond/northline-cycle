@@ -2,14 +2,19 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { createApi } from "./lib/api.js";
+import { createSiteApi } from "./lib/site-api.js";
 import { createFileStore } from "./lib/file-store.js";
-import { createOperatorAccess } from "./lib/operator-auth.js";
 import { photoRequestLimit } from "./lib/photos.js";
 const root = dirname(fileURLToPath(import.meta.url));
 const files = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/index.html", ["index.html", "text/html; charset=utf-8"]],
+  ["/demo", ["demo.html", "text/html; charset=utf-8"]],
+  ["/demo/", ["demo.html", "text/html; charset=utf-8"]],
+  ["/demo/index.html", ["demo.html", "text/html; charset=utf-8"]],
+  ["/demo/workshop.html", ["workshop.html", "text/html; charset=utf-8"]],
+  ["/customer-site.js", ["customer-site.js", "text/javascript; charset=utf-8"]],
+  ["/customer-site.css", ["customer-site.css", "text/css; charset=utf-8"]],
   ["/case-study.html", ["case-study.html", "text/html; charset=utf-8"]],
   ["/project-brief.md", ["project-brief.md", "text/markdown; charset=utf-8"]],
   ["/assets/favicon.svg", ["assets/favicon.svg", "image/svg+xml"]],
@@ -58,6 +63,7 @@ for (const name of [
 export function createApp({
   dataFile = join(root, "data", "enquiries.ndjson"),
   operatorKey = process.env.NORTHLINE_OPERATOR_KEY,
+  legacyPrivatePaths = !!operatorKey,
   publicOrigin = process.env.NORTHLINE_ORIGIN,
   privateWorkspaceId = process.env.NORTHLINE_WORKSPACE_ID ||
     "e12fb49a-1274-44f5-a2b0-63c9bffbd920",
@@ -76,15 +82,12 @@ export function createApp({
     )
   )
     throw new Error("NORTHLINE_WORKSPACE_ID must be a valid workspace UUID.");
-  const access = operatorKey
-    ? createOperatorAccess(operatorKey, {
-        secure: process.env.NORTHLINE_COOKIE_SECURE === "true",
-      })
-    : null;
-  const api = createApi(createFileStore(dataFile), {
-    workspaceId: access ? privateWorkspaceId : undefined,
-    permanent: !!access,
-    allowPersonalData: !!access,
+  const api = createSiteApi(createFileStore(dataFile), {
+    operatorKey,
+    workspaceId: privateWorkspaceId,
+    legacyPrivatePaths,
+    secure: process.env.NORTHLINE_COOKIE_SECURE === "true",
+    portfolio: process.env.NORTHLINE_PUBLIC_MODE !== "live",
   });
   return http.createServer(async (req, res) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -101,8 +104,9 @@ export function createApp({
       if (url.pathname.startsWith("/api/")) {
         const chunks = [];
         let bytes = 0;
-        const bodyLimit =
-          url.pathname === "/api/photos" ? photoRequestLimit : 8192;
+        const bodyLimit = url.pathname.endsWith("/photos")
+          ? photoRequestLimit
+          : 8192;
         for await (const chunk of req) {
           bytes += chunk.length;
           if (bytes <= bodyLimit + 1) chunks.push(chunk);
@@ -121,16 +125,7 @@ export function createApp({
           : Buffer.concat(chunks);
         const headers = new Headers(req.headers);
         const request = new Request(url, { method: req.method, headers, body });
-        const customerRequest = url.pathname.startsWith("/api/customer/");
-        const accessResponse =
-          access && !customerRequest
-            ? await access(request.clone(), req.socket.remoteAddress)
-            : null;
-        if (access && !accessResponse && !customerRequest)
-          headers.set("cookie", `northline_demo=${privateWorkspaceId}`);
-        const response =
-          accessResponse ||
-          (await api(new Request(url, { method: req.method, headers, body })));
+        const response = await api(request, req.socket.remoteAddress);
         res.writeHead(response.status, Object.fromEntries(response.headers));
         res.end(Buffer.from(await response.arrayBuffer()));
         return;

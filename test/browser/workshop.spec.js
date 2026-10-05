@@ -10,7 +10,7 @@ const nav = (page, name) =>
     .getByRole("navigation", { name: "Workshop navigation" })
     .getByRole("link", { name, exact: true });
 async function ready(page) {
-  await page.goto("/workshop.html");
+  await page.goto("/demo/workshop.html");
   await expect(heading(page)).toHaveText("A clear bench. A better day.");
   await expect(page.locator("#save-state")).toHaveText("All changes saved");
 }
@@ -296,7 +296,7 @@ test("service catalogue price changes preserve existing estimates and price new 
   await expect(page.locator(".quote-total")).toHaveText("$90");
   await page.reload();
   await expect(page.locator(".quote-total")).toHaveText("$90");
-  await page.goto("/#request");
+  await page.goto("/demo/#request");
   await page.getByLabel("Service", { exact: true }).selectOption("tune");
   await expect(page.locator("#estimate-value")).toHaveText("$90");
 });
@@ -431,7 +431,7 @@ test("a stock receipt with a lost response locks writes until refreshed without 
 }) => {
   await ready(page);
   await nav(page, "Parts & stock").click();
-  await page.route("**/api/workshop/actions", async (route) => {
+  await page.route("**/api/demo/workshop/actions", async (route) => {
     const response = await route.fetch();
     expect(response.status()).toBe(200);
     await route.abort("failed");
@@ -445,7 +445,7 @@ test("a stock receipt with a lost response locks writes until refreshed without 
     .click();
   await expect(page.locator("#save-state")).toHaveText("Reload to confirm");
   await expect(page.locator('[data-stock="pads"] button')).toBeDisabled();
-  await page.unroute("**/api/workshop/actions");
+  await page.unroute("**/api/demo/workshop/actions");
   await page.getByRole("button", { name: "Refresh", exact: true }).click();
   await expect(page.locator("#save-state")).toHaveText("All changes saved");
   await expect(

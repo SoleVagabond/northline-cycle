@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 const stage = (page) => page.locator(".repair-detail .stage-badge");
 async function ready(page) {
-  await page.goto("/");
+  await page.goto("/demo/");
   await expect(page.locator(".repair-choice")).toHaveCount(3);
   await page
     .getByRole("button", { name: "Workshop view", exact: true })
@@ -160,7 +160,7 @@ test("a lost revision response blocks decisions until the saved new quote reload
   page,
 }) => {
   await ready(page);
-  await page.route("**/api/tracker/actions", async (route) => {
+  await page.route("**/api/demo/tracker/actions", async (route) => {
     const response = await route.fetch();
     expect(response.status()).toBe(200);
     await route.abort("failed");
@@ -196,7 +196,7 @@ test("a lost revision response blocks decisions until the saved new quote reload
       exact: true,
     }),
   ).toBeDisabled();
-  await page.unroute("**/api/tracker/actions");
+  await page.unroute("**/api/demo/tracker/actions");
   await page
     .getByRole("button", { name: "Reload saved progress", exact: true })
     .click();

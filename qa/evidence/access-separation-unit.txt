@@ -1,0 +1,525 @@
+TAP version 13
+# Subtest: public service menu and request receipt expose no staff records or workspace identifier
+ok 1 - public service menu and request receipt expose no staff records or workspace identifier
+  ---
+  duration_ms: 147.2025
+  ...
+# Subtest: forged demo cookies, repair references and bearer tokens cannot open private operator records
+ok 2 - forged demo cookies, repair references and bearer tokens cannot open private operator records
+  ---
+  duration_ms: 29.2818
+  ...
+# Subtest: public retries are idempotent including a link-index failure after the repair committed
+ok 3 - public retries are idempotent including a link-index failure after the repair committed
+  ---
+  duration_ms: 16.9291
+  ...
+# Subtest: public intake rejects forged internal fields, real contact data in portfolio mode and cross-site writes
+ok 4 - public intake rejects forged internal fields, real contact data in portfolio mode and cross-site writes
+  ---
+  duration_ms: 6.107
+  ...
+# Subtest: staff sessions persist across fresh handlers, logout revokes them and rotating keys invalidates them
+ok 5 - staff sessions persist across fresh handlers, logout revokes them and rotating keys invalidates them
+  ---
+  duration_ms: 13.7673
+  ...
+# Subtest: missing staff credentials fail closed while the explicit demo and service menu remain usable
+ok 6 - missing staff credentials fail closed while the explicit demo and service menu remain usable
+  ---
+  duration_ms: 7.8421
+  ...
+# Subtest: cloud staff sign-in uses durable sessions across independently constructed adapters
+ok 7 - cloud staff sign-in uses durable sessions across independently constructed adapters
+  ---
+  duration_ms: 12.4511
+  ...
+# Subtest: staff initialization preserves the visitor cookie and rejects older permanent records in the demo
+ok 8 - staff initialization preserves the visitor cookie and rejects older permanent records in the demo
+  ---
+  duration_ms: 29.0734
+  ...
+# Subtest: an identical public retry cannot restore a staff-revoked customer link
+ok 9 - an identical public retry cannot restore a staff-revoked customer link
+  ---
+  duration_ms: 37.4589
+  ...
+# Subtest: separate cloud adapters use conditional writes to prevent lost concurrent updates
+ok 10 - separate cloud adapters use conditional writes to prevent lost concurrent updates
+  ---
+  duration_ms: 87.1866
+  ...
+# Subtest: cloud adapter rejects an unsuccessful workspace write
+ok 11 - cloud adapter rejects an unsuccessful workspace write
+  ---
+  duration_ms: 1.1282
+  ...
+# Subtest: cloud adapter never updates a record without a storage version
+ok 12 - cloud adapter never updates a record without a storage version
+  ---
+  duration_ms: 0.3119
+  ...
+# Subtest: local emulator reads use matching before and after list versions
+ok 13 - local emulator reads use matching before and after list versions
+  ---
+  duration_ms: 0.5344
+  ...
+# Subtest: local emulator rejects a read if its surrounding versions change
+ok 14 - local emulator rejects a read if its surrounding versions change
+  ---
+  duration_ms: 0.4321
+  ...
+# Subtest: catalog scopes specify units and never manufacture a repair duration
+ok 15 - catalog scopes specify units and never manufacture a repair duration
+  ---
+  duration_ms: 10.0836
+  ...
+# Subtest: work planning and customer collection are distinct; unknown estimates remain unknown
+ok 16 - work planning and customer collection are distinct; unknown estimates remain unknown
+  ---
+  duration_ms: 44.5405
+  ...
+# Subtest: invalid planning budgets and collection dates are rejected atomically
+ok 17 - invalid planning budgets and collection dates are rejected atomically
+  ---
+  duration_ms: 5.0583
+  ...
+# Subtest: rescheduling past the collection expectation requires a revised or cleared collection date
+ok 18 - rescheduling past the collection expectation requires a revised or cleared collection date
+  ---
+  duration_ms: 2.8558
+  ...
+# Subtest: same-price changes in inspected work require a fresh approval and preserve the earlier decision
+ok 19 - same-price changes in inspected work require a fresh approval and preserve the earlier decision
+  ---
+  duration_ms: 8.671
+  ...
+# Subtest: inspected quotes require compatible part specifications and retain them with the agreed prices
+ok 20 - inspected quotes require compatible part specifications and retain them with the agreed prices
+  ---
+  duration_ms: 6.1933
+  ...
+# Subtest: inspection charges are bounded currency amounts with a meaningful work description
+ok 21 - inspection charges are bounded currency amounts with a meaningful work description
+  ---
+  duration_ms: 13.1451
+  ...
+# Subtest: a documented no-shifting exception releases a single-speed bike only after the remaining safety checks
+ok 22 - a documented no-shifting exception releases a single-speed bike only after the remaining safety checks
+  ---
+  duration_ms: 3.4735
+  ...
+# Subtest: safety-critical checks cannot be marked not applicable and a gear exception can be reopened
+ok 23 - safety-critical checks cannot be marked not applicable and a gear exception can be reopened
+  ---
+  duration_ms: 6.1565
+  ...
+# Subtest: revised estimates calculate controlled prices and retain the original without mutation
+ok 24 - revised estimates calculate controlled prices and retain the original without mutation
+  ---
+  duration_ms: 43.0775
+  ...
+# Subtest: changing an approved estimate pauses work and requires the exact new version
+ok 25 - changing an approved estimate pauses work and requires the exact new version
+  ---
+  duration_ms: 3.1589
+  ...
+# Subtest: declining and offering an alternative preserve each customer decision
+ok 26 - declining and offering an alternative preserve each customer decision
+  ---
+  duration_ms: 2.0363
+  ...
+# Subtest: waiting for parts resumes only approved work and cannot skip to ride check
+ok 27 - waiting for parts resumes only approved work and cannot skip to ride check
+  ---
+  duration_ms: 1.3031
+  ...
+# Subtest: cancellation is terminal, records the reason, and retains all previous history
+ok 28 - cancellation is terminal, records the reason, and retains all previous history
+  ---
+  duration_ms: 2.4951
+  ...
+# Subtest: rejects customer quote revision without changing the saved object
+ok 29 - rejects customer quote revision without changing the saved object
+  ---
+  duration_ms: 1.1427
+  ...
+# Subtest: rejects workshop approval without changing the saved object
+ok 30 - rejects workshop approval without changing the saved object
+  ---
+  duration_ms: 0.9579
+  ...
+# Subtest: rejects waiting without replacement parts without changing the saved object
+ok 31 - rejects waiting without replacement parts without changing the saved object
+  ---
+  duration_ms: 1.626
+  ...
+# Subtest: rejects customer cancellation after work starts without changing the saved object
+ok 32 - rejects customer cancellation after work starts without changing the saved object
+  ---
+  duration_ms: 7.0167
+  ...
+# Subtest: rejects unknown part without changing the saved object
+ok 33 - rejects unknown part without changing the saved object
+  ---
+  duration_ms: 1.9516
+  ...
+# Subtest: rejects unknown labour without changing the saved object
+ok 34 - rejects unknown labour without changing the saved object
+  ---
+  duration_ms: 0.6972
+  ...
+# Subtest: rejects unchanged quote without changing the saved object
+ok 35 - rejects unchanged quote without changing the saved object
+  ---
+  duration_ms: 0.6614
+  ...
+# Subtest: quote and journal growth have explicit sample limits
+ok 36 - quote and journal growth have explicit sample limits
+  ---
+  duration_ms: 78.094
+  ...
+# Subtest: old saved repairs remain readable and become versioned on their next decision
+ok 37 - old saved repairs remain readable and become versioned on their next decision
+  ---
+  duration_ms: 0.853
+  ...
+# Subtest: API rejects forged prices and personal notes before any history change
+ok 38 - API rejects forged prices and personal notes before any history change
+  ---
+  duration_ms: 40.9617
+  ...
+# Subtest: API persists versions and rejects an approval from a stale tab
+ok 39 - API persists versions and rejects an approval from a stale tab
+  ---
+  duration_ms: 11.7744
+  ...
+# Subtest: a submitted request completes the full repair journey in the same workspace
+ok 40 - a submitted request completes the full repair journey in the same workspace
+  ---
+  duration_ms: 95.0836
+  ...
+# Subtest: retrying the same request returns its saved repair without creating a duplicate
+ok 41 - retrying the same request returns its saved repair without creating a duplicate
+  ---
+  duration_ms: 2.9703
+  ...
+# Subtest: workspaces expire after seven days; a return starts a fresh demo
+ok 42 - workspaces expire after seven days; a return starts a fresh demo
+  ---
+  duration_ms: 2.4094
+  ...
+# Subtest: workspace capacity limits repeated creations while leaving prior repairs intact
+ok 43 - workspace capacity limits repeated creations while leaving prior repairs intact
+  ---
+  duration_ms: 10.8982
+  ...
+# Subtest: personal fields are rejected and are never stored
+ok 44 - personal fields are rejected and are never stored
+  ---
+  duration_ms: 1.0219
+  ...
+# Subtest: cleanup removes expired samples and keeps current samples
+ok 45 - cleanup removes expired samples and keeps current samples
+  ---
+  duration_ms: 2.4323
+  ...
+# Subtest: bounded cleanup resumes beyond current records instead of starving older samples
+ok 46 - bounded cleanup resumes beyond current records instead of starving older samples
+  ---
+  duration_ms: 0.611
+  ...
+# Subtest: protected workshop accepts only its configured HTTPS origin behind a proxy
+ok 47 - protected workshop accepts only its configured HTTPS origin behind a proxy
+  ---
+  duration_ms: 88.3754
+  ...
+# Subtest: operator sessions are HttpOnly, expire and reject cross-origin sign-in
+ok 48 - operator sessions are HttpOnly, expire and reject cross-origin sign-in
+  ---
+  duration_ms: 2.1652
+  ...
+# Subtest: operator login throttles repeated wrong keys without issuing a session
+ok 49 - operator login throttles repeated wrong keys without issuing a session
+  ---
+  duration_ms: 4.4962
+  ...
+# Subtest: protected local records survive logout and server restart without portfolio expiry
+ok 50 - protected local records survive logout and server restart without portfolio expiry
+  ---
+  duration_ms: 142.2698
+  ...
+# Subtest: catalogue exposes six services and the expected starting estimate
+ok 51 - catalogue exposes six services and the expected starting estimate
+  ---
+  duration_ms: 76.1514
+  ...
+# Subtest: valid request is stored; server computes price instead of trusting the client
+ok 52 - valid request is stored; server computes price instead of trusting the client
+  ---
+  duration_ms: 81.597
+  ...
+# Subtest: missing or invalid fields are rejected without creating a record
+ok 53 - missing or invalid fields are rejected without creating a record
+  ---
+  duration_ms: 75.2801
+  ...
+# Subtest: malformed JSON and wrong content type receive clear errors
+ok 54 - malformed JSON and wrong content type receive clear errors
+  ---
+  duration_ms: 11.5941
+  ...
+# Subtest: oversized request is rejected
+ok 55 - oversized request is rejected
+  ---
+  duration_ms: 8.7945
+  ...
+# Subtest: simultaneous requests keep separate records and unique references
+ok 56 - simultaneous requests keep separate records and unique references
+  ---
+  duration_ms: 51.5401
+  ...
+# Subtest: storage failure returns an error instead of a false success
+ok 57 - storage failure returns an error instead of a false success
+  ---
+  duration_ms: 14.4157
+  ...
+# Subtest: internal files and enquiry records cannot be downloaded over HTTP
+ok 58 - internal files and enquiry records cannot be downloaded over HTTP
+  ---
+  duration_ms: 14.806
+  ...
+# Subtest: HTML is served with a same-origin content policy and proper content type
+ok 59 - HTML is served with a same-origin content policy and proper content type
+  ---
+  duration_ms: 5.1453
+  ...
+# Subtest: estimate handles collection and rejects unknown services
+ok 60 - estimate handles collection and rejects unknown services
+  ---
+  duration_ms: 0.3817
+  ...
+# Subtest: a Unicode sample choice survives a split UTF-8 network packet
+ok 61 - a Unicode sample choice survives a split UTF-8 network packet
+  ---
+  duration_ms: 66.4459
+  ...
+# Subtest: local cleanup physically removes an expired workspace before serving its session
+ok 62 - local cleanup physically removes an expired workspace before serving its session
+  ---
+  duration_ms: 9.9759
+  ...
+# Subtest: new tracker creates three fictional jobs and a protected demo cookie
+ok 63 - new tracker creates three fictional jobs and a protected demo cookie
+  ---
+  duration_ms: 125.0557
+  ...
+# Subtest: approval gates the repair and the full lifecycle ends at collection
+ok 64 - approval gates the repair and the full lifecycle ends at collection
+  ---
+  duration_ms: 115.2128
+  ...
+# Subtest: separate visitors cannot alter each other’s sample progress
+ok 65 - separate visitors cannot alter each other’s sample progress
+  ---
+  duration_ms: 34.3871
+  ...
+# Subtest: saved repair progress survives a server restart
+ok 66 - saved repair progress survives a server restart
+  ---
+  duration_ms: 28.0984
+  ...
+# Subtest: stale and simultaneous updates are rejected without duplicating history locally
+ok 67 - stale and simultaneous updates are rejected without duplicating history locally
+  ---
+  duration_ms: 24.4736
+  ...
+# Subtest: customer cannot advance the workbench; reset creates fresh sample jobs
+ok 68 - customer cannot advance the workbench; reset creates fresh sample jobs
+  ---
+  duration_ms: 19.5045
+  ...
+# Subtest: missing session, unknown job, and cross-origin writes are rejected
+ok 69 - missing session, unknown job, and cross-origin writes are rejected
+  ---
+  duration_ms: 13.9504
+  ...
+# Subtest: tracker storage failure does not create a successful session
+ok 70 - tracker storage failure does not create a successful session
+  ---
+  duration_ms: 1.7504
+  ...
+# Subtest: migration preserves decisions, creates stable separate people and bike IDs, and is idempotent
+ok 71 - migration preserves decisions, creates stable separate people and bike IDs, and is idempotent
+  ---
+  duration_ms: 29.2411
+  ...
+# Subtest: returning bikes share history while customer edits preserve earlier repair snapshots
+ok 72 - returning bikes share history while customer edits preserve earlier repair snapshots
+  ---
+  duration_ms: 7.8854
+  ...
+# Subtest: configurable services and SKUs support cents and new intake without rewriting past quotes
+ok 73 - configurable services and SKUs support cents and new intake without rewriting past quotes
+  ---
+  duration_ms: 3.7582
+  ...
+# Subtest: multi-service and part totals use exact cents and snapshots survive config edits
+ok 74 - multi-service and part totals use exact cents and snapshots survive config edits
+  ---
+  duration_ms: 12.8285
+  ...
+# Subtest: scope changes at the same itemized price invalidate approval and retain the older decision
+ok 75 - scope changes at the same itemized price invalidate approval and retain the older decision
+  ---
+  duration_ms: 2.9839
+  ...
+# Subtest: malformed service lines, forged part prices and excessive precision cannot change records
+ok 76 - malformed service lines, forged part prices and excessive precision cannot change records
+  ---
+  duration_ms: 2.3911
+  ...
+# Subtest: shop closure, time off and staff working days gate scheduling without changing existing records
+ok 77 - shop closure, time off and staff working days gate scheduling without changing existing records
+  ---
+  duration_ms: 3.6244
+  ...
+# Subtest: public records reject real contacts while protected installations accept them
+ok 78 - public records reject real contacts while protected installations accept them
+  ---
+  duration_ms: 2.3579
+  ...
+# Subtest: changing staff or shop availability flags existing plans without silently rescheduling
+ok 79 - changing staff or shop availability flags existing plans without silently rescheduling
+  ---
+  duration_ms: 3.7948
+  ...
+# Subtest: cloud photo adapter stores unique media with expiry and cleanup deletes expired images while retaining current ones
+ok 80 - cloud photo adapter stores unique media with expiry and cleanup deletes expired images while retaining current ones
+  ---
+  duration_ms: 4.3849
+  ...
+# Subtest: repair links reveal one repair only and exclude internal notes, diagnosis and credential hashes
+ok 81 - repair links reveal one repair only and exclude internal notes, diagnosis and credential hashes
+  ---
+  duration_ms: 30.6165
+  ...
+# Subtest: portal approval checks revision and version and cannot authorize another repair or workshop action
+ok 82 - portal approval checks revision and version and cannot authorize another repair or workshop action
+  ---
+  duration_ms: 12.8819
+  ...
+# Subtest: regenerated, revoked and expired customer links cannot read or decide
+ok 83 - regenerated, revoked and expired customer links cannot read or decide
+  ---
+  duration_ms: 13.1233
+  ...
+# Subtest: private and shared photos persist separately and portal images cannot reveal private or unrelated files
+ok 84 - private and shared photos persist separately and portal images cannot reveal private or unrelated files
+  ---
+  duration_ms: 14.3826
+  ...
+# Subtest: image validation rejects SVG, excessive payloads and impossible dimensions
+ok 85 - image validation rejects SVG, excessive payloads and impossible dimensions
+  ---
+  duration_ms: 1.0388
+  ...
+# Subtest: a rejected photo workspace write removes its own new media and preserves the earlier repair
+ok 86 - a rejected photo workspace write removes its own new media and preserves the earlier repair
+  ---
+  duration_ms: 3.2865
+  ...
+# Subtest: private installation serves scoped customer links without an operator session and keeps photos across restart
+ok 87 - private installation serves scoped customer links without an operator session and keeps photos across restart
+  ---
+  duration_ms: 144.9753
+  ...
+# Subtest: scheduling uses the workshop business day across UTC midnight and daylight saving
+ok 88 - scheduling uses the workshop business day across UTC midnight and daylight saving
+  ---
+  duration_ms: 37.7764
+  ...
+# Subtest: a catalog cannot disable the last available repair type
+ok 89 - a catalog cannot disable the last available repair type
+  ---
+  duration_ms: 7.1744
+  ...
+# Subtest: price and scope revisions do not invent or change a job's bench budget
+ok 90 - price and scope revisions do not invent or change a job's bench budget
+  ---
+  duration_ms: 7.9246
+  ...
+# Subtest: multi-part quantities are priced on the server and approval reserves available stock
+ok 91 - multi-part quantities are priced on the server and approval reserves available stock
+  ---
+  duration_ms: 2.837
+  ...
+# Subtest: short stock pauses an approved repair until a real receipt makes reservation possible
+ok 92 - short stock pauses an approved repair until a real receipt makes reservation possible
+  ---
+  duration_ms: 2.5599
+  ...
+# Subtest: cancellation and revision release reservations without consuming stock
+ok 93 - cancellation and revision release reservations without consuming stock
+  ---
+  duration_ms: 2.6901
+  ...
+# Subtest: a competing repair cannot reserve stock already promised to another job
+ok 94 - a competing repair cannot reserve stock already promised to another job
+  ---
+  duration_ms: 2.1183
+  ...
+# Subtest: scheduled work cannot be released before all quality checks pass
+ok 95 - scheduled work cannot be released before all quality checks pass
+  ---
+  duration_ms: 2.7319
+  ...
+# Subtest: scheduling rejects impossible dates and exceeding daily mechanic capacity without changing records
+ok 96 - scheduling rejects impossible dates and exceeding daily mechanic capacity without changing records
+  ---
+  duration_ms: 5.1518
+  ...
+# Subtest: catalogue price changes affect new work while historical estimates stay fixed
+ok 97 - catalogue price changes affect new work while historical estimates stay fixed
+  ---
+  duration_ms: 6.8002
+  ...
+# Subtest: inactive services, forged part prices, duplicate lines and invalid stock quantities are rejected
+ok 98 - inactive services, forged part prices, duplicate lines and invalid stock quantities are rejected
+  ---
+  duration_ms: 3.2111
+  ...
+# Subtest: payment records use the current approved total and cannot be recorded twice
+ok 99 - payment records use the current approved total and cannot be recorded twice
+  ---
+  duration_ms: 4.0925
+  ...
+# Subtest: custom intake is accepted only for a protected local workshop
+ok 100 - custom intake is accepted only for a protected local workshop
+  ---
+  duration_ms: 2.4334
+  ...
+# Subtest: notes stay bounded and closed repair records cannot acquire further workshop notes
+ok 101 - notes stay bounded and closed repair records cannot acquire further workshop notes
+  ---
+  duration_ms: 1.4082
+  ...
+# Subtest: queue searches repair types and prioritizes overdue high-priority jobs
+ok 102 - queue searches repair types and prioritizes overdue high-priority jobs
+  ---
+  duration_ms: 1.3058
+  ...
+# Subtest: workshop API preserves idempotent intake and rejects stale cross-screen writes
+ok 103 - workshop API preserves idempotent intake and rejects stale cross-screen writes
+  ---
+  duration_ms: 61.9311
+  ...
+1..103
+# tests 103
+# suites 0
+# pass 103
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 678.6732

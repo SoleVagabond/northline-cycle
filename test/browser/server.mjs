@@ -4,6 +4,8 @@ import { createApp } from "../../server.js";
 
 // Each run gets new, ignored sample storage. Existing demo workspaces are untouched.
 const app = createApp({
+  operatorKey: "northline-browser-test-key-only",
+  legacyPrivatePaths: false,
   dataFile: join(
     process.cwd(),
     "work",

@@ -1,0 +1,12 @@
+PASS Customer website, protected workshop shell and explicit demo are separate
+PASS Published catalogue contains active scopes and prices without internal records
+PASS Direct staff reads and writes require a session
+PASS Public request saves one private repair and an opaque scoped receipt
+PASS Customer recipient sees only its repair without a staff session
+PASS A durable staff session opens the request without replacing the demo cookie
+PASS Only explicitly shared updates cross the customer boundary
+PASS Forged demo cookies and customer bearer tokens cannot open staff data
+PASS Sample visitor records stay independent from the private request
+PASS Revocation blocks the customer link and receipt retry cannot restore it
+PASS The fictional review request is closed and sign-out revokes staff access
+11 audience-separation integration checks passed against http://127.0.0.1:8833. Fictional records only; no messages, bookings or charges.

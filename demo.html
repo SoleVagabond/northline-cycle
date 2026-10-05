@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Northline Cycle Co. — a fictional bicycle repair website and personal portfolio project."
+    />
+    <title>Northline Cycle Co. · Keep your good thing rolling.</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <meta
+      property="og:title"
+      content="Northline Cycle Co. · Website &amp; Repair Tracker"
+    />
+    <meta
+      property="og:description"
+      content="Explore a fictional workshop website and follow a sample repair from request to collection."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/share.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script type="module" src="/app.js"></script>
+    <script type="module" src="/tracker.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main" tabindex="0">Skip to content</a>
+    <aside class="demo-banner">
+      Portfolio demo · fictional records and sample controls.
+      <a href="/">Return to the customer website</a>
+    </aside>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="Northline Cycle Co., home"
+        ><span class="brand-mark" aria-hidden="true">n.</span
+        ><span>northline<span class="brand-sub">CYCLE CO.</span></span></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#services">Our services</a><a href="#tracker">Repair tracker</a
+        ><a href="/demo/workshop.html">Workshop app</a
+        ><a class="button button-small" href="#request"
+          >Plan your repair <span aria-hidden="true">↗</span></a
+        >
+      </nav>
+    </header>
+    <main id="main" tabindex="-1">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="status-dot" aria-hidden="true"></span> YOUR
+            NEIGHBOURHOOD WORKSHOP
+          </p>
+          <h1 id="hero-title">
+            Keep your<br />good thing<br /><em>rolling.</em>
+          </h1>
+          <p class="hero-description">
+            For the weekday commute. The long way home.<br />The bike you
+            wouldn’t trade for anything.
+          </p>
+          <a class="button" href="/demo/workshop.html"
+            >Open the workshop <span aria-hidden="true">↗</span></a
+          ><a class="hero-tracker-link" href="#tracker"
+            >Explore a repair from check-in to collection
+            <span aria-hidden="true">→</span></a
+          >
+          <div class="hero-footnote">
+            <span class="tiny-star" aria-hidden="true">✳</span
+            ><span>Thoughtful repairs.<br />Clear prices. More miles.</span>
+          </div>
+        </div>
+        <div class="hero-art">
+          <div class="art-label">A LITTLE CARE. A LOT MORE ADVENTURE.</div>
+          <svg
+            class="bike"
+            viewBox="0 0 600 400"
+            role="img"
+            aria-label="Original illustration of a bicycle"
+          >
+            <g
+              fill="none"
+              stroke="currentColor"
+              stroke-width="8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="137" cy="270" r="94" />
+              <circle cx="465" cy="270" r="94" />
+              <path
+                d="M137 270 221 122 295 270 137 270 390 125 465 270M221 122h166M295 270l-87-183M183 87h55M390 125l-18-54h45l12 18M295 270l35 18M137 270v-12"
+              />
+              <circle cx="295" cy="270" r="16" />
+            </g>
+            <g fill="currentColor">
+              <circle cx="137" cy="270" r="8" />
+              <circle cx="465" cy="270" r="8" />
+            </g>
+          </svg>
+          <div class="art-bottom">
+            <span>EST. FOR THE EVERYDAY RIDER</span
+            ><span class="round-arrow" aria-hidden="true">↗</span>
+          </div>
+          <div class="service-stamp">
+            <span>MADE FOR</span><strong>more<br />miles.</strong
+            ><span>REPAIR · REUSE · RIDE</span>
+          </div>
+        </div>
+      </section>
+      <div class="principles" role="group" aria-label="Workshop principles">
+        <span>Clear estimates</span><span>Repair before replace</span
+        ><span>Every bike welcome</span><span>No surprise extras</span>
+      </div>
+      <section class="section" id="services" aria-labelledby="services-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 / THE SERVICE MENU</p>
+            <h2 id="services-title">A better ride starts here.</h2>
+          </div>
+          <p>
+            Small fixes to fresh starts.<br />Find the care your bike needs.
+          </p>
+        </div>
+        <div class="filters" role="group" aria-label="Filter services">
+          <button data-filter="all" aria-pressed="true">All services</button
+          ><button data-filter="essentials" aria-pressed="false">
+            The essentials</button
+          ><button data-filter="tune-ups" aria-pressed="false">Tune-ups</button
+          ><button data-filter="specialist" aria-pressed="false">
+            Specialist care
+          </button>
+        </div>
+        <p id="service-count" class="sr-only" role="status"></p>
+        <div id="service-grid" class="service-grid">
+          <p>Loading the service menu…</p>
+        </div>
+        <p class="price-note">
+          Labour estimates shown. Parts are quoted separately before work
+          begins.
+        </p>
+      </section>
+      <section
+        class="tracker-section"
+        id="tracker"
+        aria-labelledby="tracker-title"
+      >
+        <div class="tracker-section-heading">
+          <div>
+            <p class="eyebrow">02 / NO MORE WONDERING</p>
+            <h2 id="tracker-title">
+              Every repair has a story.<br />Follow yours.
+            </h2>
+          </div>
+          <p>From that first little squeak<br />to the first ride back.</p>
+        </div>
+        <div class="tracker-shell">
+          <div class="tracker-toolbar">
+            <div
+              class="tracker-view-switch"
+              role="group"
+              aria-label="Repair tracker view"
+            >
+              <button data-role="customer" aria-pressed="true">
+                Customer view</button
+              ><button data-role="workshop" aria-pressed="false">
+                Workshop view
+              </button>
+            </div>
+            <details class="demo-options">
+              <summary>Demo options</summary>
+              <p>
+                Reset only your saved sample repairs. This cannot be undone.
+              </p>
+              <button id="reset-tracker" class="reset-tracker" type="button">
+                Reset sample repairs ↺
+              </button>
+            </details>
+          </div>
+          <p class="tracker-intro">
+            Follow a sample repair from inspection to collection. Customer view
+            reviews and approves estimates; Workshop view carries out the
+            repair. Both views are available in this demo. Progress is saved for
+            up to seven days.
+            <a href="#request">Create a sample repair →</a>
+          </p>
+          <p id="tracker-view-context" class="view-context"></p>
+          <div class="tracker-list-controls">
+            <label for="repair-filter">Show repairs</label>
+            <select id="repair-filter">
+              <option value="all">All sample repairs</option>
+              <option value="approval">Awaiting approval</option>
+              <option value="ready">Ready to collect</option>
+              <option value="collected">Collected</option>
+              <option value="waiting_parts">Waiting for parts</option>
+              <option value="declined">Estimate declined</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button id="refresh-tracker" class="reset-tracker" type="button">
+              Refresh repair list
+            </button>
+          </div>
+          <button id="retry-tracker" class="reset-tracker" type="button" hidden>
+            Reload saved progress
+          </button>
+          <div id="tracker-app">
+            <p class="tracker-loading">Opening your demo workshop…</p>
+          </div>
+          <p
+            id="tracker-status"
+            class="tracker-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </div>
+        <p class="tracker-footnote">
+          Interactive portfolio demo · Fictional riders and repairs · No booking
+          or payment
+        </p>
+      </section>
+      <section class="approach" id="approach" aria-labelledby="approach-title">
+        <div>
+          <p class="eyebrow">03 / A LITTLE LESS THROWAWAY</p>
+          <h2 id="approach-title">Good bikes deserve<br />a second wind.</h2>
+          <p>
+            We like things that last. A worn chain, a stubborn gear, a brake
+            that’s lost its bite — they’re usually the beginning of a repair
+            story, not the end of a bike.
+          </p>
+        </div>
+        <ol class="steps">
+          <li>
+            <span>01</span>
+            <div>
+              <h3>Tell us what feels off.</h3>
+              <p>Pick a service or start with a safety check.</p>
+            </div>
+          </li>
+          <li>
+            <span>02</span>
+            <div>
+              <h3>Know the cost first.</h3>
+              <p>An estimate now. Approval before any extra work.</p>
+            </div>
+          </li>
+          <li>
+            <span>03</span>
+            <div>
+              <h3>Get back to the good part.</h3>
+              <p>
+                A bike that feels right, and a reason to take the long route.
+              </p>
+            </div>
+          </li>
+        </ol>
+      </section>
+      <section
+        class="section request-section"
+        id="request"
+        aria-labelledby="request-title"
+      >
+        <div class="request-copy">
+          <p class="eyebrow">04 / YOUR NEXT MILE</p>
+          <h2 id="request-title">Let’s get your<br />bike feeling right.</h2>
+          <p>Choose a service and tell us a little about your bike.</p>
+          <aside class="demo-note">
+            <strong>A portfolio demonstration</strong>
+            <p>
+              This is a fictional workshop. Use the fixed sample rider and
+              choose a bike and concern. This demo accepts no personal contact
+              details. Each request creates a sample repair; no appointment is
+              booked or email sent.
+            </p>
+          </aside>
+          <div class="estimate">
+            <span>STARTING ESTIMATE</span
+            ><strong id="estimate-value">$25</strong
+            ><small id="estimate-detail"
+              >Safety check · parts quoted separately</small
+            >
+          </div>
+        </div>
+        <form id="request-form" class="request-form">
+          <div class="sample-rider">
+            <span class="small-label">YOUR SAMPLE RIDER</span
+            ><strong>Jamie Rider</strong
+            ><span>jamie@example.test · Fictional details only</span>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="bike">Sample bike</label
+              ><select id="bike" name="bikeId" required></select>
+            </div>
+            <div class="field">
+              <label for="issue">What needs care?</label
+              ><select id="issue" name="issueId" required></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="service">Service</label
+            ><select id="service" name="serviceId" required>
+              <option value="">Loading services…</option>
+            </select>
+            <button
+              id="retry-services"
+              class="reset-tracker"
+              type="button"
+              hidden
+            >
+              Reload service menu
+            </button>
+          </div>
+          <div class="field">
+            <label for="slot">Preferred drop-off period</label
+            ><select id="slot" name="slot" required>
+              <option value="flexible">I’m flexible</option>
+              <option value="morning">Morning</option>
+              <option value="afternoon">Afternoon</option>
+            </select>
+          </div>
+          <label class="collection-label"
+            ><input type="checkbox" id="collection" name="collection" /><span
+              >Add local collection <small>+$15 to your estimate</small></span
+            ></label
+          ><button class="button submit-button" type="submit" disabled>
+            Create sample repair <span aria-hidden="true">↗</span>
+          </button>
+          <p
+            id="form-status"
+            class="form-status"
+            role="status"
+            tabindex="-1"
+          ></p>
+          <button
+            class="button track-created"
+            id="track-created-repair"
+            type="button"
+            hidden
+          >
+            Track this sample repair <span aria-hidden="true">↗</span>
+          </button>
+          <p id="request-next-step" class="request-next-step" hidden>
+            Next: open the saved repair in Workshop view to start its
+            inspection. Customer approval comes after the inspection; no
+            appointment is booked.
+          </p>
+          <p class="privacy-note">
+            Up to ten sample repairs per workspace. Progress expires after seven
+            days and is removed by automatic cleanup.
+          </p>
+        </form>
+      </section>
+    </main>
+    <footer>
+      <a class="brand footer-brand" href="#"
+        >northline<span class="brand-sub">CYCLE CO.</span></a
+      >
+      <p>Repair. Reuse. Ride a little further.</p>
+      <span
+        >Personal project · Fictional business ·
+        <a href="/case-study.html">Read the case study</a></span
+      >
+    </footer>
+  </body>
+</html>

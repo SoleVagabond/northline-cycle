@@ -1,5 +1,18 @@
 # Northline Workshop — release evidence
 
+## October 5 customer, staff and portfolio separation
+
+The customer website now publishes all active scoped services/prices, saves a new repair request into the protected staff queue and opens opaque repair-specific links. The staff dashboard requires a server-checked session on Node and Netlify. `/demo/` and `/demo/workshop.html` contain explicitly fictional, isolated visitor records and sample controls. Staff initialization does not overwrite the visitor cookie.
+
+The earlier repair-link format exposed a workspace identifier. The new opaque reference is resolved only on the server and validated against the selected repair, hash and expiry. Demo APIs reject private records, including older permanent workspaces; old-format links need reissue. A customer bearer token cannot authorize staff reads or writes. Public receipts expose no directory, internal notes or workspace identifier. Matching contact details do not attach anonymous requests to earlier customers/bikes.
+
+Local verification passed all **103 isolated checks**, formatting, type checking and the **34-file public build**. The full browser suite passed **185 scenarios** across desktop Chromium, 375/320-pixel Chromium, Firefox and WebKit, including unsuppressed accessibility scans. The final cookie preservation and multiline-input refinements are covered by isolated and end-to-end integration checks, with the affected browser journeys repeated before publication. The existing **24 demo** and **8 work-order integration checks** passed; all **11 new audience-separation integration checks** passed, covering public intake/retries, durable staff sessions, scoped recipient data, forged access, shared/private updates, revocation and sign-out. Only fictional data was used, and the verification request was closed without booking, messaging or charging.
+
+Reassessment corrected the public form's accessible service name and footer contrast, restored the skip link to the first keyboard stop, allowed multiline repair concerns, and prevented staff initialization from replacing saved demo cookies. The production staff key is configured as a function-only secret and excluded from source/build/evidence. Northline remains a fictional portfolio business, with one workshop key rather than individual staff accounts. [Architecture and acceptance](../docs/ACCESS-SEPARATION.md) · [Local integration output](evidence/access-separation-local.txt).
+
+Published checks and deployment evidence will be appended after production verification. Earlier sections below are historical.
+
+
 ## October 5 customer records and work orders release
 
 The release plan connects configurable services, SKUs, shop hours and staff availability to saved customer/bike history, itemized work orders, scoped customer approval links and persistent repair photos. Inspection and internal notes remain separate from explicitly shared updates and images. Existing repairs keep their estimates and history.

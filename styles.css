@@ -1735,3 +1735,14 @@ footer > span {
 .cancellation-editor {
   border-color: #ab4c22;
 }
+:root .demo-banner {
+  padding: 12px 5%;
+  background: #233f35;
+  color: #fff;
+  text-align: center;
+  font-size: 0.85rem;
+}
+:root .demo-banner a {
+  color: inherit;
+  margin-left: 12px;
+}

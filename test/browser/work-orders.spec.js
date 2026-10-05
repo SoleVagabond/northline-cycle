@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 const ready = async (page) => {
-  await page.goto("/workshop.html");
+  await page.goto("/demo/workshop.html");
   await expect(page.locator("#save-state")).toHaveText("All changes saved");
 };
 const nav = async (page, name) => {
@@ -172,7 +172,9 @@ test("returning bike, itemized work, private/shared photos and a separate recipi
       )
       .toBe(1);
     expect(
-      (await context.request.get(new URL("/api/workshop", url).href)).status(),
+      (
+        await context.request.get(new URL("/api/demo/workshop", url).href)
+      ).status(),
     ).toBe(401);
     expect(
       (
@@ -323,7 +325,7 @@ test("a recipient recovers from a stale estimate and a lost approval response wi
   browser,
 }) => {
   await ready(page);
-  await page.goto("/workshop.html#repair/NL-2401");
+  await page.goto("/demo/workshop.html#repair/NL-2401");
   await page.getByText("Customer repair link", { exact: true }).click();
   await page
     .getByRole("button", { name: "Create repair link", exact: true })
@@ -392,7 +394,7 @@ test("a recipient recovers from a stale estimate and a lost approval response wi
       "approved",
     );
     await expect(recipient.locator("[data-decision]")).toHaveCount(0);
-    await page.goto("/workshop.html#repair/NL-2402");
+    await page.goto("/demo/workshop.html#repair/NL-2402");
     await page.getByRole("button", { name: "Refresh", exact: true }).click();
     await page.getByText("Customer repair link", { exact: true }).click();
     await page
@@ -447,7 +449,7 @@ test("new record screens, expanded scope forms and selected part controls work a
       name,
     ).toEqual([]);
   }
-  await page.goto("/workshop.html#repair/NL-2401");
+  await page.goto("/demo/workshop.html#repair/NL-2401");
   await page.getByText("Revise the estimate", { exact: true }).click();
   await expect(
     page.getByLabel("Specification for Replacement brake pads", {
@@ -486,15 +488,15 @@ test("empty rate-limit and gateway responses explain recovery without losing sav
   page,
   browser,
 }) => {
-  await page.route("**/api/access", (route) =>
+  await page.route("**/api/demo/access", (route) =>
     route.fulfill({ status: 429, body: "" }),
   );
-  await page.goto("/workshop.html");
+  await page.goto("/demo/workshop.html");
   await expect(page.locator("#app-message")).toContainText("Wait one minute");
-  await page.unroute("**/api/access");
+  await page.unroute("**/api/demo/access");
   await page.getByRole("button", { name: "Try again", exact: true }).click();
   await expect(page.locator("#save-state")).toHaveText("All changes saved");
-  await page.route("**/api/workshop", (route) =>
+  await page.route("**/api/demo/workshop", (route) =>
     route.fulfill({
       status: 502,
       contentType: "text/html",
@@ -508,10 +510,10 @@ test("empty rate-limit and gateway responses explain recovery without losing sav
   await expect(
     page.getByRole("button", { name: "+ New repair", exact: true }),
   ).toBeDisabled();
-  await page.unroute("**/api/workshop");
+  await page.unroute("**/api/demo/workshop");
   await page.getByRole("button", { name: "Refresh", exact: true }).click();
   await expect(page.locator("#save-state")).toHaveText("All changes saved");
-  await page.goto("/workshop.html#repair/NL-2401");
+  await page.goto("/demo/workshop.html#repair/NL-2401");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "City commuter",
   );
@@ -545,14 +547,14 @@ test("empty rate-limit and gateway responses explain recovery without losing sav
   } finally {
     await context.close();
   }
-  await page.route("**/api/tracker", (route) =>
+  await page.route("**/api/demo/tracker", (route) =>
     route.fulfill({ status: 429, body: "" }),
   );
-  await page.goto("/");
+  await page.goto("/demo/");
   await expect(page.locator("#tracker-status")).toContainText(
     "Wait one minute",
   );
-  await page.unroute("**/api/tracker");
+  await page.unroute("**/api/demo/tracker");
   await page
     .getByRole("button", { name: "Reload saved progress", exact: true })
     .click();

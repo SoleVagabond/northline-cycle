@@ -371,8 +371,12 @@ test("cloud photo adapter stores unique media with expiry and cleanup deletes ex
 });
 function memory() {
   const records = new Map(),
-    photos = new Map();
+    photos = new Map(),
+    links = new Map();
   return {
+    getCustomerLink: async (id) => structuredClone(links.get(id) || null),
+    setCustomerLink: async (id, record) =>
+      links.set(id, structuredClone(record)),
     getWorkspace: async (id) => structuredClone(records.get(id) || null),
     setWorkspace: async (id, value) => records.set(id, structuredClone(value)),
     transaction: async (run) => run(),
@@ -450,6 +454,7 @@ test("repair links reveal one repair only and exclude internal notes, diagnosis 
   });
   const link = await f.operation({ action: "create-link", jobId: "NL-2401" });
   assert.equal(link.response.status, 200);
+  assert.notEqual(link.data.portalFragment.split(".")[0], f.workspace.id);
   assert.equal(link.data.workspace.jobs[0].customerAccess.hash, undefined);
   const portal = await f.request(
     "/api/customer/repair",

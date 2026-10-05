@@ -1,6 +1,6 @@
 import { money, sumMoney } from "./lib/money.js";
 import { demoBikes, demoIssues } from "./lib/repairs.js";
-import { ensureWorkspace, apiData } from "./lib/demo-session.js";
+import { ensureWorkspace, apiData, apiPath } from "./lib/demo-session.js";
 
 const grid = document.querySelector("#service-grid");
 const select = document.querySelector("#service");
@@ -144,7 +144,7 @@ form.addEventListener("submit", async (event) => {
   const payload = { ...choices, requestId: pendingRequest.requestId };
   try {
     await ensureWorkspace().catch(() => {});
-    const response = await fetch("/api/enquiries", {
+    const response = await fetch(apiPath("/api/enquiries"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -185,7 +185,7 @@ async function loadServices() {
   retryServices.disabled = true;
   const previousService = select.value;
   try {
-    const response = await fetch("/api/services", {
+    const response = await fetch(apiPath("/api/services"), {
       signal: AbortSignal.timeout(10000),
     });
     if (!response.ok) throw new Error("Service menu unavailable");
