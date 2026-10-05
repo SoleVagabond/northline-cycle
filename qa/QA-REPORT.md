@@ -14,6 +14,8 @@ The initial desktop check found that the populated work-description textarea did
 
 The in-app browser separately saved an inspected $80 quote ($55 service charge plus specified $25 pads), received its approval, and retained the independently entered October 5 work date, 105-minute internal budget and October 8 collection expectation. Customer view omitted the internal budget. A fresh production navigation retained all five earlier repairs, their stages and $125/$80/$80/$45/$35 estimates. The live catalog displayed all twelve scoped starting prices without preset durations. Only fictional data was used; no real charge or customer message occurred.
 
+Following verification, a documentation-only correction refreshed the project story's sample quote instructions and README test counts. The tested application JavaScript and business rules are unchanged.
+
 ## October 4 workshop application release
 
 **Project:** Independent application for a fictional bicycle business.
