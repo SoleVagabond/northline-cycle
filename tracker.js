@@ -1,11 +1,7 @@
 import { stages, exceptionStages, workflowStage } from "./lib/repairs.js";
-import { quoteFor, partOptions, labourOptions } from "./lib/quotes.js";
+import { quoteFor, partOptions } from "./lib/quotes.js";
 import { decisionControls, quoteHistory } from "./lib/decision-view.js";
-import {
-  repairTypes as services,
-  calculateEstimate,
-  qualityChecks,
-} from "./lib/services.js";
+import { repairTypes as services, qualityChecks } from "./lib/services.js";
 import { ensureWorkspace } from "./lib/demo-session.js";
 
 const root = document.querySelector("#tracker-app");
@@ -139,7 +135,7 @@ function render() {
   <div class="tracker-layout"><aside class="repair-list" aria-label="Sample repairs">${visibleJobs.map((item) => `<button class="repair-choice ${item.id === selected ? "selected" : ""}" data-job="${escape(item.id)}" aria-pressed="${item.id === selected}" ${busy ? "disabled" : ""}><span class="repair-reference">${escape(item.id)}</span><strong>${escape(item.bike)}</strong><span>${escape(item.rider)} · ${escape(stageFor(item).label)}</span></button>`).join("")}<p class="repair-list-note">Fictional repairs.<br>Your changes stay in your demo.</p></aside>
   <article class="repair-detail" aria-labelledby="repair-title"><div class="repair-detail-heading"><div><p class="eyebrow">${escape(job.id)} / ${role === "customer" ? "CUSTOMER VIEW" : "WORKSHOP VIEW"}</p><h3 id="repair-title" tabindex="-1">${escape(job.bike)}</h3><p>${escape(job.issue)}</p></div><span class="stage-badge">${escape(stageFor(job).label)}</span></div>
   <ol class="repair-timeline" aria-label="Repair stages">${stages.map((stage, index) => `<li class="${index < current ? "complete" : index === current ? "current" : ""}" ${index === current && job.status !== "cancelled" ? 'aria-current="step"' : ""}><span class="step-dot" aria-hidden="true">${index < current ? "✓" : String(index + 1).padStart(2, "0")}</span><span>${escape(stage.label)}</span><span class="sr-only">${index < current ? "Complete" : index === current ? (job.status === "cancelled" ? "Stopped here" : "Current stage") : "Upcoming"}</span></li>`).join("")}</ol>
-  <div class="repair-info"><div class="repair-now"><span class="small-label">${nextOwner}</span><h4>${escape(stageFor(job).label)}</h4><p>${escape(stageFor(job).description)}</p><div class="tracker-actions">${action}</div>${uncertain ? '<p class="repair-warning">This update may already be saved. Use Reload saved progress before another repair action.</p>' : ""}</div><div class="repair-quote"><span class="small-label">ESTIMATED TOTAL</span><strong>$${job.estimate}</strong><p>${escape(services.find((item) => item.id === job.serviceId).name)}${job.collection ? " + collection" : ""}</p><dl class="quote-breakdown"><div><dt>Labour</dt><dd>$${quote.labour}</dd></div>${job.collection ? "<div><dt>Local collection</dt><dd>$15</dd></div>" : ""}${quote.parts.map((part) => `<div><dt>${escape(part.name)}</dt><dd>$${part.price}</dd></div>`).join("")}</dl><span class="approval-label">${approval}</span><small>${escape(quote.parts.length ? "Parts are included in this estimate; all prices are fictional." : job.parts)}</small><p class="quote-version">Estimate v${quote.version} · ${escape(quote.reason)}</p></div></div>
+  <div class="repair-info"><div class="repair-now"><span class="small-label">${nextOwner}</span><h4>${escape(stageFor(job).label)}</h4><p>${escape(stageFor(job).description)}</p><div class="tracker-actions">${action}</div>${uncertain ? '<p class="repair-warning">This update may already be saved. Use Reload saved progress before another repair action.</p>' : ""}</div><div class="repair-quote"><span class="small-label">ESTIMATED TOTAL</span><strong>$${job.estimate}</strong><p>${escape(services.find((item) => item.id === job.serviceId).name)}${job.collection ? " + collection" : ""}</p><dl class="quote-breakdown"><div><dt>Service charge</dt><dd>$${quote.labour}</dd></div>${job.collection ? "<div><dt>Local collection</dt><dd>$15</dd></div>" : ""}${quote.parts.map((part) => `<div><dt>${escape(part.name)}${part.specification ? ` · ${escape(part.specification)}` : ""}</dt><dd>$${part.price}</dd></div>`).join("")}</dl><span class="approval-label">${approval}</span><small>${escape(quote.parts.length ? "Parts are included in this estimate; all prices are fictional." : job.parts)}</small>${quote.workDescription ? `<p>${escape(quote.workDescription)}</p>` : ""}<p class="quote-version">Estimate v${quote.version} · ${escape(quote.reason)}</p></div></div>
   ${quoteHistory(job, escape, time)}<details class="repair-history" open><summary>Repair journal <span>${job.history.length} updates</span></summary><ol>${job.history
     .slice()
     .reverse()
@@ -175,14 +171,10 @@ function render() {
     const part = partOptions.find(
       (item) => item.id === quoteForm.elements.partsId.value,
     );
-    const labour = labourOptions.find(
-      (item) => item.id === quoteForm.elements.labourId.value,
-    );
     const total =
-      (job.basePrice ?? calculateEstimate(job.serviceId, false)) +
+      Number(quoteForm.elements.serviceCharge.value) +
       (job.collection ? 15 : 0) +
-      part.price +
-      labour.price;
+      part.price;
     quoteForm.querySelector(".quote-preview").textContent =
       `Revised total: $${total} (${total === quote.total ? "same total" : `${total > quote.total ? "+" : "−"}$${Math.abs(total - quote.total)}`}). Customer approval will be required.`;
   });
@@ -190,7 +182,21 @@ function render() {
     event.preventDefault();
     const choices = Object.fromEntries(new FormData(quoteForm));
     quoteDraft = { jobId: job.id, version: quote.version, choices };
-    changeRepair("revise", choices);
+    changeRepair("revise", {
+      serviceCharge: Number(choices.serviceCharge),
+      workDescription: choices.workDescription,
+      reasonId: choices.reasonId,
+      partLines:
+        choices.partsId === "none"
+          ? []
+          : [
+              {
+                id: choices.partsId,
+                quantity: 1,
+                specification: choices.specification,
+              },
+            ],
+    });
   });
   root.querySelector("#cancel-form")?.addEventListener("submit", (event) => {
     event.preventDefault();

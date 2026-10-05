@@ -1,3 +1,4 @@
+import { quoteFor } from "../lib/quotes.js";
 import { randomUUID } from "node:crypto";
 import assert from "node:assert/strict";
 import { workshopDate, qualityChecks } from "../lib/services.js";
@@ -380,6 +381,8 @@ await check(
           dueDate: workshopDate(),
           mechanicId: "lee",
           priority: "high",
+          benchMinutes: 75,
+          expectedReadyDate: workshopDate(),
         })
       ).status,
       200,
@@ -402,16 +405,32 @@ await check(
           role: "workshop",
           jobId: operationsId,
           partLines: [
-            { id: "pads", quantity: 1 },
-            { id: "tube", quantity: 2 },
+            {
+              id: "pads",
+              quantity: 1,
+              specification: "Fictional compatible mechanical brake pads",
+            },
+            {
+              id: "tube",
+              quantity: 2,
+              specification: "700 x 32-47c, Presta 48 mm",
+            },
           ],
-          labourId: "adjustment",
+          serviceCharge: 60,
+          workDescription:
+            "Adjust rear brake, replace pads and fit two compatible tubes.",
           reasonId: "inspection",
         })
       ).status,
       200,
     );
     assert.equal(operationJob().estimate, 109);
+    assert.equal(operationJob().benchMinutes, 75);
+    assert.equal(operationJob().expectedReadyDate, workshopDate());
+    assert.equal(
+      quoteFor(operationJob()).parts[0].specification,
+      "Fictional compatible mechanical brake pads",
+    );
     assert.equal(
       (
         await operation("/api/tracker/actions", {

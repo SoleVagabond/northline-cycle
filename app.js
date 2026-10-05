@@ -80,7 +80,7 @@ function renderServices() {
     number.className = "service-number";
     number.textContent = String(menu.indexOf(item) + 1).padStart(2, "0");
     const duration = document.createElement("span");
-    duration.textContent = item.duration;
+    duration.textContent = item.unit;
     top.append(number, duration);
     const heading = document.createElement("h3");
     heading.textContent = item.name;
@@ -89,7 +89,7 @@ function renderServices() {
     const bottom = document.createElement("div");
     bottom.className = "card-bottom";
     const price = document.createElement("strong");
-    price.textContent = `$${item.price}`;
+    price.textContent = `From $${item.price}`;
     const choose = document.createElement("button");
     choose.type = "button";
     choose.className = "choose-service";

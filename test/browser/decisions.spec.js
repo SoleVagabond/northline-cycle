@@ -15,7 +15,12 @@ async function revise(page, parts = "pads", labour = "adjustment") {
   await page
     .getByLabel("Replacement parts", { exact: true })
     .selectOption(parts);
-  await page.getByLabel("Labour scope", { exact: true }).selectOption(labour);
+  await page
+    .getByLabel("Service charge ($)", { exact: true })
+    .fill(labour === "standard" ? "65" : "85");
+  await page
+    .getByLabel("Part specification (if replacing a part)", { exact: true })
+    .fill("Fictional inspected compatible part");
   await page
     .getByRole("button", {
       name: "Send revised estimate for approval",
@@ -100,9 +105,10 @@ test("declining an estimate pauses work and an alternative needs a fresh custome
   await page
     .getByLabel("Replacement parts", { exact: true })
     .selectOption("tube");
+  await page.getByLabel("Service charge ($)", { exact: true }).fill("65");
   await page
-    .getByLabel("Labour scope", { exact: true })
-    .selectOption("standard");
+    .getByLabel("Part specification (if replacing a part)", { exact: true })
+    .fill("700c tube, Presta 48 mm");
   await page
     .getByRole("button", {
       name: "Send revised estimate for approval",
@@ -165,9 +171,10 @@ test("a lost revision response blocks decisions until the saved new quote reload
   await page
     .getByLabel("Replacement parts", { exact: true })
     .selectOption("pads");
+  await page.getByLabel("Service charge ($)", { exact: true }).fill("85");
   await page
-    .getByLabel("Labour scope", { exact: true })
-    .selectOption("adjustment");
+    .getByLabel("Part specification (if replacing a part)", { exact: true })
+    .fill("Compatible sample brake pads");
   await page
     .getByRole("button", {
       name: "Send revised estimate for approval",

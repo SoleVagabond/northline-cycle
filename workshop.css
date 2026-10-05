@@ -1391,3 +1391,10 @@ dialog label {
     margin: 10px 0;
   }
 }
+
+.part-specification {
+  grid-column: 1 / -1;
+}
+.part-specification input {
+  width: 100%;
+}

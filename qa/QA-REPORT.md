@@ -1,5 +1,15 @@
 # Northline Workshop — release evidence
 
+## October 4 bicycle-shop business correction
+
+The [business review](BIKE-SHOP-REVIEW.md) uses bike-shop service menus, workshop software documentation and manufacturer-compatible part guidance. It replaces catalog durations and repeated labour labels with scoped starting prices, separates internal work scheduling from expected collection, requires descriptions of inspected work and compatible part specifications, and permits a documented no-shifting exception while retaining the other safety checks. Quote values and past approvals remain unchanged. Generic sample stock is no longer represented as universal compatible SKUs.
+
+**Local verification:** All **77 isolated checks** passed, including nine new business-rule checks. All **145 browser scenarios** passed across desktop Chromium, 375/320-pixel Chromium, Firefox and WebKit. After the final form styling and rescheduling validation, all **25 affected browser scenarios** passed again. These include quote editing, keyboard navigation, separate customer dates, all six screens, narrow-width layout and accessibility scans with no suppressed rules. Formatting, type checking and the 25-file public build passed. All **24 local integration checks** passed, including an inspected $109 quote, recorded compatible specifications, job-specific budget and distinct collection expectation.
+
+The initial desktop check found that the populated work-description textarea did not expose the intended accessible name. The explicit name was corrected and the full suite passed. The current queue image was regenerated from a successful browser check. Research does not validate the fictional rates, productive staff availability or commercial readiness; those limits are explicit in the review and operations guide. Older release sections below are historical, including the superseded automatic fitting-time assumption.
+
+[Business review](BIKE-SHOP-REVIEW.md) · [Local integration output](evidence/product-local-smoke.txt) · [Operations guide](../docs/OPERATIONS.md)
+
 ## October 4 workshop application release
 
 **Project:** Independent application for a fictional bicycle business.

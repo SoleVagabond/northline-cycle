@@ -1695,7 +1695,8 @@ footer > span {
   font-size: 14px;
   font-weight: 600;
 }
-.decision-editor select {
+.decision-editor select,
+.decision-editor input {
   font: inherit;
   font-size: 16px;
   padding: 10px;

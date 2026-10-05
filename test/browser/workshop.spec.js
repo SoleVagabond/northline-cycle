@@ -34,6 +34,126 @@ async function createRepair(page, service = "brake") {
     "WORKSHOP VIEW",
   );
 }
+
+test("catalog defines price scope without repair durations and customer collection is separate from internal planning", async ({
+  page,
+}) => {
+  await ready(page);
+  await nav(page, "Services & prices").click();
+  await expect(page.locator(".catalog-grid")).not.toContainText(
+    /\bminutes\b|Half a day|labour/i,
+  );
+  await expect(page.locator(".service-price").first()).toContainText(
+    "From $25",
+  );
+  await expect(
+    page.locator(".service-card-app").filter({
+      has: page.getByRole("heading", {
+        name: "Hydraulic brake bleed",
+        exact: true,
+      }),
+    }),
+  ).toContainText("Per hydraulic brake");
+  await createRepair(page, "wheel");
+  await expect(page.locator(".detail-summary")).toContainText("Not confirmed");
+  const planned = new Date().toISOString().slice(0, 10);
+  const collection = new Date(Date.now() + 3 * 86400000)
+    .toISOString()
+    .slice(0, 10);
+  await page.getByLabel("Planned work date", { exact: true }).fill(planned);
+  await page
+    .getByLabel("Bench time budget (minutes)", { exact: true })
+    .fill("115");
+  await page
+    .getByLabel("Expected collection date", { exact: true })
+    .fill(collection);
+  await page
+    .getByRole("button", { name: "Save schedule", exact: true })
+    .click();
+  await expect(page.locator("#app-message")).toHaveText(
+    "Schedule and mechanic assignment saved.",
+  );
+  await page
+    .getByRole("button", { name: "Customer view", exact: true })
+    .click();
+  await expect(page.locator(".detail-summary")).not.toContainText(
+    "Not confirmed",
+  );
+  await expect(page.locator("#workspace")).not.toContainText("115");
+  await expect(
+    page.getByLabel("Bench time budget (minutes)", { exact: true }),
+  ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "Workshop view", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Expected collection date", { exact: true }),
+  ).toHaveValue(collection);
+  await page
+    .getByLabel("Bench time budget (minutes)", { exact: true })
+    .fill("");
+  await page.getByLabel("Expected collection date", { exact: true }).fill("");
+  await page
+    .getByRole("button", { name: "Save schedule", exact: true })
+    .click();
+  await expect(page.locator("#app-message")).toHaveText(
+    "Schedule and mechanic assignment saved.",
+  );
+  await page.reload();
+  await expect(page.locator(".detail-summary")).toContainText("Not confirmed");
+  await nav(page, "Schedule").click();
+  await expect(page.locator(".calendar-job")).toContainText([
+    "Not yet estimated",
+    "Not yet estimated",
+    "Not yet estimated",
+    "Not yet estimated",
+  ]);
+});
+
+test("a bike without shifting can complete safety checks without inventing a gear repair", async ({
+  page,
+}) => {
+  await ready(page);
+  await createRepair(page, "puncture");
+  await page
+    .getByRole("button", { name: "Start inspection", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Request customer approval", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Customer view", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Approve $20 estimate", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Workshop view", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Move to ride check", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "No gear shifting fitted", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Mark ready to collect", exact: true }),
+  ).toBeDisabled();
+  for (const name of [
+    "Brakes stop safely",
+    "Wheels and tyres checked",
+    "Fasteners secure; ride check complete",
+  ])
+    await page.getByRole("button", { name, exact: true }).click();
+  await page
+    .getByRole("button", { name: "Mark ready to collect", exact: true })
+    .click();
+  await page.reload();
+  await expect(page.locator(".next-action h3")).toHaveText("Ready to collect");
+  await expect(page.locator(".journal")).toContainText(
+    "Gear-shift check not applicable: no gear shifting fitted.",
+  );
+});
 test("new workshop repair completes scheduling, multi-part approval, stock use, quality checks and payment", async ({
   page,
 }) => {
@@ -41,7 +161,7 @@ test("new workshop repair completes scheduling, multi-part approval, stock use, 
   await createRepair(page);
   await expect(heading(page)).toHaveText("City commuter");
   await page
-    .getByLabel("Due date", { exact: true })
+    .getByLabel("Planned work date", { exact: true })
     .fill(new Date().toISOString().slice(0, 10));
   await page.getByLabel("Mechanic", { exact: true }).selectOption("lee");
   await page
@@ -61,11 +181,20 @@ test("new workshop repair completes scheduling, multi-part approval, stock use, 
     "Brake pad wear recorded",
   );
   await page.getByText("Revise the estimate", { exact: true }).click();
+  await page.getByLabel("Service charge ($)", { exact: true }).fill("60");
   await page
-    .getByLabel("Labour scope", { exact: true })
-    .selectOption("adjustment");
+    .getByLabel("Quoted work", { exact: true })
+    .fill(
+      "Adjust rear mechanical brake and replace pads; fit two inspected compatible tubes.",
+    );
   await page.getByRole("checkbox", { name: /Replacement brake pads/ }).check();
+  await page
+    .getByLabel("Specification for Replacement brake pads", { exact: true })
+    .fill("Shimano B05S-compatible resin pads");
   await page.getByRole("checkbox", { name: /Replacement inner tube/ }).check();
+  await page
+    .getByLabel("Specification for Replacement inner tube", { exact: true })
+    .fill("700 x 32-47c, Presta 48 mm");
   await page
     .getByLabel("Quantity for Replacement inner tube", { exact: true })
     .fill("2");
@@ -155,7 +284,7 @@ test("service catalogue price changes preserve existing estimates and price new 
   });
   await card.getByText("Edit service price", { exact: true }).click();
   await card
-    .getByLabel("Labour price for Everyday tune-up", { exact: true })
+    .getByLabel("Starting price for Everyday tune-up", { exact: true })
     .fill("90");
   await card.getByRole("button", { name: "Save service", exact: true }).click();
   await expect(page.locator("#app-message")).toContainText(
@@ -178,6 +307,9 @@ test("stock receipt resolves an approved repair's shortage and saves the ledger"
   await openJob(page);
   await page.getByText("Revise the estimate", { exact: true }).click();
   await page.getByRole("checkbox", { name: /Replacement brake pads/ }).check();
+  await page
+    .getByLabel("Specification for Replacement brake pads", { exact: true })
+    .fill("Shimano B05S-compatible resin pads");
   await page
     .getByLabel("Quantity for Replacement brake pads", { exact: true })
     .fill("5");
@@ -238,7 +370,7 @@ test("queue search, status filters, schedule and priorities operate on the same 
   await expect(page.locator(".repair-table tbody tr")).toHaveCount(3);
   await page.locator('a[href="#repair/NL-2403"]').click();
   await page
-    .getByLabel("Due date", { exact: true })
+    .getByLabel("Planned work date", { exact: true })
     .fill(new Date().toISOString().slice(0, 10));
   await page.getByLabel("Mechanic", { exact: true }).selectOption("lee");
   await page.getByLabel("Priority", { exact: true }).selectOption("high");
@@ -356,7 +488,10 @@ test("all workshop views and intake fit the screen and pass accessibility checks
     expect(scan.violations, name).toEqual([]);
     if (name === "Repair queue")
       await info.attach("workshop-queue", {
-        body: await page.screenshot({ fullPage: true }),
+        body: await page.screenshot({
+          path: info.outputPath("workshop-queue.png"),
+          fullPage: true,
+        }),
         contentType: "image/png",
       });
   }

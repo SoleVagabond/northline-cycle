@@ -106,24 +106,20 @@ test("a catalog cannot disable the last available repair type", () => {
   );
 });
 
-test("a revised labour scope cannot silently overbook the assigned mechanic", () => {
+test("price and scope revisions do not invent or change a job's bench budget", () => {
   let workspace = seed();
-  workspace.jobs = [job(workspace)];
-  workspace.jobs[0].serviceId = "overhaul";
-  const other = structuredClone(workspace.jobs[0]);
-  other.id = "CAPACITY-SECOND";
-  workspace.jobs.push(other);
-  assert.throws(
-    () =>
-      act(workspace, "revise", "workshop", {
-        partLines: [],
-        labourId: "extended",
-        reasonId: "inspection",
-      }),
-    /eight hours/,
-  );
-  assert.equal(quoteFor(job(workspace)).version, 1);
-  assert.equal(plannedMinutes(job(workspace)), 240);
+  job(workspace).benchMinutes = 95;
+  workspace = act(workspace, "revise", "workshop", {
+    partLines: [],
+    serviceCharge: 140,
+    workDescription:
+      "Inspect and rebuild the accessible headset after checking bearing condition.",
+    reasonId: "inspection",
+  });
+  assert.equal(quoteFor(job(workspace)).labour, 140);
+  assert.equal(plannedMinutes(job(workspace)), 95);
+  assert.equal(plannedMinutes(job(seed())), 0);
+  assert.equal(job(seed()).benchMinutes, undefined);
 });
 
 test("multi-part quantities are priced on the server and approval reserves available stock", () => {
@@ -260,6 +256,7 @@ test("scheduling rejects impossible dates and exceeding daily mechanic capacity 
         dueDate: "2026-10-05",
         mechanicId: "lee",
         priority: "routine",
+        benchMinutes: 240,
       },
       now,
     ).workspace;
@@ -274,10 +271,11 @@ test("scheduling rejects impossible dates and exceeding daily mechanic capacity 
           dueDate: "2026-10-05",
           mechanicId: "lee",
           priority: "routine",
+          benchMinutes: 240,
         },
         now,
       ),
-    /eight hours/,
+    /planning limit/,
   );
   assert.throws(
     () =>
@@ -289,6 +287,7 @@ test("scheduling rejects impossible dates and exceeding daily mechanic capacity 
           dueDate: "2026-02-30",
           mechanicId: "lee",
           priority: "routine",
+          benchMinutes: 240,
         },
         now,
       ),

@@ -3,6 +3,7 @@ import {
   repairTypes,
   mechanics,
   qualityChecks,
+  qualityComplete,
   workshopDate,
 } from "./lib/services.js";
 import {
@@ -12,12 +13,7 @@ import {
   exceptionStages,
   workflowStage,
 } from "./lib/repairs.js";
-import {
-  quoteFor,
-  labourOptions,
-  quoteReasons,
-  partOptions,
-} from "./lib/quotes.js";
+import { quoteFor, quoteReasons, partOptions } from "./lib/quotes.js";
 import {
   queueJobs,
   workshopReport,
@@ -139,13 +135,13 @@ function overview() {
         "queue/waiting_parts",
       ],
     ]) +
-    `<div class="dashboard-grid"><section class="panel"><div class="panel-heading"><div><h2>Next on the bench</h2><p>High priority first, then the earliest due date.</p></div><a href="#queue">All repairs →</a></div>${active.length ? active.slice(0, 5).map(compactJob).join("") : empty("The bench is clear", "Create a repair to start the next job.")}</section><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>Today's workload</h2><p>Planned labour against an eight-hour day.</p></div><a href="#schedule">Schedule →</a></div>${mechanics
+    `<div class="dashboard-grid"><section class="panel"><div class="panel-heading"><div><h2>Next on the bench</h2><p>High priority first, then the earliest planned work date.</p></div><a href="#queue">All repairs →</a></div>${active.length ? active.slice(0, 5).map(compactJob).join("") : empty("The bench is clear", "Create a repair to start the next job.")}</section><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>Today's workload</h2><p>Job-specific budgets against the planning limit. Unestimated jobs still need assessment.</p></div><a href="#schedule">Schedule →</a></div>${mechanics
       .map((mechanic) => {
         const jobs = active.filter(
           (job) => job.mechanicId === mechanic.id && job.dueDate === today(),
         );
         const minutes = jobs.reduce((n, job) => n + plannedMinutes(job), 0);
-        return `<div class="workload-row"><div><strong>${esc(mechanic.name)}</strong><small>${minutes} / ${mechanic.capacity} min</small></div><meter min="0" max="${mechanic.capacity}" value="${minutes}" aria-label="${esc(mechanic.name)} planned workload">${minutes} minutes</meter></div>`;
+        return `<div class="workload-row"><div><strong>${esc(mechanic.name)}</strong><small>${minutes} / ${mechanic.capacity} min budgeted · ${jobs.filter((job) => !job.benchMinutes).length} unestimated</small></div><meter min="0" max="${mechanic.capacity}" value="${minutes}" aria-label="${esc(mechanic.name)} planned workload">${minutes} minutes</meter></div>`;
       })
       .join(
         "",
@@ -159,7 +155,7 @@ function queueTable(jobs) {
       "Try another status, priority or search term. Your other repairs are still saved.",
       '<button class="quiet-button" id="clear-filters">Clear filters</button>',
     );
-  return `<table class="repair-table"><thead><tr><th scope="col">Repair & bike</th><th scope="col">Repair type</th><th scope="col">Status</th><th scope="col">Due / mechanic</th><th scope="col">Estimate</th></tr></thead><tbody>${jobs.map((job) => `<tr><td><a href="#repair/${esc(job.id)}"><span class="reference">${esc(job.id)}</span><strong>${esc(job.bike)}</strong><small>${esc(job.rider)}${job.priority === "high" ? " · HIGH PRIORITY" : ""}</small></a></td><td data-label="Repair type">${esc(typeFor(job).name)}<small>${typeFor(job).duration}</small></td><td data-label="Status">${pill(job)}</td><td data-label="Due / mechanic"><span class="${job.dueDate && job.dueDate < today() && !closed(job) ? "overdue" : ""}">${esc(dateLabel(job.dueDate))}</span><small>${esc(job.mechanic || "Unassigned")}</small></td><td data-label="Estimate" class="table-money">${money(job.estimate)}<small>${job.payment ? "Payment recorded" : quoteFor(job).decision === "approved" ? "Approved" : "Not approved"}</small></td></tr>`).join("")}</tbody></table><p class="result-count">${jobs.length} of ${workspace.jobs.length} repairs · Prices include quoted parts and collection.</p>`;
+  return `<table class="repair-table"><thead><tr><th scope="col">Repair & bike</th><th scope="col">Repair type</th><th scope="col">Status</th><th scope="col">Planned work / mechanic</th><th scope="col">Estimate</th></tr></thead><tbody>${jobs.map((job) => `<tr><td><a href="#repair/${esc(job.id)}"><span class="reference">${esc(job.id)}</span><strong>${esc(job.bike)}</strong><small>${esc(job.rider)}${job.priority === "high" ? " · HIGH PRIORITY" : ""}</small></a></td><td data-label="Repair type">${esc(typeFor(job).name)}<small>${esc(typeFor(job).unit)}</small></td><td data-label="Status">${pill(job)}</td><td data-label="Planned work / mechanic"><span class="${job.dueDate && job.dueDate < today() && !closed(job) ? "overdue" : ""}">${esc(dateLabel(job.dueDate))}</span><small>${esc(job.mechanic || "Unassigned")}</small></td><td data-label="Estimate" class="table-money">${money(job.estimate)}<small>${job.payment ? "Payment recorded" : quoteFor(job).decision === "approved" ? "Approved" : "Not approved"}</small></td></tr>`).join("")}</tbody></table><p class="result-count">${jobs.length} of ${workspace.jobs.length} repairs · Prices include quoted parts and collection.</p>`;
 }
 function queue() {
   return (
@@ -178,7 +174,7 @@ function queue() {
       filters.priority,
     )}</select></label><label>Sort by<select id="queue-sort" aria-label="Sort by">${options(
       [
-        { id: "due", name: "Priority & due date" },
+        { id: "due", name: "Priority & planned work date" },
         { id: "recent", name: "Recently updated" },
         { id: "value", name: "Highest estimate" },
       ],
@@ -187,7 +183,7 @@ function queue() {
   );
 }
 function quoteLines(quote) {
-  return `<table class="quote-lines"><tbody><tr><td>Service labour</td><td>${money(quote.labour)}</td></tr>${quote.parts.map((part) => `<tr><td>${esc(part.name)}${part.quantity ? `<small>${part.quantity} × ${money(part.unitPrice)}</small>` : ""}</td><td>${money(part.price)}</td></tr>`).join("")}${quote.collection ? `<tr><td>Local collection</td><td>${money(quote.collection)}</td></tr>` : ""}<tr><td><strong>Total estimate</strong></td><td>${money(quote.total)}</td></tr></tbody></table>`;
+  return `<table class="quote-lines"><tbody><tr><td>Service charge${quote.workDescription ? `<small>${esc(quote.workDescription)}</small>` : ""}</td><td>${money(quote.labour)}</td></tr>${quote.parts.map((part) => `<tr><td>${esc(part.name)}${part.specification ? `<small>${esc(part.specification)}</small>` : ""}${part.quantity ? `<small>${part.quantity} × ${money(part.unitPrice)}</small>` : ""}</td><td>${money(part.price)}</td></tr>`).join("")}${quote.collection ? `<tr><td>Local collection</td><td>${money(quote.collection)}</td></tr>` : ""}<tr><td><strong>Total estimate</strong></td><td>${money(quote.total)}</td></tr></tbody></table>`;
 }
 function actionPanel(job) {
   const quote = quoteFor(job);
@@ -211,10 +207,8 @@ function actionPanel(job) {
       quality: "Mark ready to collect",
       ready: "Mark collected",
     };
-    const missing =
-      job.status === "quality" &&
-      !qualityChecks.every((check) => job.checks?.[check.id]);
-    content = `<p>${esc(stateFor(job).description)}</p>${job.status === "quality" ? `<div class="check-list">${qualityChecks.map((check) => `<button data-check="${check.id}" data-write aria-pressed="${!!job.checks?.[check.id]}"><span aria-hidden="true">${job.checks?.[check.id] ? "✓" : ""}</span>${esc(check.name)}</button>`).join("")}</div>` : ""}<div class="action-buttons"><button class="primary-button" data-action="advance" data-write ${missing ? 'data-gated="true" disabled' : ""}>${labels[job.status]}</button>${job.status === "repairing" && quote.parts.length ? '<button class="quiet-button" data-action="wait-parts" data-write>Pause for parts</button>' : ""}</div>${missing ? '<p class="quote-footnote">Complete all four checks to release this repair.</p>' : ""}`;
+    const missing = job.status === "quality" && !qualityComplete(job);
+    content = `<p>${esc(stateFor(job).description)}</p>${job.status === "quality" ? `<div class="check-list">${qualityChecks.map((check) => `<button data-check="${check.id}" data-write aria-pressed="${!!job.checks?.[check.id]}"><span aria-hidden="true">${job.checks?.[check.id] ? "✓" : ""}</span>${esc(check.name)}</button>`).join("")}${job.checkExceptions?.gears ? `<p class="quote-footnote">Gear-shift check not applicable: no gear shifting fitted.</p>` : `<button class="quiet-button" data-check="gears" data-not-applicable data-write>No gear shifting fitted</button>`}</div>` : ""}<div class="action-buttons"><button class="primary-button" data-action="advance" data-write ${missing ? 'data-gated="true" disabled' : ""}>${labels[job.status]}</button>${job.status === "repairing" && quote.parts.length ? '<button class="quiet-button" data-action="wait-parts" data-write>Pause for parts</button>' : ""}</div>${missing ? '<p class="quote-footnote">Complete the safety checks. Only the gear-shift check may be recorded as not applicable on a bike without shifting.</p>' : ""}`;
   }
   return `<section class="next-action"><div class="operator-label">${closed(job) ? "REPAIR CLOSED" : customerView ? "CUSTOMER DECISION" : "NEXT WORKSHOP ACTION"}</div><h3>${esc(stateFor(job).label)}</h3>${content}</section>`;
 }
@@ -225,11 +219,11 @@ function estimateEditor(job) {
     !["inspection", "approval", "repairing", "declined"].includes(job.status)
   )
     return "";
-  return `<details class="editor-section subsection"><summary>Revise the estimate</summary><form class="stacked-form" id="estimate-form"><p class="muted">Select parts and quantities. A revised estimate pauses work and needs a new customer decision.</p><label>Labour scope<select name="labourId" aria-label="Labour scope">${options(labourOptions, quote.labourId, (item) => `${item.name}${item.price ? ` +${money(item.price)}` : ""}`)}</select></label><div>${partOptions
+  return `<details class="editor-section subsection"><summary>Revise the estimate</summary><form class="stacked-form" id="estimate-form"><p class="muted">Describe the inspected work, enter its service charge, and record compatible specifications for any parts. A revised estimate pauses work and needs a new customer decision.</p><label>Service charge ($)<input type="number" name="serviceCharge" value="${quote.labour}" min="0" max="5000" step="1" required></label><label>Quoted work<textarea name="workDescription" aria-label="Quoted work" maxlength="240" required>${esc(quote.workDescription || `${typeFor(job).name}: ${typeFor(job).includes.join("; ")}`)}</textarea></label><div>${partOptions
     .filter((part) => part.price)
     .map((part) => {
       const line = quote.parts.find((item) => item.id === part.id);
-      return `<div class="part-picker"><label><input type="checkbox" name="part-${part.id}" ${line ? "checked" : ""}><span>${esc(part.name)}<br><small>${money(part.price)} / unit</small></span></label><input type="number" name="qty-${part.id}" aria-label="Quantity for ${esc(part.name)}" value="${line?.quantity || 1}" min="1" max="10"></div>`;
+      return `<div class="part-picker"><label><input type="checkbox" name="part-${part.id}" ${line ? "checked" : ""}><span>${esc(part.name)}<br><small>${money(part.price)} / unit</small></span></label><input type="number" name="qty-${part.id}" aria-label="Quantity for ${esc(part.name)}" value="${line?.quantity || 1}" min="1" max="10"><label class="part-specification">Part specification<input name="spec-${part.id}" aria-label="Specification for ${esc(part.name)}" value="${esc(line?.specification || "")}" maxlength="100" placeholder="Model, size or manufacturer part number"></label></div>`;
     })
     .join(
       "",
@@ -254,7 +248,8 @@ function detail(job) {
       `${service.name} · ${job.rider} · ${job.issue}`,
       `<a class="quiet-button" href="#queue">← Repair queue</a><button class="quiet-button" data-switch-role>${customerView ? "Workshop view" : "Customer view"}</button><button class="quiet-button" data-print>Print repair summary</button>`,
     ) +
-    `<div class="detail-grid"><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>${esc(service.name)}</h2><p>${plannedMinutes(job)} minutes planned labour · ${esc(job.mechanic || "Unassigned")}</p></div>${pill(job)}</div><div class="detail-summary"><div><small>Labour price at intake</small><strong>${money(job.basePrice ?? service.price)}</strong></div><div><small>Due date</small><strong>${esc(dateLabel(job.dueDate))}</strong></div><div><small>Priority</small><strong>${job.priority === "high" ? "High priority" : "Routine"}</strong></div></div><ol class="repair-progress" aria-label="Repair progress">${stages.map((stage, i) => `<li class="${i < stageIndex ? "done" : i === stageIndex ? "current" : ""}" ${i === stageIndex && !closed(job) ? 'aria-current="step"' : ""}><b aria-hidden="true">${i < stageIndex ? "✓" : i + 1}</b><span>${esc(stage.label)}</span></li>`).join("")}</ol>${actionPanel(job)}${estimateEditor(job)}${!closed(job) && !customerView ? `<div class="subsection"><h3>Workshop note</h3><form id="note-form" class="stacked-form"><label>Record findings or a handoff<textarea name="note" maxlength="400" required placeholder="${privateMode ? "Record findings, parts decisions or a handoff." : "Use fictional workshop details in this portfolio workspace."}"></textarea></label><div class="form-actions"><button class="quiet-button" type="submit">Save note</button></div></form></div>` : ""}${!closed(job) && ((customerView && ["received", "inspection", "approval", "declined"].includes(job.status)) || (!customerView && job.status !== "ready")) ? '<details class="editor-section subsection"><summary>Cancel this repair</summary><p class="muted">Close the job permanently and retain its history.</p><button class="danger-button" data-cancel data-write>Cancel repair</button></details>' : ""}</section><section class="panel"><div class="panel-heading"><div><h2>Repair journal</h2><p>${job.history.length} saved updates · oldest decisions remain available</p></div></div><ol class="journal">${job.history
+    `<div class="detail-grid"><div class="detail-stack"><section class="panel"><div class="panel-heading"><div><h2>${esc(service.name)}</h2><p>${esc(service.unit)}${customerView ? "" : ` · ${esc(job.mechanic || "Unassigned")}`}</p></div>${pill(job)}</div><div class="detail-summary"><div><small>Starting service price</small><strong>${money(job.basePrice ?? service.price)}</strong></div><div><small>Expected collection</small><strong>${job.expectedReadyDate ? esc(dateLabel(job.expectedReadyDate)) : "Not confirmed"}</strong></div><div><small>Priority</small><strong>${job.priority === "high" ? "High priority" : "Routine"}</strong></div></div><ol class="repair-progress" aria-label="Repair progress">${stages.map((stage, i) => `<li class="${i < stageIndex ? "done" : i === stageIndex ? "current" : ""}" ${i === stageIndex && !closed(job) ? 'aria-current="step"' : ""}><b aria-hidden="true">${i < stageIndex ? "✓" : i + 1}</b><span>${esc(stage.label)}</span></li>`).join("")}</ol>${actionPanel(job)}${estimateEditor(job)}${!closed(job) && !customerView ? `<div class="subsection"><h3>Workshop note</h3><form id="note-form" class="stacked-form"><label>Record findings or a handoff<textarea name="note" maxlength="400" required placeholder="${privateMode ? "Record findings, parts decisions or a handoff." : "Use fictional workshop details in this portfolio workspace."}"></textarea></label><div class="form-actions"><button class="quiet-button" type="submit">Save note</button></div></form></div>` : ""}${!closed(job) && ((customerView && ["received", "inspection", "approval", "declined"].includes(job.status)) || (!customerView && job.status !== "ready")) ? '<details class="editor-section subsection"><summary>Cancel this repair</summary><p class="muted">Close the job permanently and retain its history.</p><button class="danger-button" data-cancel data-write>Cancel repair</button></details>' : ""}</section><section class="panel"><div class="panel-heading"><div><h2>Repair journal</h2><p>${job.history.length} saved updates · oldest decisions remain available</p></div></div><ol class="journal">${job.history
+      .filter((entry) => !customerView || entry.action !== "schedule")
       .slice()
       .reverse()
       .map(
@@ -274,13 +269,13 @@ function detail(job) {
       )
       .join("")}</details></section>${
       !closed(job) && !customerView
-        ? `<section class="panel"><div class="panel-heading"><div><h2>Schedule & assignment</h2><p>Planning a job also enables its quality checklist.</p></div></div><form id="schedule-form" class="stacked-form"><label>Due date<input type="date" name="dueDate" min="${today()}" value="${esc(job.dueDate || today())}" required></label><label>Mechanic<select name="mechanicId" aria-label="Mechanic">${options(mechanics, job.mechanicId || "alex", (item) => `${item.name} · ${item.specialty}`)}</select></label><label>Priority<select name="priority" aria-label="Priority">${options(
+        ? `<section class="panel"><div class="panel-heading"><div><h2>Schedule & assignment</h2><p>Plan the work separately from collection. Budgets are internal estimates, not promised repair times.</p></div></div><form id="schedule-form" class="stacked-form"><label>Planned work date<input type="date" name="dueDate" min="${today()}" value="${esc(job.dueDate || today())}" required></label><label>Mechanic<select name="mechanicId" aria-label="Mechanic">${options(mechanics, job.mechanicId || "alex", (item) => `${item.name} · ${item.specialty}`)}</select></label><label>Priority<select name="priority" aria-label="Priority">${options(
             [
               { id: "routine", name: "Routine" },
               { id: "high", name: "High priority" },
             ],
             job.priority || "routine",
-          )}</select></label><button class="primary-button" type="submit">Save schedule</button></form></section>`
+          )}</select></label><label>Bench time budget (minutes)<input type="number" name="benchMinutes" min="1" max="480" step="1" value="${job.benchMinutes || ""}" placeholder="Not yet estimated"></label><label>Expected collection date<input type="date" name="expectedReadyDate" min="${today()}" value="${esc(job.expectedReadyDate || "")}"></label><p class="quote-footnote">Leave collection unconfirmed until inspection and parts availability support a realistic date. Update the rider if that date changes.</p><button class="primary-button" type="submit">Save schedule</button></form></section>`
         : ""
     }${
       ["ready", "collected"].includes(job.status)
@@ -299,7 +294,7 @@ function detail(job) {
                   )}</select></label><button class="primary-button" type="submit">Record ${money(job.estimate)} payment</button></form>`
           }</section>`
         : ""
-    }<section class="panel"><h2>What this service includes</h2><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><p class="quote-footnote">Service labour and parts have separate prices. Extra work requires an approved revised estimate.</p></section></div></div>`
+    }<section class="panel"><h2>What this service includes</h2><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><p class="quote-footnote">The service charge covers the listed work; compatible replacement parts are quoted after inspection. Extra work requires an approved revised estimate.</p></section></div></div>`
   );
 }
 function schedule() {
@@ -314,12 +309,12 @@ function schedule() {
     heading(
       "WORKSHOP PLANNING",
       "Make room for good work.",
-      "Assign a mechanic and a due date. Planned service time cannot exceed eight hours per mechanic per day.",
+      "Plan work dates and job-specific bench budgets after assessment. The 480-minute limit is a planning ceiling, not a promise of eight productive hours or a collection time.",
     ) +
     `<div class="schedule-toolbar"><button class="quiet-button" data-calendar="-3">← Earlier</button><label>Schedule from<input type="date" id="calendar-date" value="${calendarStart}"></label><button class="quiet-button" data-calendar="3">Later →</button><p>${unscheduled.length} active repairs still need a date.</p></div><div class="calendar-grid">${dates
       .map((date) => {
         const jobs = active.filter((job) => job.dueDate === date);
-        return `<section class="calendar-day"><h2>${date === today() ? "Today · " : ""}${esc(dateLabel(date))}</h2><p>${jobs.length} scheduled repairs · ${jobs.reduce((n, job) => n + plannedMinutes(job), 0)} min planned</p>${jobs.length ? jobs.map((job) => `<a class="calendar-job ${job.priority === "high" ? "high" : ""}" href="#repair/${esc(job.id)}"><strong>${esc(job.bike)}</strong><small>${esc(typeFor(job).name)} · ${money(job.estimate)}</small><small>${esc(job.mechanic)} · ${plannedMinutes(job)} min${job.priority === "high" ? " · High priority" : ""}</small></a>`).join("") : '<p class="muted">No repairs scheduled. Assign a date from a repair record.</p>'}</section>`;
+        return `<section class="calendar-day"><h2>${date === today() ? "Today · " : ""}${esc(dateLabel(date))}</h2><p>${jobs.length} scheduled repairs · ${jobs.reduce((n, job) => n + plannedMinutes(job), 0)} min budgeted · ${jobs.filter((job) => !job.benchMinutes).length} unestimated</p>${jobs.length ? jobs.map((job) => `<a class="calendar-job ${job.priority === "high" ? "high" : ""}" href="#repair/${esc(job.id)}"><strong>${esc(job.bike)}</strong><small>${esc(typeFor(job).name)} · ${money(job.estimate)}</small><small>${esc(job.mechanic)} · ${job.benchMinutes ? `${job.benchMinutes} min budgeted` : "Not yet estimated"}${job.status === "waiting_parts" ? " · Paused for parts" : ""}${job.priority === "high" ? " · High priority" : ""}</small></a>`).join("") : '<p class="muted">No repairs scheduled. Assign a date from a repair record.</p>'}</section>`;
       })
       .join(
         "",
@@ -332,9 +327,9 @@ function parts() {
     heading(
       "PARTS & INVENTORY",
       "Know what's on the shelf.",
-      "Approval reserves available parts. Moving a repair to its ride check consumes them. Cancellation or revision releases reservations.",
+      "These sample categories are not universal compatible parts. Record a bike-specific specification in the quote. Approval reserves stock; the ride-check stage records its use. Cancellation or revision releases reservations.",
     ) +
-    `<div class="parts-grid">${stock.map((part) => `<section class="panel stock-card"><div class="panel-heading"><div><h2>${esc(part.name)}</h2><p class="stock-price">${money(part.price)} / unit · SKU ${esc(part.id.toUpperCase())}</p></div>${part.available <= part.reorderAt ? '<span class="status-pill waiting_parts">Low stock</span>' : '<span class="status-pill">In stock</span>'}</div><div class="stock-counts"><div><strong>${part.onHand}</strong><small>ON HAND</small></div><div><strong>${part.reserved}</strong><small>RESERVED</small></div><div><strong>${part.available}</strong><small>AVAILABLE</small></div></div><form data-stock="${part.id}"><label>Units received<input name="quantity" type="number" min="1" max="50" value="1" required aria-label="Units received for ${esc(part.name)}"></label><button class="quiet-button" type="submit">Receive stock</button></form></section>`).join("")}</div><section class="panel"><div class="panel-heading"><div><h2>Stock movements</h2><p>Saved receipts and parts used on completed work.</p></div></div>${
+    `<div class="parts-grid">${stock.map((part) => `<section class="panel stock-card"><div class="panel-heading"><div><h2>${esc(part.name)}</h2><p class="stock-price">${money(part.price)} / unit · Sample stock category ${esc(part.id.toUpperCase())}</p></div>${part.available <= part.reorderAt ? '<span class="status-pill waiting_parts">Low stock</span>' : '<span class="status-pill">In stock</span>'}</div><div class="stock-counts"><div><strong>${part.onHand}</strong><small>ON HAND</small></div><div><strong>${part.reserved}</strong><small>RESERVED</small></div><div><strong>${part.available}</strong><small>AVAILABLE</small></div></div><form data-stock="${part.id}"><label>Units received<input name="quantity" type="number" min="1" max="50" value="1" required aria-label="Units received for ${esc(part.name)}"></label><button class="quiet-button" type="submit">Receive stock</button></form></section>`).join("")}</div><section class="panel"><div class="panel-heading"><div><h2>Stock movements</h2><p>Saved receipts and parts used on completed work.</p></div></div>${
       workspace.stockMovements.length
         ? `<table class="repair-table"><thead><tr><th scope="col">Part</th><th scope="col">Change</th><th scope="col">Reason</th><th scope="col">Recorded</th></tr></thead><tbody>${workspace.stockMovements
             .slice()
@@ -354,12 +349,12 @@ function catalog() {
     heading(
       "SERVICE CATALOG",
       "The work. The price. The details.",
-      "Twelve repair types with clear labour prices and included work. Changes apply to new jobs; existing estimates retain their original prices.",
+      "Starting prices for the scope shown. Parts and additional work are quoted after inspecting the bike; collection dates are confirmed separately. Price changes apply to new jobs.",
     ) +
     `<div class="catalog-grid">${catalogue(workspace)
       .map(
         (service) =>
-          `<article class="service-card-app"><div class="service-top"><span>${esc(service.category.toUpperCase().replace("-", " "))}</span><span>${service.enabled ? "Active" : "Inactive"}</span></div><h2>${esc(service.name)}</h2><p>${esc(service.description)}</p><div class="service-price">${money(service.price)} <small>labour · ${service.duration}</small></div><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><p class="quote-footnote">Replacement parts are priced separately after inspection.</p><button class="primary-button" data-new-service="${service.id}" ${service.enabled ? "" : "disabled"}>Create ${esc(service.name)}</button><details class="editor-section catalog-edit"><summary>Edit service price</summary><form class="stacked-form" data-catalog="${service.id}"><label>Labour price ($)<input type="number" name="price" aria-label="Labour price for ${esc(service.name)}" value="${service.price}" min="5" max="1000" step="1" required></label><label class="check-label"><input type="checkbox" name="enabled" ${service.enabled ? "checked" : ""}> Active for new repairs</label><button class="quiet-button" type="submit">Save service</button></form></details></article>`,
+          `<article class="service-card-app"><div class="service-top"><span>${esc(service.category.toUpperCase().replace("-", " "))}</span><span>${service.enabled ? "Active" : "Inactive"}</span></div><h2>${esc(service.name)}</h2><p>${esc(service.description)}</p><div class="service-price">From ${money(service.price)} <small>${esc(service.unit)}</small></div><ul class="included-list">${service.includes.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><button class="primary-button" data-new-service="${service.id}" ${service.enabled ? "" : "disabled"}>Create ${esc(service.name)}</button><details class="editor-section catalog-edit"><summary>Edit service price</summary><form class="stacked-form" data-catalog="${service.id}"><label>Starting service price ($)<input type="number" name="price" aria-label="Starting price for ${esc(service.name)}" value="${service.price}" min="5" max="1000" step="1" required></label><label class="check-label"><input type="checkbox" name="enabled" ${service.enabled ? "checked" : ""}> Active for new repairs</label><button class="quiet-button" type="submit">Save service</button></form></details></article>`,
       )
       .join("")}</div>`
   );
@@ -586,13 +581,15 @@ function formInput(form) {
 function estimateInput(form) {
   const data = formInput(form);
   return {
-    labourId: data.labourId,
+    serviceCharge: Number(data.serviceCharge),
+    workDescription: data.workDescription,
     reasonId: data.reasonId,
     partLines: partOptions
       .filter((part) => part.price && data[`part-${part.id}`])
       .map((part) => ({
         id: part.id,
         quantity: Number(data[`qty-${part.id}`]),
+        specification: data[`spec-${part.id}`],
       })),
   };
 }
@@ -620,7 +617,12 @@ function bind() {
           action: "check",
           jobId: currentJob().id,
           checkId: button.dataset.check,
-          passed: !currentJob().checks?.[button.dataset.check],
+          passed: button.hasAttribute("data-not-applicable")
+            ? false
+            : !currentJob().checks?.[button.dataset.check],
+          ...(button.hasAttribute("data-not-applicable")
+            ? { notApplicable: true }
+            : {}),
         },
         "Quality check saved.",
       ),
@@ -665,6 +667,11 @@ function bind() {
         action: "schedule",
         jobId: currentJob().id,
         ...formInput(event.currentTarget),
+        benchMinutes: event.currentTarget.elements.benchMinutes.value
+          ? Number(event.currentTarget.elements.benchMinutes.value)
+          : null,
+        expectedReadyDate:
+          event.currentTarget.elements.expectedReadyDate.value || null,
       },
       "Schedule and mechanic assignment saved.",
     );
@@ -724,9 +731,8 @@ function bind() {
     const input = estimateInput(estimateForm);
     const job = currentJob();
     const total =
-      (job.basePrice ?? typeFor(job).price) +
+      input.serviceCharge +
       (job.collection ? 15 : 0) +
-      labourOptions.find((item) => item.id === input.labourId).price +
       input.partLines.reduce(
         (n, line) =>
           n +
@@ -777,8 +783,8 @@ function openIntake(serviceId) {
   newForm.elements.issueId.innerHTML = options(demoIssues, "brakes");
   newForm.querySelector(".form-grid").hidden = privateMode;
   newForm.querySelector("p.muted").textContent = privateMode
-    ? "Enter the customer, bike and concern. Labour prices come from your service catalog; parts are quoted after inspection."
-    : "Choose a fictional bike and concern. The repair type sets the labour price; parts are estimated after inspection.";
+    ? "Enter the customer, bike and concern. The catalog supplies a starting service price. Inspect the bike before confirming work, compatible parts and collection."
+    : "Choose a fictional bike and concern. The repair type supplies a starting price; actual work and parts are quoted after inspection.";
   if (privateMode && !newForm.querySelector("#custom-intake")) {
     const fields = document.createElement("div");
     fields.id = "custom-intake";
@@ -790,7 +796,7 @@ function openIntake(serviceId) {
   newForm.elements.serviceId.innerHTML = options(
     catalogue(workspace).filter((item) => item.enabled),
     serviceId || "safety",
-    (item) => `${item.name} — ${money(item.price)} labour`,
+    (item) => `${item.name} — from ${money(item.price)} · ${item.unit}`,
   );
   intakeEstimate();
   newDialog.showModal();
@@ -898,7 +904,9 @@ function exportData(format) {
         "Rider",
         "Repair type",
         "Status",
-        "Due date",
+        "Planned work date",
+        "Expected collection date",
+        "Bench budget minutes",
         "Mechanic",
         "Priority",
         "Estimate USD",
@@ -912,6 +920,8 @@ function exportData(format) {
           typeFor(job).name,
           stateFor(job).label,
           job.dueDate || "",
+          job.expectedReadyDate || "",
+          job.benchMinutes ?? "",
           job.mechanic,
           job.priority || "routine",
           job.estimate,
@@ -935,7 +945,12 @@ function printSummary() {
   document.querySelector(".print-document")?.remove();
   const page = document.createElement("section");
   page.className = "print-document";
-  page.innerHTML = `<p>NORTHLINE CYCLE CO. / REPAIR SUMMARY</p><h1>${esc(job.bike)}</h1><p>${esc(job.id)} · ${esc(job.rider)} · ${esc(typeFor(job).name)}</p><p>${esc(job.issue)}</p><p>Status: ${esc(stateFor(job).label)} · Due: ${esc(dateLabel(job.dueDate))} · Mechanic: ${esc(job.mechanic)}</p><h2>Estimate v${quote.version}</h2>${quoteLines(quote)}<p>Decision: ${esc(quote.decision)}${quote.decidedAt ? ` · ${esc(stamp(quote.decidedAt))}` : ""}</p><p>${job.payment ? `Payment recorded: ${money(job.payment.amount)} by ${esc(job.payment.method)}.` : "Payment has not been recorded."}</p><h2>Repair history</h2>${job.history.map((entry) => `<p>${esc(stamp(entry.at))} — ${esc(entry.note)}</p>`).join("")}<p>${privateMode ? "Repair summary. Tax is not calculated. Payment entries record money received separately." : "Fictional portfolio workspace. This is a repair summary, not a tax invoice or evidence of a real charge."}</p>`;
+  page.innerHTML = `<p>NORTHLINE CYCLE CO. / REPAIR SUMMARY</p><h1>${esc(job.bike)}</h1><p>${esc(job.id)} · ${esc(job.rider)} · ${esc(typeFor(job).name)}</p><p>${esc(job.issue)}</p><p>Status: ${esc(stateFor(job).label)} · Expected collection: ${job.expectedReadyDate ? esc(dateLabel(job.expectedReadyDate)) : "Not confirmed"} · Mechanic: ${esc(job.mechanic)}</p><h2>Estimate v${quote.version}</h2>${quoteLines(quote)}<p>Decision: ${esc(quote.decision)}${quote.decidedAt ? ` · ${esc(stamp(quote.decidedAt))}` : ""}</p><p>${job.payment ? `Payment recorded: ${money(job.payment.amount)} by ${esc(job.payment.method)}.` : "Payment has not been recorded."}</p><h2>Repair history</h2>${job.history
+    .filter((entry) => entry.action !== "schedule")
+    .map((entry) => `<p>${esc(stamp(entry.at))} — ${esc(entry.note)}</p>`)
+    .join(
+      "",
+    )}<p>${privateMode ? "Repair summary. Tax is not calculated. Payment entries record money received separately." : "Fictional portfolio workspace. This is a repair summary, not a tax invoice or evidence of a real charge."}</p>`;
   document.body.append(page);
   window.print();
 }

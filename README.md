@@ -6,17 +6,19 @@ A working bicycle repair-management application with an original public website.
 
 **[Open the workshop](https://northline-cycle-devin.netlify.app/workshop.html)** · [Public website](https://northline-cycle-devin.netlify.app) · [Project story](https://northline-cycle-devin.netlify.app/case-study.html) · [Operations guide](docs/OPERATIONS.md)
 
+[Bike-shop business review](qa/BIKE-SHOP-REVIEW.md) documents the primary research, corrections and remaining operational limits. Starting prices are fictional; they are not validated local shop rates.
+
 ## Implemented application
 
 ![Northline Workshop repair queue](docs/workshop-queue.png)
 
 - Six screens: overview, repair queue, schedule, parts and stock, services and prices, and reports.
-- Twelve repair types with included work, labour prices and durations. Price edits affect new repairs; existing estimates retain their intake price. The website's six illustrated packages share the workshop's saved prices and records.
-- Search by reference, bike, rider, repair type or mechanic. Filter by stage, priority or overdue status; sort by priority/due date, value or recent activity.
-- Intake, mechanic assignment, due dates, an earlier/later calendar and eight-hour daily capacity checks. Revised fitting labour counts toward capacity. Business dates consistently use America/New_York.
-- Multi-part estimates with quantities, server-calculated prices, exact-version approval, retained decisions, declines, alternatives, cancellation and parts waits.
+- Twelve repair types with starting prices, explicit per-bike/wheel/brake scope and included work. No preset repair durations. Price edits affect new repairs; existing estimates retain their intake price. The website's six illustrated packages share the workshop's saved prices and records.
+- Search by reference, bike, rider, repair type or mechanic. Filter by stage, priority or overdue status; sort by priority/planned work date, value or recent activity.
+- Intake, mechanic assignment, planned work dates, separate expected collection dates and an earlier/later calendar. Optional job-specific bench budgets use a 480-minute planning ceiling; unknown budgets are shown separately. Prices never invent repair times. Business dates consistently use America/New_York.
+- Inspected service charges and work descriptions, compatible part specifications, multi-part quantities, server-calculated totals, exact-version approval, retained decisions, declines, alternatives, cancellation and parts waits.
 - Stock receipts, reservations, availability, consumption and a saved movement ledger. Competing repairs cannot reserve the same units. Insufficient stock pauses approved work until a receipt allows resumption.
-- Four required quality checks before releasing repairs created or scheduled in the app. Earlier website repairs retain their original workflow until managed in the workshop.
+- Safety checks before releasing repairs created or scheduled in the app. Only shifting can have a documented no-shifting exception; the other checks remain required. Earlier website repairs retain their original workflow until managed in the workshop.
 - Notes, repair and estimate histories, printable summaries, CSV and JSON exports. Notes render as text; CSV cells protect against formula injection.
 - Offline cash/card/bank payment records for money already received. Reports separate service value, recorded payments and outstanding balances. Recording a payment does not charge a card.
 - Shared persistent records, conditional revision checks and duplicate-intake protection. Lost responses block writes until a refresh confirms the saved result.
@@ -25,9 +27,9 @@ A working bicycle repair-management application with an original public website.
 ## Try the complete workflow
 
 1. Inspect all twelve repair types in Services & prices. Create a Brake service repair, assign a date/mechanic and start inspection.
-2. Revise the estimate with fitting adjustment, one set of brake pads and two inner tubes: **$109** without collection.
+2. Describe the inspected work, set its service charge to $60, and add one set of brake pads and two inner tubes with compatible specifications: **$109** without collection.
 3. Use Customer view to approve the exact estimate. Return to Workshop view; stock is reserved or the job pauses for a shortage.
-4. Complete work, pass all four checks, mark ready, record an offline payment and collect the bike.
+4. Complete work, record the applicable safety checks, mark ready, record an offline payment and collect the bike.
 5. Reload, inspect estimate history, stock movements and Reports, then export the records.
 
 The public deployment uses fictional data and separate visitor workspaces. Both workflow views are available to every visitor; they are not authenticated identities. Use fictional notes only. No client relationship, revenue or customer results are claimed.

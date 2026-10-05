@@ -60,7 +60,7 @@ Windows, Node.js 22.14.0, desktop Chromium/Firefox/WebKit and Chromium at 375/32
 
 | APP-01 | Create from all-active catalog and retry reference | Server price snapshot; duplicate returns the saved repair |
 | APP-02 | Edit catalog price, revisit website and create | Both screens show saved price; earlier estimates stay fixed |
-| APP-03 | Assign date/mechanic and exceed capacity | Business timezone respected; added fitting labour counted; overbooking rejected |
+| APP-03 | Assign date/mechanic and exceed capacity | Business timezone respected; only explicit job budgets counted; work/collection dates distinct; excessive allocations rejected |
 | APP-04 | Approve several quoted parts | Quantities priced server-side; available stock reserved atomically |
 | APP-05 | Competing repair or insufficient stock | No double reservation; shortage waits until receipt and explicit resume |
 | APP-06 | Complete approved work | Inventory consumed once; stock ledger saved |

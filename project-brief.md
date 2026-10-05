@@ -4,7 +4,7 @@ An independent repair-management application for a fictional bicycle workshop. N
 
 ## Problem and implemented product
 
-A repair needs pricing, approval, capacity, parts, a checked bike and distinct collection/payment records. Six application screens connect twelve priced repair types to intake, a searchable queue, priorities, due dates, mechanic scheduling, inventory and operational reports.
+A repair needs pricing, approval, capacity, parts, a checked bike and distinct collection/payment records. Six application screens connect twelve priced repair types to intake, a searchable queue, priorities, planned work and expected collection dates, mechanic scheduling, inventory and operational reports.
 
 Multi-part estimates retain quantities, totals and historical decisions. A revision requires approval of its exact version. Stock reservations prevent competing jobs from using the same units; shortages pause work, receipts allow resumption and completion consumes inventory. Four quality checks gate readiness. Notes, printable summaries, offline payment records and CSV/JSON exports complete the bounded workflow.
 
