@@ -1,0 +1,25 @@
+PASS Homepage loads
+PASS Catalogue has six services
+PASS Valid demo enquiry receives a persisted-success reference
+PASS Invalid request is rejected
+PASS Internal files are private
+PASS Tracker creates a separate three-repair workspace
+PASS Customer approval is saved and can be reloaded
+PASS A stale update cannot overwrite saved progress
+PASS The submitted request completes all seven repair stages
+PASS Repeating a saved request does not create a duplicate
+PASS Personal contact fields are rejected
+PASS Case study, favicon, and sharing image load
+PASS Revised parts and labour pause previously approved work
+PASS Old estimate approval and unapproved work are rejected
+PASS Declined estimate can be replaced and the new version approved
+PASS Parts wait resumes at the workbench and remains saved
+PASS Cancellation closes the repair and prevents further changes
+PASS Workshop application loads and backend modules remain private
+PASS Full catalog and inventory are connected to a saved workspace
+PASS Workshop intake prices a repair and repeated requests do not duplicate it
+PASS Scheduling and multi-part approval reserve stock at the exact quoted total
+PASS Completing work consumes stock and quality checks gate release
+PASS Payment record, collection, quotes and stock ledger survive reload
+PASS Edited prices reach the website while stale updates are rejected
+24 checks passed.

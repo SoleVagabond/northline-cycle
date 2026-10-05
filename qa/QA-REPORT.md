@@ -18,6 +18,10 @@ Further review corrected midnight scheduling, added fitting labour to capacity c
 
 Protected sessions, restart persistence and backup instructions do not establish a remotely deployed private service. Public tests use fictional records. Payments are offline records; no external charge is made. Browser engines and viewport checks do not establish physical-device compatibility or full accessibility/security/load certification. Commercial identities, messaging, purchasing and tax accounting remain outside this release. Earlier sections below describe historical releases.
 
+**Published verification:** [GitHub run 37251266596](https://github.com/SoleVagabond/northline-cycle/actions/runs/37251266596) independently passed formatting, all 68 isolated checks, type checking, the 25-file build and all **135 browser scenarios** in a fresh Linux checkout. The live production app passed all **24 hosted integration checks**, including the $109 multi-part repair, reservations, consumption, four-check release, payment record, collection and reload. [Hosted output](evidence/product-hosted-smoke.txt).
+
+The in-app browser separately completed a new local Brake service repair at $109, with two quote versions, all four checks, recorded cash payment and collection. A fresh page load retained thirteen journal updates. A fresh production navigation preserved all five earlier repairs, including three collected records; the published Services & prices screen exposes all twelve types. No real charge or customer communication occurred.
+
 ## October 4 repair-decision update
 
 The new release passed **48 isolated checks and 57 browser scenarios**. Five added journeys cover revised estimates with approval and parts-wait/collection, customer declines and alternatives, confirmed/dismissed cancellation, a lost revision response after the real save, and expanded-editor/exception-state layout and accessibility. They run at the same desktop and two narrow widths. No accessibility rules were suppressed.
