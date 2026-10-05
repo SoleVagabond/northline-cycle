@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Northline Workshop — repair operations, service pricing, parts, quality checks and customer decisions in one workspace."
+    />
+    <title>Northline · Workshop</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/workshop.css" />
+    <script type="module" src="/workshop.js"></script>
+  </head>
+  <body>
+    <a href="#workspace" class="skip-link" tabindex="0">Skip to workspace</a>
+    <div class="app-shell">
+      <aside class="app-sidebar">
+        <a class="app-brand" href="/"
+          ><span aria-hidden="true">n.</span>
+          <div>northline<small>WORKSHOP</small></div></a
+        >
+        <p class="nav-caption">YOUR WORKSPACE</p>
+        <nav aria-label="Workshop navigation">
+          <a href="#overview" data-route="overview"
+            ><span aria-hidden="true">◈</span> Overview</a
+          >
+          <a href="#queue" data-route="queue"
+            ><span aria-hidden="true">▤</span> Repair queue</a
+          >
+          <a href="#schedule" data-route="schedule"
+            ><span aria-hidden="true">▦</span> Schedule</a
+          >
+          <a href="#parts" data-route="parts"
+            ><span aria-hidden="true">◇</span> Parts & stock</a
+          >
+          <a href="#catalog" data-route="catalog"
+            ><span aria-hidden="true">≡</span> Services & prices</a
+          >
+          <a href="#reports" data-route="reports"
+            ><span aria-hidden="true">↗</span> Reports</a
+          >
+        </nav>
+        <div class="sidebar-bottom">
+          <span class="online-dot" aria-hidden="true"></span>
+          <span id="mode-label">Portfolio workspace</span>
+          <p>One repair. Every detail.<br />From intake to the next ride.</p>
+          <a href="/#tracker">Customer repair tracker →</a>
+        </div>
+      </aside>
+      <div class="app-content">
+        <header class="app-topbar">
+          <p id="workspace-date"></p>
+          <div>
+            <span id="save-state">Connecting…</span
+            ><button class="quiet-button" id="reload" type="button">
+              Refresh</button
+            ><button class="primary-button" id="new-repair" type="button">
+              + New repair
+            </button>
+          </div>
+        </header>
+        <main id="workspace" tabindex="-1">
+          <div class="loading-state">
+            <span class="loader" aria-hidden="true"></span>
+            <h1>Opening your workshop</h1>
+            <p>Loading repairs, service prices and parts stock.</p>
+          </div>
+        </main>
+        <div
+          class="app-message"
+          id="app-message"
+          role="status"
+          aria-live="polite"
+        ></div>
+        <footer class="app-footer">
+          <span id="workspace-scope"
+            >Fictional workshop data · Your changes stay in your workspace</span
+          ><a href="/case-study.html">Project story ↗</a>
+        </footer>
+      </div>
+    </div>
+    <dialog id="new-dialog" aria-label="A new repair, a clear plan.">
+      <form id="new-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">REPAIR INTAKE</p>
+            <h2 id="new-title">A new repair, a clear plan.</h2>
+          </div>
+          <button
+            type="button"
+            class="close-button"
+            data-close
+            aria-label="Close new repair"
+          >
+            ×
+          </button>
+        </div>
+        <p class="muted">
+          Choose a fictional bike and concern. The repair type sets the labour
+          price; parts are estimated after inspection.
+        </p>
+        <div class="form-grid">
+          <label
+            >Bike<select
+              name="bikeId"
+              aria-label="Bike"
+              required
+            ></select></label
+          ><label
+            >Concern<select
+              name="issueId"
+              aria-label="Concern"
+              required
+            ></select
+          ></label>
+        </div>
+        <label
+          >Repair type<select
+            name="serviceId"
+            aria-label="Repair type"
+            required
+          ></select
+        ></label>
+        <div id="intake-includes"></div>
+        <label class="check-label"
+          ><input type="checkbox" name="collection" /> Local collection
+          <strong>+$15</strong></label
+        >
+        <div class="intake-total">
+          <span>Starting estimate</span><strong id="intake-total">$0</strong>
+        </div>
+        <p class="form-error" id="new-error" role="alert"></p>
+        <div class="dialog-actions">
+          <button class="quiet-button" type="button" data-close>Cancel</button
+          ><button class="primary-button" type="submit">Create repair</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog" aria-label="Cancel this repair?">
+      <form method="dialog">
+        <p class="eyebrow">CLOSE THIS REPAIR</p>
+        <h2 id="confirm-title">Cancel this repair?</h2>
+        <p>
+          Work stops permanently. The repair, estimates and decision history
+          stay available. No payment or refund is processed.
+        </p>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel">Keep repair open</button
+          ><button class="danger-button" value="confirm">Cancel repair</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

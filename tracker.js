@@ -1,7 +1,11 @@
 import { stages, exceptionStages, workflowStage } from "./lib/repairs.js";
 import { quoteFor, partOptions, labourOptions } from "./lib/quotes.js";
 import { decisionControls, quoteHistory } from "./lib/decision-view.js";
-import { services, calculateEstimate } from "./lib/services.js";
+import {
+  repairTypes as services,
+  calculateEstimate,
+  qualityChecks,
+} from "./lib/services.js";
 import { ensureWorkspace } from "./lib/demo-session.js";
 
 const root = document.querySelector("#tracker-app");
@@ -119,6 +123,8 @@ function render() {
       ? quoteDraft.choices
       : undefined;
   action += decisionControls(job, role, disabled, escape, draft);
+  if (role === "workshop" && job.status === "quality" && job.requiresChecklist)
+    action += `<div class="quality-checks"><p>Record all four checks before marking this repair ready.</p>${qualityChecks.map((check) => `<button class="decision-secondary" data-check="${check.id}" aria-pressed="${!!job.checks?.[check.id]}" ${disabled}>${job.checks?.[check.id] ? "✓ " : ""}${escape(check.name)}</button>`).join("")}</div>`;
   const approval =
     job.status === "cancelled"
       ? "Repair closed"
@@ -157,6 +163,13 @@ function render() {
     button.addEventListener("click", (event) =>
       changeRepair(event.currentTarget.dataset.action),
     );
+  for (const button of root.querySelectorAll("[data-check]"))
+    button.addEventListener("click", () =>
+      changeRepair("check", {
+        checkId: button.dataset.check,
+        passed: !job.checks?.[button.dataset.check],
+      }),
+    );
   const quoteForm = root.querySelector("#quote-form");
   quoteForm?.addEventListener("change", () => {
     const part = partOptions.find(
@@ -166,7 +179,8 @@ function render() {
       (item) => item.id === quoteForm.elements.labourId.value,
     );
     const total =
-      calculateEstimate(job.serviceId, job.collection) +
+      (job.basePrice ?? calculateEstimate(job.serviceId, false)) +
+      (job.collection ? 15 : 0) +
       part.price +
       labour.price;
     quoteForm.querySelector(".quote-preview").textContent =
@@ -234,20 +248,27 @@ async function changeRepair(action, choices = {}) {
   render();
   announce("Saving your repair update…");
   try {
-    const data = await request("/api/tracker/actions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jobId: selected,
-        role,
-        action,
-        quoteVersion: quoteFor(
-          workspace.jobs.find((job) => job.id === selected),
-        ).version,
-        ...choices,
-        revision: workspace.revision,
-      }),
-    });
+    const data = await request(
+      action === "check" ? "/api/workshop/actions" : "/api/tracker/actions",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jobId: selected,
+          role,
+          action,
+          ...(action === "check"
+            ? {}
+            : {
+                quoteVersion: quoteFor(
+                  workspace.jobs.find((job) => job.id === selected),
+                ).version,
+              }),
+          ...choices,
+          revision: workspace.revision,
+        }),
+      },
+    );
     workspace = data.workspace;
     quoteDraft = undefined;
     uncertain = false;
@@ -372,7 +393,10 @@ window.addEventListener("northline:track-repair", async (event) => {
 });
 try {
   workspace = (await ensureWorkspace()).workspace;
-  selected = workspace.jobs[0].id;
+  const linkedRepair = new URLSearchParams(location.search).get("repair");
+  selected = workspace.jobs.some((job) => job.id === linkedRepair)
+    ? linkedRepair
+    : workspace.jobs[0].id;
   render();
 } catch {
   root.textContent = "The repair tracker could not load.";

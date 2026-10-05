@@ -6,7 +6,7 @@
     <title>Northline · Project case study</title>
     <meta
       name="description"
-      content="How a fictional bicycle workshop website connects service estimates, sample requests, approvals, and repair progress."
+      content="A repair-management application connecting prices, approvals, scheduling, inventory, quality checks and reports."
     />
     <link rel="icon" href="/assets/favicon.svg" />
     <link rel="stylesheet" href="/styles.css" />
@@ -16,7 +16,7 @@
     />
     <meta
       property="og:description"
-      content="A personal website and repair-workflow demonstration with documented verification."
+      content="A working workshop application with persistent records and documented verification."
     />
     <meta property="og:image" content="/assets/share.jpg" />
     <meta property="og:type" content="website" />
@@ -29,149 +29,135 @@
         ><span>northline<span class="brand-sub">CYCLE CO.</span></span></a
       >
       <nav aria-label="Main navigation">
-        <a href="/#tracker">Try the tracker</a
+        <a href="/workshop.html">Workshop app</a
         ><a class="button button-small" href="/#request"
           >Create a sample repair <span aria-hidden="true">↗</span></a
         >
       </nav>
     </header>
     <main id="main" class="case-main">
-      <p class="eyebrow">PERSONAL PROJECT / FICTIONAL WORKSHOP</p>
-      <h1>From a service request<br />to the next ride.</h1>
+      <p class="eyebrow">INDEPENDENT APPLICATION / FICTIONAL WORKSHOP</p>
+      <h1>From a busy bench<br />to a bike ready to ride.</h1>
       <p class="case-lead">
-        A website that makes repair costs easier to understand and gives a rider
-        a clear view of what happens next.
+        A complete, bounded repair workflow: price the work, obtain a decision,
+        plan capacity, reserve parts, check the bike and retain the outcome.
       </p>
       <div class="case-facts">
         <div>
-          <strong>Website &amp; workflow</strong
-          ><span>Design, development, and verification</span>
+          <strong>Twelve repair types</strong
+          ><span>Prices, included work and labour durations</span>
         </div>
         <div>
-          <strong>Seven repair stages</strong
-          ><span>Request, inspection, approval, and collection</span>
+          <strong>Six connected screens</strong
+          ><span>Queue, scheduling, stock and reports</span>
         </div>
         <div>
-          <strong>Original illustrations</strong
-          ><span>Responsive layouts and keyboard controls</span>
+          <strong>Two installation modes</strong
+          ><span>Public portfolio and protected Node app</span>
         </div>
       </div>
       <div class="case-actions">
-        <a class="button" href="/#request"
-          >Try the complete journey <span aria-hidden="true">↗</span></a
+        <a class="button" href="/workshop.html"
+          >Open the workshop <span aria-hidden="true">↗</span></a
         ><a class="button" href="/project-brief.md" download
-          >Download the project brief <span aria-hidden="true">↓</span></a
+          >Download the brief <span aria-hidden="true">↓</span></a
         >
       </div>
-      <h2>The problem</h2>
+      <h2>The operational problem</h2>
       <p>
-        A rider needs to choose suitable care, understand the labour estimate,
-        and know whether a repair is waiting for approval or ready for
-        collection. A workshop needs a consistent sequence of steps. This
-        fictional brief brings those two needs into one demonstration.
-      </p>
-      <h2>The solution</h2>
-      <p>
-        The service menu filters six options and calculates collection costs.
-        Submitting a sample request creates a repair in that visitor’s
-        workspace. The workshop view moves it through inspection, then pauses
-        for customer approval. After approval, the repair continues through
-        work, a ride check, and collection. The workshop can revise labour and
-        parts costs; a changed estimate pauses work until the customer approves
-        that version. Customers can decline, the workshop can offer an
-        alternative, approved work can wait for parts, and cancelled repairs
-        retain their history.
+        A repair rarely follows a straight line. Inspection changes the
+        estimate, a customer may decline, a part may be unavailable, and
+        mechanics have limited capacity. A progress indicator alone does not
+        manage those decisions. Northline connects them to saved records and
+        explicit business rules.
       </p>
       <img
-        src="/docs/tracker-desktop.jpg"
-        alt="Previous Northline release showing the seven-stage tracker and repair journal"
+        src="/docs/workshop-queue.png"
+        alt="Northline Workshop queue showing repair types, prices, priorities, due dates and mechanic assignments"
         loading="lazy"
       />
+      <h2>A working application</h2>
+      <p>
+        The workshop contains twelve priced repair types, searchable and
+        filtered repairs, mechanic assignment, a capacity-aware schedule, stock
+        receipts and reservations, quality checks, offline payment records and
+        operational reports. The illustrated website shares the same saved
+        workspace. A private Node installation adds operator sign-in and custom
+        customer/bike intake.
+      </p>
       <div class="case-steps">
         <section>
-          <h2>Clear decisions</h2>
+          <h2>Prices that retain context</h2>
           <p>
-            Labour prices come from the server’s catalogue. The workflow blocks
-            unavailable actions and records each completed stage. The next
-            responsible person is labelled beside the action. Inline controls
-            switch views while keeping the same repair open. Ready and collected
-            repairs have separate counts and filters; estimates show labour and
-            collection costs separately.
+            New repairs snapshot their labour price. Multi-part estimates
+            calculate quantities and fitting labour on the server. Every
+            revision retains earlier totals and decisions, and the customer must
+            approve the exact current version before work continues. Catalog
+            edits reach the website without changing historical quotes.
           </p>
         </section>
         <section>
-          <h2>Reliable feedback</h2>
+          <h2>Parts and capacity</h2>
           <p>
-            Confirmation follows a saved update. Repeated requests use the same
-            request reference to avoid duplicate repairs. Conflicting updates
-            prompt a reload rather than overwriting newer progress. An
-            unconfirmed save blocks further actions until progress reloads.
-            Service-menu failures have a retry control, and request choices
-            remain locked during submission.
+            Approval reserves available parts; competing jobs cannot claim the
+            same units. Shortages pause work until stock arrives. Completion
+            consumes inventory and records movements. Scheduling counts service
+            and additional fitting time against the mechanic's daily capacity;
+            four quality checks gate release.
           </p>
         </section>
         <section>
-          <h2>Appropriate demo data</h2>
+          <h2>Recoverable saves</h2>
           <p>
-            The form accepts fixed sample choices. It collects no names, email
-            addresses, or free-text notes. Each workspace holds up to ten
-            repairs and expires after seven days, with automatic cleanup of
-            expired samples.
+            Confirmation follows a saved update. Intake references prevent
+            duplicates, and conditional revisions reject stale changes from
+            another tab. Lost responses block further writes until a refresh
+            reveals the stored outcome. Saved private records survive sign-out
+            and restart.
           </p>
         </section>
         <section>
           <h2>Practical verification</h2>
           <p>
-            The accompanying QA work documents reproducible defects and
-            corrections. Regression checks exercise validation, approval,
-            persistence, duplicate requests, visitor separation, conflicting
-            updates, and expiry. GitHub repeats the complete browser journey at
-            desktop and two phone widths, including lost-response retries,
-            competing tabs, failure recovery, and automated accessibility
-            checks. These checks use fresh local sample workspaces.
+            Domain/server tests cover business rules and failure boundaries.
+            Browser journeys exercise the actual application in Chromium,
+            Firefox and WebKit, including two narrow widths, exports, printing,
+            private sign-in, keyboard focus and unsuppressed accessibility
+            scans. The repository retains the acceptance plan, evidence and
+            operating instructions.
           </p>
         </section>
       </div>
-      <h2>What this demonstrates</h2>
-      <ul>
-        <li>
-          Turning a business brief into a working website and service workflow.
-        </li>
-        <li>
-          Original visual design with responsive layouts, labelled controls, and
-          visible keyboard focus.
-        </li>
-        <li>
-          Connecting a request form to persistent state, with validation and
-          clear recovery when a request fails.
-        </li>
-        <li>Testing behavior and documenting the evidence and limitations.</li>
-      </ul>
-      <aside class="case-note">
-        <strong>Project scope</strong>
-        <p>
-          This is an independent portfolio demonstration. Northline is
-          fictional, and no client relationship, revenue, or customer results
-          are claimed. Customer and workshop views are available to every
-          visitor; they demonstrate workflow rather than authenticated accounts.
-          The project does not book appointments, send email, or take payment.
-        </p>
-      </aside>
-      <h2>Explore it yourself</h2>
+      <h2>Try the whole repair</h2>
       <ol>
-        <li>Create a sample repair with a bike, concern, and service.</li>
-        <li>Open its tracker and start an inspection in Workshop view.</li>
+        <li>Open Services &amp; prices and create a Brake service repair.</li>
         <li>
-          Request approval, use Continue in Customer view, and approve the
-          estimate.
+          Assign a mechanic and date, inspect it, and revise the estimate with
+          fitting adjustment, brake pads and two inner tubes: $109 without
+          collection.
         </li>
         <li>
-          Return to Workshop view and complete the repair. Reload to see its
-          saved journal.
+          Approve in Customer view, then return to Workshop view to complete the
+          work and four checks.
+        </li>
+        <li>
+          Record an offline payment, mark collection, reload and inspect Reports
+          and the stock ledger.
         </li>
       </ol>
-      <a class="button" href="/#request"
-        >Start a sample repair <span aria-hidden="true">↗</span></a
+      <aside class="case-note">
+        <strong>Clear product boundaries</strong>
+        <p>
+          Northline is fictional and no client or revenue results are claimed.
+          The hosted portfolio uses sample data and openly accessible workflow
+          views. The private app uses one operator key; Customer view records a
+          communicated decision rather than verifying a separate identity.
+          Payment records do not charge cards, summaries are not tax invoices,
+          and email, purchasing and staff permissions are outside this release.
+        </p>
+      </aside>
+      <a class="button" href="/workshop.html"
+        >Explore the application <span aria-hidden="true">↗</span></a
       >
     </main>
     <footer>

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import assert from "node:assert/strict";
+import { workshopDate, qualityChecks } from "../lib/services.js";
 const target = new URL(process.argv[2] || "http://127.0.0.1:8788");
 const local =
   ["127.0.0.1", "localhost", "[::1]"].includes(target.hostname) &&
@@ -306,6 +307,256 @@ await check(
     decisionWorkspace = (await response.json()).workspace;
     assert.equal(decisionJob().status, "cancelled");
     assert.equal(decisionJob().history.length, historyLength);
+  },
+);
+await check(
+  "Workshop application loads and backend modules remain private",
+  async () => {
+    const page = await fetch(origin + "/workshop.html");
+    assert.equal(page.status, 200);
+    assert.match(await page.text(), /Services &(?:amp;)? prices/);
+    for (const path of [
+      "/lib/operator-auth.js",
+      "/lib/workshop-domain.js",
+      "/data/tracker/example.json",
+    ])
+      assert.equal((await fetch(origin + path)).status, 404);
+  },
+);
+let operations, operationsCookie, operationsId;
+async function operation(path, body) {
+  const response = await fetch(origin + path, {
+    method: body ? "POST" : "GET",
+    headers: { cookie: operationsCookie, "content-type": "application/json" },
+    body: body
+      ? JSON.stringify({ ...body, revision: operations.revision })
+      : undefined,
+  });
+  const data = await response.json();
+  if (response.ok && data.workspace) operations = data.workspace;
+  return { status: response.status, ...data };
+}
+const operationJob = () =>
+  operations.jobs.find((job) => job.id === operationsId);
+await check(
+  "Full catalog and inventory are connected to a saved workspace",
+  async () => {
+    const start = await fetch(origin + "/api/tracker", { method: "POST" });
+    operationsCookie = start.headers.get("set-cookie").split(";")[0];
+    operations = (await start.json()).workspace;
+    const result = await operation("/api/workshop");
+    assert.equal(result.status, 200);
+    assert.equal(result.catalogue.length, 12);
+    assert.equal(result.stock.length, 6);
+  },
+);
+await check(
+  "Workshop intake prices a repair and repeated requests do not duplicate it",
+  async () => {
+    const input = {
+      action: "create",
+      requestId: randomUUID(),
+      bikeId: "city",
+      issueId: "brakes",
+      serviceId: "brake",
+      collection: false,
+    };
+    const created = await operation("/api/workshop/actions", input);
+    assert.equal(created.status, 200);
+    operationsId = created.repairId;
+    assert.equal(operationJob().estimate, 40);
+    assert.equal((await operation("/api/workshop/actions", input)).status, 200);
+    assert.equal(operations.jobs.length, 4);
+  },
+);
+await check(
+  "Scheduling and multi-part approval reserve stock at the exact quoted total",
+  async () => {
+    assert.equal(
+      (
+        await operation("/api/workshop/actions", {
+          action: "schedule",
+          jobId: operationsId,
+          dueDate: workshopDate(),
+          mechanicId: "lee",
+          priority: "high",
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "advance",
+          role: "workshop",
+          jobId: operationsId,
+          enforceChecklist: true,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "revise",
+          role: "workshop",
+          jobId: operationsId,
+          partLines: [
+            { id: "pads", quantity: 1 },
+            { id: "tube", quantity: 2 },
+          ],
+          labourId: "adjustment",
+          reasonId: "inspection",
+        })
+      ).status,
+      200,
+    );
+    assert.equal(operationJob().estimate, 109);
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "approve",
+          role: "customer",
+          jobId: operationsId,
+          quoteVersion: 2,
+        })
+      ).status,
+      200,
+    );
+    const result = await operation("/api/workshop");
+    assert.equal(result.stock.find((part) => part.id === "pads").reserved, 1);
+    assert.equal(result.stock.find((part) => part.id === "tube").reserved, 2);
+  },
+);
+await check(
+  "Completing work consumes stock and quality checks gate release",
+  async () => {
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "advance",
+          role: "workshop",
+          jobId: operationsId,
+          enforceChecklist: true,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(operationJob().status, "quality");
+    const result = await operation("/api/workshop");
+    assert.equal(result.stock.find((part) => part.id === "pads").onHand, 3);
+    assert.equal(result.stock.find((part) => part.id === "tube").onHand, 4);
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "advance",
+          role: "workshop",
+          jobId: operationsId,
+          enforceChecklist: true,
+        })
+      ).status,
+      422,
+    );
+    for (const check of qualityChecks)
+      assert.equal(
+        (
+          await operation("/api/workshop/actions", {
+            action: "check",
+            jobId: operationsId,
+            checkId: check.id,
+            passed: true,
+          })
+        ).status,
+        200,
+      );
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "advance",
+          role: "workshop",
+          jobId: operationsId,
+          enforceChecklist: true,
+        })
+      ).status,
+      200,
+    );
+    assert.equal(operationJob().status, "ready");
+  },
+);
+await check(
+  "Payment record, collection, quotes and stock ledger survive reload",
+  async () => {
+    assert.equal(
+      (
+        await operation("/api/workshop/actions", {
+          action: "record-payment",
+          jobId: operationsId,
+          method: "cash",
+        })
+      ).status,
+      200,
+    );
+    assert.equal(operationJob().payment.amount, 109);
+    assert.equal(
+      (
+        await operation("/api/tracker/actions", {
+          action: "advance",
+          role: "workshop",
+          jobId: operationsId,
+          enforceChecklist: true,
+        })
+      ).status,
+      200,
+    );
+    await operation("/api/workshop");
+    assert.equal(operationJob().status, "collected");
+    assert.equal(operationJob().quotes.length, 2);
+    assert.equal(
+      operations.stockMovements.filter((entry) => entry.jobId === operationsId)
+        .length,
+      2,
+    );
+    assert.equal(
+      (
+        await operation("/api/workshop/actions", {
+          action: "record-payment",
+          jobId: operationsId,
+          method: "cash",
+        })
+      ).status,
+      422,
+    );
+  },
+);
+await check(
+  "Edited prices reach the website while stale updates are rejected",
+  async () => {
+    const prior = operations.revision;
+    assert.equal(
+      (
+        await operation("/api/workshop/actions", {
+          action: "catalog",
+          serviceId: "tune",
+          price: 90,
+          enabled: true,
+        })
+      ).status,
+      200,
+    );
+    const menu = await operation("/api/services");
+    assert.equal(menu.services.find((item) => item.id === "tune").price, 90);
+    const stale = await fetch(origin + "/api/workshop/actions", {
+      method: "POST",
+      headers: { cookie: operationsCookie, "content-type": "application/json" },
+      body: JSON.stringify({
+        action: "receive-stock",
+        partId: "pads",
+        quantity: 1,
+        revision: prior,
+      }),
+    });
+    assert.equal(stale.status, 409);
+    assert.equal(operationJob().payment.amount, 109);
   },
 );
 console.log(`${passed} checks passed.`);

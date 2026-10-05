@@ -41,6 +41,14 @@ module.exports = defineConfig({
         hasTouch: true,
       },
     },
+    {
+      name: "firefox",
+      use: { browserName: "firefox", viewport: { width: 1280, height: 900 } },
+    },
+    {
+      name: "webkit",
+      use: { browserName: "webkit", viewport: { width: 1280, height: 900 } },
+    },
   ],
   webServer: {
     command: "node test/browser/server.mjs",

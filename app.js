@@ -1,4 +1,3 @@
-import { calculateEstimate, services } from "./lib/services.js";
 import { demoBikes, demoIssues } from "./lib/repairs.js";
 import { ensureWorkspace } from "./lib/demo-session.js";
 
@@ -44,9 +43,9 @@ function setStatus(message, state) {
   status.dataset.state = state;
 }
 function updateEstimate() {
-  const service = services.find((item) => item.id === select.value);
+  const service = menu.find((item) => item.id === select.value);
   document.querySelector("#estimate-value").textContent = service
-    ? `$${calculateEstimate(service.id, collection.checked)}`
+    ? `$${service.price + (collection.checked ? 15 : 0)}`
     : "—";
   document.querySelector("#estimate-detail").textContent = service
     ? `${service.name}${collection.checked ? " + collection" : ""} · parts quoted separately`

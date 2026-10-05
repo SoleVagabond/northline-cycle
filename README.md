@@ -1,135 +1,86 @@
-# Northline Cycle Co.
+# Northline Workshop
 
 [![Project checks](https://github.com/SoleVagabond/northline-cycle/actions/workflows/checks.yml/badge.svg)](https://github.com/SoleVagabond/northline-cycle/actions/workflows/checks.yml)
 
-A responsive website and repair tracker for a fictional bicycle workshop. Personal portfolio demonstration of original visual design, front-end behavior, and a persisted business workflow.
+A working bicycle repair-management application with an original public website. An independent portfolio project for a fictional business, with persistent records, enforced business rules, failure recovery and a protected installation mode.
 
-![Repair tracker from the previous release](docs/tracker-desktop.jpg)
+**[Open the workshop](https://northline-cycle-devin.netlify.app/workshop.html)** · [Public website](https://northline-cycle-devin.netlify.app) · [Project story](https://northline-cycle-devin.netlify.app/case-study.html) · [Operations guide](docs/OPERATIONS.md)
 
-The images below document the previous release. The live tracker includes the updated responsibility labels, price breakdown, and repair filters.
+## Implemented application
 
-**Live demo:** [Northline Cycle Co.](https://northline-cycle-devin.netlify.app) · [Project story](https://northline-cycle-devin.netlify.app/case-study.html)
+![Northline Workshop repair queue](docs/workshop-queue.png)
 
-## Explore the demo
+- Six screens: overview, repair queue, schedule, parts and stock, services and prices, and reports.
+- Twelve repair types with included work, labour prices and durations. Price edits affect new repairs; existing estimates retain their intake price. The website's six illustrated packages share the workshop's saved prices and records.
+- Search by reference, bike, rider, repair type or mechanic. Filter by stage, priority or overdue status; sort by priority/due date, value or recent activity.
+- Intake, mechanic assignment, due dates, an earlier/later calendar and eight-hour daily capacity checks. Revised fitting labour counts toward capacity. Business dates consistently use America/New_York.
+- Multi-part estimates with quantities, server-calculated prices, exact-version approval, retained decisions, declines, alternatives, cancellation and parts waits.
+- Stock receipts, reservations, availability, consumption and a saved movement ledger. Competing repairs cannot reserve the same units. Insufficient stock pauses approved work until a receipt allows resumption.
+- Four required quality checks before releasing repairs created or scheduled in the app. Earlier website repairs retain their original workflow until managed in the workshop.
+- Notes, repair and estimate histories, printable summaries, CSV and JSON exports. Notes render as text; CSV cells protect against formula injection.
+- Offline cash/card/bank payment records for money already received. Reports separate service value, recorded payments and outstanding balances. Recording a payment does not charge a card.
+- Shared persistent records, conditional revision checks and duplicate-intake protection. Lost responses block writes until a refresh confirms the saved result.
+- Protected local installation with an operator key, expiring HttpOnly sessions, sign-out, throttled sign-in and custom customer/bike intake. Private records survive logout and server restart.
 
-1. Choose Everyday tune-up and collection to see the $80 estimate.
-2. Choose a sample bike and concern, then create a sample repair.
-3. Open its tracker, start inspection, and request customer approval in Workshop view.
-4. Use Continue in Customer view and approve; Continue in Workshop view returns you to the ride check and collection. Switching views does not advance a repair.
-5. Filter Awaiting approval, Ready to collect, or Collected. Refresh or reload to see the saved journal. Demo options contains the reset control.
+## Try the complete workflow
 
-The customer and workshop views demonstrate different workflow actions. They are accessible to every visitor and are **not account roles or authentication boundaries**. All names, repair histories, prices, and service promises are fictional.
+1. Inspect all twelve repair types in Services & prices. Create a Brake service repair, assign a date/mechanic and start inspection.
+2. Revise the estimate with fitting adjustment, one set of brake pads and two inner tubes: **$109** without collection.
+3. Use Customer view to approve the exact estimate. Return to Workshop view; stock is reserved or the job pauses for a shortage.
+4. Complete work, pass all four checks, mark ready, record an offline payment and collect the bike.
+5. Reload, inspect estimate history, stock movements and Reports, then export the records.
 
-## What it demonstrates
+The public deployment uses fictional data and separate visitor workspaces. Both workflow views are available to every visitor; they are not authenticated identities. Use fictional notes only. No client relationship, revenue or customer results are claimed.
 
-- Original bicycle and six service illustrations, responsive layouts, visible keyboard focus, and reduced-motion support.
-- Service filters, card-to-form selection, collection estimates, and browser/server validation.
-- Submitted requests plus three starting samples across seven stages, approval gating, a repair journal, and progress saved between visits.
-- A separate workspace for each browser session; stale updates are rejected rather than silently overwriting progress.
-- Confirmation only after an atomic workspace save; retry references prevent duplicate requests after a lost response.
-- Explicit next responsibilities, labour/collection price breakdowns, separate ready/collected counts, and recoverable empty filters.
-- Unconfirmed actions disable further repair updates until saved progress reloads; an unavailable service menu has its own retry control.
-- Versioned estimates with controlled labour/parts prices, required approval of the exact current version, declines and alternatives, terminal cancellation, and approved work paused while waiting for parts.
-- Earlier saves remain compatible; quote and journal growth have explicit sample limits. Customer/workshop views still demonstrate workflow and do not authenticate users.
-- Local file storage and a Netlify Functions/Blobs adapter using conditional storage-version writes.
+## Run and install
 
-## Run locally
-
-Node.js 22 or later:
+Requires Node.js 22 or later. The core server uses Node's built-in modules:
 
 ```sh
 npm start
 ```
 
-Open **http://127.0.0.1:8788**. The plain local demo and its tests need no package installation. The form has a fixed fictional rider and controlled sample choices. It accepts no personal names, emails, or free-text notes. Local workspaces are stored under the ignored `data/tracker/` directory; no new enquiry log is written.
+Open **http://127.0.0.1:8788/workshop.html**. Without a key this runs portfolio mode. To enable a protected workshop in PowerShell 7:
 
-```sh
-npm test
+```powershell
+$env:NORTHLINE_OPERATOR_KEY = Read-Host 'Set a unique workshop key (16+ characters)' -MaskInput
+npm start
 ```
 
-The 48 isolated tests cover sample-choice validation and persistence, approval gating, the full repair lifecycle, separate visitors, restart persistence, stale/concurrent updates, failed storage, private files, split-packet UTF-8, duplicate prevention, expiry, cleanup cursor behavior, capacity, and the cloud adapter's conditional-write contract. Additional decision checks cover estimate versioning, exact-version approval, parts pricing, declines, alternatives, cancellation, waiting for parts, legacy saved repairs, immutable decisions, and sample-history limits.
+Sign in on the workshop page to enter custom repair records. This mode has a stable workspace, up to 250 records and no seven-day portfolio expiry. New workspaces include three fictional examples. The operator records both workshop actions and communicated customer decisions; this is not a customer self-service portal or a staff permission system.
 
-## Repeat the browser journey
+The server binds to loopback by default. The [operations guide](docs/OPERATIONS.md) explains storage, exact limits, backup/restore, key rotation, recovery and HTTPS proxy configuration. This Node installation is separate from the public Netlify deployment.
+
+## Reproduce verification
 
 ```sh
 npm ci
-npx playwright install chromium
+npm test
+npm run typecheck
+npm run format:check
+npm run build
+npx playwright install chromium firefox webkit
 npm run test:browser
 ```
 
-The browser suite runs nineteen scenarios at desktop, 375-pixel and 320-pixel widths. It exercises request-to-collection, approval gating, reload persistence, duplicate prevention after a lost response, competing tabs, conflict recovery, visitor isolation, startup recovery, keyboard focus, automated accessibility rules, view handoffs, separate collection filters, uncertain saves/resets, service-menu recovery, pending-request controls, revised estimates, customer declines, alternative offers, waiting for parts, cancellation confirmation, estimate-history persistence, and lost-revision responses. It starts its own loopback server on port 8796 with fresh sample storage under ignored `work/browser-data/`; it does not use the hosted site or existing demo workspaces. Set `NORTHLINE_TEST_PORT` to another loopback port if 8796 is occupied.
+There are **68 isolated checks** and **27 browser journeys across five configurations**: desktop Chromium, Chromium at 375 and 320 pixels, desktop Firefox and desktop WebKit. Tests exercise multi-part approval, stock shortages/consumption, quality gates, payment records, exports, printing, private sign-in, uncertain saves, competing tabs, persistence, keyboard controls and automated accessibility scans. No scan rules are suppressed. Emulated widths and browser engines do not establish physical-device support or complete accessibility conformance.
 
-GitHub Actions repeats these scenarios in a fresh Linux checkout. Screenshots, accessibility results, an HTML report, and failure traces are attached to the workflow for 14 days. On Linux, use `npx playwright install --with-deps chromium` when installing locally. Chromium viewport emulation and automated scans do not establish physical-device compatibility or complete accessibility conformance.
+Tests start their own loopback server with fresh ignored data. Set `NORTHLINE_TEST_PORT` if port 8796 is occupied. Linux installations need `npx playwright install --with-deps chromium firefox webkit`. GitHub Actions runs the same suite and retains evidence for 14 days. The [QA report](qa/QA-REPORT.md) records actual release results; [the test plan](qa/TEST-PLAN.md) describes acceptance cases.
 
-## Hosting preparation
+`node qa/verify.mjs http://127.0.0.1:8788` checks the unprotected local API. Add `--hosted` with the owned Netlify URL for production integration checks. This checker creates separate fictional workspaces.
 
-```sh
-npm ci
-npm run typecheck
-npm run build
-npx netlify-cli@27.10.2 dev
-```
+## Architecture and product boundaries
 
-Stop the plain local server first, because Netlify Dev starts it on port 8788. Open **http://localhost:8888** to exercise the hosting function and local Blobs emulator. `public/` contains only 20 allowlisted public files; backend source and saved records are excluded.
+Semantic HTML, CSS and browser JavaScript modules form the interface. Shared domain rules serve both Node and Netlify adapters. Local storage serializes transactions in one process and replaces JSON files atomically; run one process per data directory. Netlify uses strong reads and conditional Blobs writes (`onlyIfMatch`/`onlyIfNew`), rejecting stale revisions with 409. The local emulator's missing GET ETag has a development-only version fallback covered by adapter tests.
 
-`netlify/functions/api.mts` handles `/api/*`. The function uses its deployment context to select storage. Production uses a site-wide Blobs store; preview deployments use deploy-scoped storage. Reads request strong consistency. Updates use the ETag from the read with `onlyIfMatch`; an unsuccessful conditional write returns 409. New workspaces use `onlyIfNew`. Each request adds a repair inside the same conditional workspace write, avoiding partial saves across multiple records.
+The public build exposes **25 allowlisted files** and excludes backend/authentication modules, package files and stored records. Validation and same-origin controls are implemented; these checks do not replace an independent security audit.
 
-The SDK 11.1.3 local emulator omits GET ETags. In local development only, the adapter brackets a fresh read with matching list versions before using a conditional write. Hosted requests require the normal ETag. The emulator is not evidence of distributed concurrency guarantees; isolated adapter tests verify the conditional-write contract.
+Portfolio mode permits ten repairs and seven-day expiry with bounded cleanup. Private mode permits 250 records. Both modes cap repairs at twelve estimate versions and 128 journal entries, and stock history at 200 movements. Limits preserve records and exports; plan archival storage or a fresh workspace before reaching them. Prices are whole USD values; dates use America/New_York; repair types, mechanics and parts are fixed source configuration.
 
-Published to the new `northline-cycle-devin` project. For future CLI deployments, sign in, link this existing project, then deploy the public build and functions.
+The bounded repair workflow is implemented. External charging, deposits, tax accounting, emailed notifications, supplier purchasing, independently authenticated customers, staff permissions and multi-location administration are outside this version. Printed summaries are not tax invoices. [The competitor review](qa/COMPETITOR-REVIEW.md) identifies implemented capabilities and commercial gaps without claiming parity or hiring outcomes.
 
-## Verification
+## Hosting
 
-The October 4 repair-decision update passed 48 isolated checks, 57 browser scenarios, and 17 integration checks against both local and production servers. The browser suite covers the request-to-collection journey, reload persistence, keyboard focus, view handoffs, filters, failure recovery, revised estimates and exception paths, and responsive/accessibility checks in Chromium. See the [QA report](qa/QA-REPORT.md) and [test plan](qa/TEST-PLAN.md) for release evidence and limits.
+The owned production project is `northline-cycle-devin`. Run checks and build before deploying public output and functions to that existing project. Production uses site-wide Blobs; previews use deploy-scoped storage. `netlify.toml` configures API routing, headers, the 60-request/minute IP/domain rule and hourly cleanup. Rate limiting is not a spending cap. The cleanup schedule is configured; actual scheduled execution has not been observed in this review.
 
-![Narrow tracker details](docs/tracker-mobile-detail.jpg)
-
-## Public demo controls
-
-Requests accept only approved bike, concern, service, time, collection, and request-reference fields. Personal fields are rejected. A workspace holds at most ten repairs, expires seven days after creation, and cannot be updated after expiry. Local cleanup runs on requests at most once an hour. A production scheduled function runs hourly, deletes expired workspaces in bounded batches, and saves a cursor to resume scanning. Deletion follows expiry as the cleanup job progresses; it is not an exact seven-day physical-deletion guarantee. Preview stores enforce expiry on access but do not run production schedules.
-
-The hosted API has a 60-request/minute limit per IP and domain. Platform enforcement is delayed and is not a global spending cap. The published production manifest confirms this rule and the hourly cleanup schedule. Scheduled execution has not yet been observed.
-
-The app's full dependency audit reported zero findings at release verification. The Netlify CLI is an external development/deployment tool rather than an app dependency. Version 27.10.2 has upstream advisories in `braces` and `node-forge` with no patched package release available at review time. Keep development previews local and use trusted project inputs. The isolated local tooling applied the available `sharp` 0.35.5 patch; this does not resolve the other advisories.
-
-## Project story and checks
-
-`case-study.html` explains the fictional brief, implementation, demonstrable outcomes, and limits. `project-brief.md` is a downloadable summary. The sharing image and favicon are original project assets. Build-time `SITE_URL` (or Netlify's deployment URL variables) turns the sharing-image URL into an absolute URL.
-
-`npm run format:check` checks source formatting. The GitHub workflow runs formatting, regression tests, type checking, and the public build on pushes and pull requests.
-
-## Product comparison
-
-The [competitor review](qa/COMPETITOR-REVIEW.md) compares the implemented workflow with documented RepairDesk, Lightspeed Retail, and Citrus-Lime features. It distinguishes tested behavior from documented vendor capabilities and explains the remaining commercial-product gaps.
-
-## Scope
-
-The form creates a sample repair; it does not send email, reserve a calendar slot, or take payment. This is a demonstration rather than a production workshop system. Real client use would require authenticated customer/staff accounts, business data storage and retention decisions, abuse controls, notifications, and operational review. No complete accessibility, security, load, or cross-browser audit is claimed.
-
-## Structure
-
-```text
-index.html / styles.css    Page structure and visual design
-app.js                    Service selection, estimates, and enquiry states
-tracker.js                Customer/workshop views and repair actions
-assets/                   Six original decorative service illustrations
-lib/services.js           Catalogue and price calculation
-lib/repairs.js            Sample jobs and valid stage transitions
-lib/api.js                Shared request handling and validation
-lib/file-store.js          Local storage and serialized updates
-lib/blob-store.js          Hosting storage and conditional version writes
-netlify/functions/        Hosting entry point
-scripts/build.mjs         Public-file allowlist
-test/                     Isolated regression checks
-docs/                     Browser evidence
-```
-
-## Portfolio description
-
-Responsive bicycle-workshop website with service estimates, saved sample requests, and an interactive repair tracker. Includes customer approval, seven repair stages, separate visitor workspaces, persistent history, and stale-update handling. Versioned revised estimates, parts pricing, customer declines, cancellation, waiting for parts, original illustrations, and 48 automated regression checks. Personal demonstration for a fictional business.
-
-## Source and QA evidence
-
-[Live demo](https://northline-cycle-devin.netlify.app) · [Project story](https://northline-cycle-devin.netlify.app/case-study.html) · [QA report](qa/QA-REPORT.md)
-
-The `qa/` folder contains the supporting case study, smoke checker, and local/hosted evidence for this one project. Run its checker from the repository root with `node qa/verify.mjs http://127.0.0.1:8788`, or with the owned live demo URL and `--hosted`.
+Older screenshots and QA sections are historical. The checked-in suite regenerates evidence for the current application.

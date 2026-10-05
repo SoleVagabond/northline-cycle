@@ -1,8 +1,22 @@
-# Northline Cycle Co. — QA case study
+# Northline Workshop — release evidence
 
-**Verified:** October 4, 2026  
-**Project type:** Personal demonstration; fictional business  
-**Result:** 32 isolated tests and 12 smoke checks passed against both the plain server and Netlify Dev. The submitted-request journey, persistence, recovery, and responsive layouts were checked in Chromium. The production HTTPS site passed the same 12 checks.
+## October 4 workshop application release
+
+**Project:** Independent application for a fictional bicycle business.
+
+The application now connects twelve repair types and editable prices to an operational queue, mechanic scheduling, inventory, quality checks, offline payment records and reports. Protected Node mode adds operator sign-in, custom intake and persistent records without portfolio expiry. The public deployment retains visitor workspaces and openly accessible workflow views.
+
+**Local results:** 68 isolated domain/server checks passed. The expanded browser run passed 134 of 135 scenarios before discovering that Windows WebKit skips ordinary links with its default Tab behavior. Giving the skip link explicit keyboard participation corrected the remaining case. The keyboard and all-six-screen layout/accessibility checks then passed again across all five configurations (10 checks). The complete 135-scenario suite is also run by GitHub for the release. No scan rules were suppressed.
+
+The checks cover 27 journeys in desktop Chromium, 375/320-pixel Chromium, desktop Firefox and desktop WebKit. Eight new journeys verify priced intake, scheduling, multi-part approval/reservation, stock consumption and shortages, quality gates, offline payment/collection, catalog edits across the website, search and priorities, CSV/JSON exports, print content, text-safe notes, lost stock responses, all screen layouts and protected custom intake across sign-out.
+
+The first review caught implicit select labels with ambiguous accessible names, footer contrast inherited from the website stylesheet and an order-dependent calendar assertion. Labels and contrast were corrected; the calendar assertion now checks job membership. A private browser fixture also completed its user journey but hung on an idle connection during teardown; its own connections are closed explicitly. No business assertions were removed.
+
+Further review corrected midnight scheduling, added fitting labour to capacity checks, kept one service active, synchronized website prices after catalog edits, and covered exact HTTPS origin validation behind a private proxy. Local formatting, type checking and the 25-file public build passed. All **24 local API integration checks** passed, including the new $109 multi-part repair through approved reservations, consumed stock, required checks, recorded payment and collection.
+
+[Local integration output](evidence/product-local-smoke.txt) · [Acceptance plan](TEST-PLAN.md) · [Operations guide](../docs/OPERATIONS.md) · [Competitor comparison](COMPETITOR-REVIEW.md)
+
+Protected sessions, restart persistence and backup instructions do not establish a remotely deployed private service. Public tests use fictional records. Payments are offline records; no external charge is made. Browser engines and viewport checks do not establish physical-device compatibility or full accessibility/security/load certification. Commercial identities, messaging, purchasing and tax accounting remain outside this release. Earlier sections below describe historical releases.
 
 ## October 4 repair-decision update
 

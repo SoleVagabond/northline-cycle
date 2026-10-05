@@ -1,23 +1,21 @@
-# Northline Cycle Co. — Project brief
+# Northline Workshop — Project brief
 
-Personal demonstration for a fictional bicycle workshop. No client relationship or commercial results are claimed.
+An independent repair-management application for a fictional bicycle workshop. No client relationship or commercial results are claimed.
 
-## Brief
+## Problem and implemented product
 
-Help a rider choose a service, understand the labour estimate, and follow a repair. Demonstrate the workshop’s responsibilities through a clear sequence of stages.
+A repair needs pricing, approval, capacity, parts, a checked bike and distinct collection/payment records. Six application screens connect twelve priced repair types to intake, a searchable queue, priorities, due dates, mechanic scheduling, inventory and operational reports.
 
-## Implementation
+Multi-part estimates retain quantities, totals and historical decisions. A revision requires approval of its exact version. Stock reservations prevent competing jobs from using the same units; shortages pause work, receipts allow resumption and completion consumes inventory. Four quality checks gate readiness. Notes, printable summaries, offline payment records and CSV/JSON exports complete the bounded workflow.
 
-An original responsive website with six illustrated services, server-calculated estimates, a sample request form, and a seven-stage repair tracker. Each request creates a repair in the visitor’s saved workspace. Inspection pauses for customer approval before work continues. Versioned estimates retain previous totals and decisions. Revised labour/parts prices require approval of the exact current version. Declines, alternative offers, waiting for parts, and terminal cancellation have enforced transitions. A journal records the stages and decisions. Inline view handoffs keep the same repair open, responsibility labels explain the next action, and separate ready/collected filters distinguish collection from completion. Estimates break out labour and local collection.
+The original illustrated website shares persistent records. A protected Node installation adds operator sessions and custom customer/bike intake. Private records survive logout and restart; the hosted portfolio uses isolated fictional visitor workspaces.
 
-## Reliability and demo scope
+## Engineering and evidence
 
-Saved confirmations, duplicate-request protection, conditional updates, clear retry behavior, locked choices during submission, action blocking until uncertain progress is reloaded, recoverable service-menu failures, separate visitor workspaces, and seven-day expiry. The form accepts controlled sample choices only. No personal contact details, real bookings, emails, payments, or authenticated accounts are included.
+Shared server-side rules validate actions, prices, quantities, stock and capacity. Conditional revisions prevent stale writes, intake references prevent duplicates, and uncertain saves block further actions until refresh. Price snapshots survive catalog edits. Local files are replaced atomically; cloud writes require storage versions. Public builds expose only allowlisted assets.
 
-## Verification
+The repository includes isolated domain/server tests, full browser journeys in Chromium/Firefox/WebKit, responsive and accessibility checks, failure fixtures and a hosted integration checker. The QA report records actual release results. The operations guide covers installation, backup, restore, key rotation and growth limits.
 
-The companion QA case study contains the test plan, observed defects and corrections, browser evidence, regression results, and local hosting checks. Exact counts and hosted verification are recorded there after each release.
+## Boundaries
 
-## Handoff
-
-The repository README explains setup, storage, deployment, limits, and the file structure. The project is intended to demonstrate business websites, small interactive workflows, and practical website QA.
+Offline payment records do not charge cards; summaries are not tax invoices. Customer view records communicated decisions and does not authenticate a separate customer. Staff permissions, outbound notifications, purchasing and multi-location operation remain outside this release. The competitor review identifies capabilities and commercial gaps without claiming parity or hiring outcomes.

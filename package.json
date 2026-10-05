@@ -1,9 +1,9 @@
 {
   "name": "northline-cycle",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "private": true,
   "type": "module",
-  "description": "Bicycle workshop portfolio demo with a persisted repair workflow and enquiry handling.",
+  "description": "Bicycle repair-management application with scheduling, inventory, estimates and a protected installation mode.",
   "scripts": {
     "start": "node server.js",
     "test": "node --test test/*.test.js",
