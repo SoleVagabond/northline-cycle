@@ -1,6 +1,6 @@
 import { money, sumMoney } from "./lib/money.js";
 import { demoBikes, demoIssues } from "./lib/repairs.js";
-import { ensureWorkspace } from "./lib/demo-session.js";
+import { ensureWorkspace, apiData } from "./lib/demo-session.js";
 
 const grid = document.querySelector("#service-grid");
 const select = document.querySelector("#service");
@@ -150,9 +150,10 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(10000),
     });
-    const result = await response.json();
-    if (!response.ok)
-      throw new Error(result.error || "We could not save your request.");
+    const result = await apiData(
+      response,
+      "We could not confirm your saved request. Refresh before trying again.",
+    );
     savedRepair = result;
     window.dispatchEvent(
       new CustomEvent("northline:repair-created", { detail: result }),

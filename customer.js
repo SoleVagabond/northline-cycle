@@ -1,4 +1,5 @@
 import { money } from "./lib/money.js";
+import { apiData } from "./lib/demo-session.js";
 import { stages, exceptionStages } from "./lib/repairs.js";
 const main = document.querySelector("#customer-workspace");
 const message = document.querySelector("#customer-message");
@@ -30,13 +31,10 @@ async function request(path, input) {
     signal: AbortSignal.timeout(12000),
     cache: "no-store",
   });
-  const data = await response.json();
-  if (!response.ok)
-    throw Object.assign(
-      new Error(data.error || "Your repair could not load."),
-      { status: response.status },
-    );
-  return data;
+  return apiData(
+    response,
+    "Your repair is temporarily unavailable. Refresh to try again.",
+  );
 }
 function controls() {
   document.querySelector("#customer-refresh").disabled = busy;
@@ -122,7 +120,7 @@ async function load() {
     requiresRefresh = true;
     if (!record || error.status === 401) {
       record = undefined;
-      main.innerHTML = `<section class="panel"><h1>Repair link unavailable</h1><p>${esc(error.message)}</p><p>Ask the workshop for a new link if this one was revoked or expired.</p></section>`;
+      main.innerHTML = `<section class="panel"><h1>Repair link unavailable</h1><p>${esc(error.message)}</p>${error.status === 401 ? "<p>Ask the workshop for a new link if this one was revoked or expired.</p>" : ""}</section>`;
     }
     announce(error.message, true);
   } finally {

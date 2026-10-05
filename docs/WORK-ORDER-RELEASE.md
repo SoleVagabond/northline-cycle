@@ -36,3 +36,5 @@ The second pass tightened the complete workflow rather than adding unrelated scr
 - Switching between customer link fragments reloads the correct scoped repair. Uncertain or stale decisions require refresh, and rejected cloud writes remove their own newly uploaded photo.
 
 Verification evidence and commercial boundaries remain in the QA report and operations guide. Future shop use would require operator validation of tax, deposits, refunds, supplier workflows, outbound communication and staff permissions; those integrations were not fabricated in this release.
+
+Production reassessment also replaced raw JSON parsing errors from empty rate-limit or HTML gateway responses with actionable recovery guidance. Limits remain in force; saved records and uncertain-write locks are retained. No failed write is replayed automatically. A five-configuration browser journey covers workshop, tracker and separate customer-page recovery.

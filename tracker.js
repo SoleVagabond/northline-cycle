@@ -10,7 +10,7 @@ import { catalogue } from "./lib/workshop-query.js";
 
 import { money } from "./lib/money.js";
 
-import { ensureWorkspace } from "./lib/demo-session.js";
+import { ensureWorkspace, apiData } from "./lib/demo-session.js";
 
 const root = document.querySelector("#tracker-app");
 
@@ -350,16 +350,10 @@ async function request(path, options = {}) {
     signal: AbortSignal.timeout(10000),
   });
 
-  const data = await response.json();
-
-  if (!response.ok)
-    throw Object.assign(
-      new Error(data.error || "The tracker is unavailable."),
-
-      { status: response.status },
-    );
-
-  return data;
+  return apiData(
+    response,
+    "The tracker is temporarily unavailable. Reload saved progress to try again.",
+  );
 }
 
 async function changeRepair(action, choices = {}) {
@@ -490,7 +484,7 @@ document.querySelector("#reset-tracker").addEventListener("click", async () => {
     uncertain = false;
 
     announce("Fresh sample repairs loaded.", "success");
-  } catch {
+  } catch (error) {
     uncertain = true;
 
     retryButton.hidden = false;
@@ -532,7 +526,9 @@ async function reloadLatest() {
     uncertain = true;
 
     announce(
-      "Saved progress could not load. Check your connection and retry.",
+      error.status === 429
+        ? error.message
+        : "Saved progress could not load. Check your connection and retry.",
 
       "error",
     );
@@ -597,10 +593,15 @@ try {
     : workspace.jobs[0].id;
 
   render();
-} catch {
+} catch (error) {
   root.textContent = "The repair tracker could not load.";
 
   retryButton.hidden = false;
 
-  announce("Use Reload saved progress to try again.", "error");
+  announce(
+    error.status === 429
+      ? error.message
+      : "Use Reload saved progress to try again.",
+    "error",
+  );
 }

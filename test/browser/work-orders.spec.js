@@ -479,3 +479,82 @@ test("new record screens, expanded scope forms and selected part controls work a
     ).violations,
   ).toEqual([]);
 });
+test("empty rate-limit and gateway responses explain recovery without losing saved repairs", async ({
+  page,
+  browser,
+}) => {
+  await page.route("**/api/access", (route) =>
+    route.fulfill({ status: 429, body: "" }),
+  );
+  await page.goto("/workshop.html");
+  await expect(page.locator("#app-message")).toContainText("Wait one minute");
+  await page.unroute("**/api/access");
+  await page.getByRole("button", { name: "Try again", exact: true }).click();
+  await expect(page.locator("#save-state")).toHaveText("All changes saved");
+  await page.route("**/api/workshop", (route) =>
+    route.fulfill({
+      status: 502,
+      contentType: "text/html",
+      body: "<h1>Gateway unavailable</h1>",
+    }),
+  );
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(page.locator("#app-message")).toContainText(
+    "temporarily unavailable",
+  );
+  await expect(
+    page.getByRole("button", { name: "+ New repair", exact: true }),
+  ).toBeDisabled();
+  await page.unroute("**/api/workshop");
+  await page.getByRole("button", { name: "Refresh", exact: true }).click();
+  await expect(page.locator("#save-state")).toHaveText("All changes saved");
+  await page.goto("/workshop.html#repair/NL-2401");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "City commuter",
+  );
+  await page.getByText("Customer repair link", { exact: true }).click();
+  await page
+    .getByRole("button", { name: "Create repair link", exact: true })
+    .click();
+  const link = await page
+    .getByRole("textbox", { name: "Customer repair link", exact: true })
+    .inputValue();
+  const context = await browser.newContext();
+  try {
+    const recipient = await context.newPage();
+    await recipient.route("**/api/customer/repair", (route) =>
+      route.fulfill({ status: 429, body: "" }),
+    );
+    await recipient.goto(link);
+    await expect(recipient.locator("#customer-message")).toContainText(
+      "Wait one minute",
+    );
+    await expect(recipient.locator("#customer-workspace")).not.toContainText(
+      "Ask the workshop for a new link",
+    );
+    await recipient.unroute("**/api/customer/repair");
+    await recipient
+      .getByRole("button", { name: "Refresh repair", exact: true })
+      .click();
+    await expect(recipient.getByRole("heading", { level: 1 })).toHaveText(
+      "City commuter",
+    );
+  } finally {
+    await context.close();
+  }
+  await page.route("**/api/tracker", (route) =>
+    route.fulfill({ status: 429, body: "" }),
+  );
+  await page.goto("/");
+  await expect(page.locator("#tracker-status")).toContainText(
+    "Wait one minute",
+  );
+  await page.unroute("**/api/tracker");
+  await page
+    .getByRole("button", { name: "Reload saved progress", exact: true })
+    .click();
+  await expect(page.locator(".repair-choice")).toHaveCount(3);
+  await expect(page.locator("#tracker-status")).toHaveText(
+    "Latest saved progress loaded.",
+  );
+});

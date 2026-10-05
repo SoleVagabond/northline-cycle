@@ -1,4 +1,4 @@
-import { ensureWorkspace } from "./lib/demo-session.js";
+import { ensureWorkspace, apiData } from "./lib/demo-session.js";
 import {
   peoplePage,
   settingsPage,
@@ -529,13 +529,10 @@ async function api(path, options = {}) {
     ...options,
     signal: AbortSignal.timeout(12000),
   });
-  const data = await response.json();
-  if (!response.ok)
-    throw Object.assign(
-      new Error(data.error || "The workshop could not load."),
-      { status: response.status },
-    );
-  return data;
+  return apiData(
+    response,
+    "The workshop is temporarily unavailable. Refresh to try again.",
+  );
 }
 async function reload() {
   if (busy) return;
