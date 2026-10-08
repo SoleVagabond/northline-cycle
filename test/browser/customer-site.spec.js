@@ -1,5 +1,26 @@
-import { test, expect } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createApp } from "../../server.js";
 import AxeBuilder from "@axe-core/playwright";
+const test = base.extend({
+  staffOrigin: async ({}, use) => {
+    const folder = await mkdtemp(join(tmpdir(), "northline-role-journey-"));
+    const app = createApp({
+      dataFile: join(folder, "records.ndjson"),
+      operatorKey: "northline-browser-test-key-only",
+      legacyPrivatePaths: false,
+    });
+    await new Promise((resolve) => app.listen(0, "127.0.0.1", resolve));
+    try {
+      await use(`http://127.0.0.1:${app.address().port}`);
+    } finally {
+      await new Promise((resolve) => app.close(resolve));
+      await rm(folder, { recursive: true, force: true });
+    }
+  },
+});
 test("customer website offers services and scoped tracking with no workshop controls", async ({
   page,
 }) => {
@@ -51,9 +72,10 @@ test("customer website offers services and scoped tracking with no workshop cont
 test("a public repair request reaches the private staff queue and only its shared update reaches the recipient", async ({
   page,
   browser,
+  staffOrigin,
 }) => {
   const unique = `Boundary ${Date.now()} ${Math.random().toString(16).slice(2, 7)}`;
-  await page.goto("/#request");
+  await page.goto(staffOrigin + "/#request");
   await expect(page.getByLabel("Service", { exact: true })).toBeEnabled();
   await page
     .getByLabel("Your name", { exact: true })
